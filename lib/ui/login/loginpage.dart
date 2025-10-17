@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   String rolSeleccionado = 'usuario';
 
   void _login() {
-    if (txtUsuario.text == 'papasconqueso' &&
+    if (txtUsuario.text == 'papasconquesos' &&
         txtClave.text == 'yarkit123') {
       if (rolSeleccionado == "usuario") {
         Navigator.push(
