@@ -2,7 +2,7 @@ class Usuario {
   final String id;
   final String nombre;
   final String email;
-  final String rol; // 'admin', 'usuario', 'empleado'
+  final String rol; // 'admin', 'usuario', 'empleaddo'
   final String? telefono;
   final String? fotoUrl;
   final DateTime fechaRegistro;
