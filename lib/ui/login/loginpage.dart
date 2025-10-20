@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/ui/componentes/mistextos.dart';
-import 'package:proyecto/ui/home/homepageAdmin.dart';
+import 'package:proyecto/ui/home/homepageAdmin';
 import 'package:proyecto/ui/home/homepageUsuario.dart';
 
 

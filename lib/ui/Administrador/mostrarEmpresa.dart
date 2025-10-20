@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/ui/Administrador/gestionEmpleados.dart';
 import '../../controllers/empresa_controller.dart';
 import '../../controllers/servicio_controller.dart';
 import '../../models/servicio_model.dart';
 import '../componentes/servicio_card.dart';
 import '../componentes/servicio_form.dart';
 
-class HomepageAdmin extends StatefulWidget {
-  const HomepageAdmin({super.key});
+class MostrarEmpresa extends StatefulWidget { 
+  const MostrarEmpresa({super.key});  
 
   @override
-  State<HomepageAdmin> createState() => _HomepageAdminState();
+  State<MostrarEmpresa> createState() => _MostrarEmpresaState();  
 }
 
-class _HomepageAdminState extends State<HomepageAdmin> {
+class _MostrarEmpresaState extends State<MostrarEmpresa> { 
   final ServicioController _servicioController = ServicioController();
   final EmpresaController _empresaController = EmpresaController();
   final TextEditingController _nombreController = TextEditingController();
@@ -368,15 +369,49 @@ class _HomepageAdminState extends State<HomepageAdmin> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Citas'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
-        ],
-      ),
+  bottomNavigationBar: BottomNavigationBar(
+  currentIndex: _selectedIndex,
+  onTap: (index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    // Navegar a diferentes pantallas según el índice
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const GestionEmpleados()),
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const GestionEmpleados()),
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const GestionEmpleados()),
+      );
+    }
+  },
+  items: const [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      label: 'Inicio',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.calendar_today),
+      label: 'Citas',
+    ),
+    BottomNavigationBarItem(  
+      icon: Icon(Icons.people),
+      label: 'Empleados',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.person),
+      label: 'Perfil',
+    ),
+  ],
+),
     );
   }
 
