@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
       } else if (rolSeleccionado == "administrador") {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const AdminHome()),
+          MaterialPageRoute(builder: (context) => const HomepageAdmin()),
         );
       }
     } else {
