@@ -369,28 +369,42 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
           ],
         ),
       ),
-  bottomNavigationBar: BottomNavigationBar(
+ bottomNavigationBar: BottomNavigationBar(
+  type: BottomNavigationBarType.fixed, // evita el movimiento entre ítems
   currentIndex: _selectedIndex,
+  backgroundColor: const Color.fromARGB(255, 240, 208, 48), // color amarillo de tu app
+  selectedItemColor: Colors.white, // ícono y texto del ítem activo
+  unselectedItemColor: Colors.black54, //
+  selectedFontSize: 14,
+  unselectedFontSize: 12,
+  showUnselectedLabels: true,
   onTap: (index) {
     setState(() {
       _selectedIndex = index;
     });
-    // Navegar a diferentes pantallas según el índice
-    if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const GestionEmpleados()),
-      );
-    } else if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const GestionEmpleados()),
-      );
-    } else if (index == 3) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const GestionEmpleados()),
-      );
+ 
+    switch (index) {
+      case 0:
+       
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GestionEmpleados()),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GestionEmpleados()),
+        );
+        break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GestionEmpleados()),
+        );
+        break;
     }
   },
   items: const [
@@ -402,7 +416,7 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
       icon: Icon(Icons.calendar_today),
       label: 'Citas',
     ),
-    BottomNavigationBarItem(  
+    BottomNavigationBarItem(
       icon: Icon(Icons.people),
       label: 'Empleados',
     ),
