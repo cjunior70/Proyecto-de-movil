@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/ui/Administrador/gestion_Empleados.dart';
-import '../../controllers/empresa_controller.dart';
-import '../../controllers/servicio_controller.dart';
+import '../../Controllers/empresa_controller.dart';
+import '../../Controllers/servicio_controller.dart';
 import '../../models/servicio_model.dart';
 import '../componentes/servicio_card.dart';
 import '../componentes/servicio_form.dart';

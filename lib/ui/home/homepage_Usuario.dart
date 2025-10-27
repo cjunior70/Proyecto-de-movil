@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:proyecto/controllers/empresa_controller.dart';
+import 'package:proyecto/Controllers/empresa_controller.dart';
 import 'package:proyecto/ui/Cliente/EmpresaUsuario.dart';
 
 

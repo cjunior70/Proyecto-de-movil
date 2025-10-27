@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../../models/empresa_model.dart';
 import '../../models/empleado_model.dart';
-import '../../controllers/empleado_controller.dart';
+import '../../Controllers/empleado_controller.dart';
 
 class EmpresaDetallePage extends StatelessWidget {
   final Empresa empresa;
