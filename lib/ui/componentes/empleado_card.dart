@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/empleado_model.dart';
+import '../../Models/empleado_model.dart';
 import 'botones_empleado.dart';
 
 class EmpleadoCard extends StatelessWidget {
