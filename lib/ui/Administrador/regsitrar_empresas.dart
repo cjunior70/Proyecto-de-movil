@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:proyecto/Controllers/empresa_controller.dart';
-import 'package:proyecto/models/empresa_model.dart';
+import 'package:proyecto/Models/empresa_model.dart';
 
 class RegistrarEmpresaPage extends StatefulWidget {
   const RegistrarEmpresaPage({super.key});
