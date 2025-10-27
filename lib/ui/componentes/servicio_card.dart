@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/servicio_model.dart';
+import '../../Models/servicio_model.dart';
 
 class ServicioCard extends StatelessWidget {
   final Servicio servicio;
