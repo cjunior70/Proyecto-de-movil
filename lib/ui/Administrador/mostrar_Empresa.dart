@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto/ui/Administrador/gestionEmpleados.dart';
+import 'package:proyecto/ui/Administrador/gestion_Empleados.dart';
 import '../../controllers/empresa_controller.dart';
 import '../../controllers/servicio_controller.dart';
 import '../../models/servicio_model.dart';

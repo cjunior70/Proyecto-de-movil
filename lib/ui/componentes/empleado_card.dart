@@ -52,7 +52,7 @@ class EmpleadoCard extends StatelessWidget {
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.2),
+            color: const Color.fromARGB(255, 240, 208, 48),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -97,8 +97,8 @@ class EmpleadoCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: empleado.estado 
-            ? Colors.green.withOpacity(0.15)
-            : Colors.red.withOpacity(0.15),
+            ? Colors.green
+            : Colors.red,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: empleado.estado ? Colors.green : Colors.red,
