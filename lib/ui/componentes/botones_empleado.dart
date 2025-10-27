@@ -1,5 +1,5 @@
   import 'package:flutter/material.dart';
-  import '../../models/empleado_model.dart';
+  import '../../Models/empleado_model.dart';
 
   class BotonesEmpleado extends StatelessWidget {
     final Empleado empleado;
