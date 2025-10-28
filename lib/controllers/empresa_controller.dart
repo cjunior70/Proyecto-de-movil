@@ -1,4 +1,4 @@
-import '../Models/empresa_model.dart';
+import '../models/empresa_model.dart';
 
 class EmpresaController {
   Empresa? _empresaActual;
