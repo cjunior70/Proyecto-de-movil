@@ -33,7 +33,7 @@ dependencies:
 
   flutter_rating_bar: ^4.0.1
   cupertino_icons: ^1.0.8
-  image_picker: ^1.1.2
+  image_picker: ^1.1.1
 
   
 dev_dependencies:
