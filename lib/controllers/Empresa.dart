@@ -1,5 +1,6 @@
 import 'package:proyecto/Models/Empresa.dart';
 
+
 class EmpresaController {
   Empresa? empresa; // una sola empresa cargada en memoria
 
