@@ -1,19 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:proyecto/Controllers/EmpresaController.dart';
+import 'package:proyecto/Models/Empresa.dart';
+import 'package:proyecto/Models/Usuario.dart';
 
-
-class UsuarioHome extends StatelessWidget {
+class UsuarioHome extends StatefulWidget {
   const UsuarioHome({super.key});
 
   @override
+  State<UsuarioHome> createState() => _UsuarioHomeState();
+}
+
+class _UsuarioHomeState extends State<UsuarioHome> {
+  final EmpresaController _empresaController = EmpresaController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 🔹 Cargar datos de ejemplo (solo para pruebas)
+    _cargarEmpresasEjemplo();
+  }
+
+  void _cargarEmpresasEjemplo() {
+    if (_empresaController.obtenerEmpresas().isEmpty) {
+      final usuario = Usuario.vacio(); // reemplaza con tu modelo real
+
+      _empresaController.guardarEmpresa(Empresa(
+        Id: "e1",
+        Nombre: "Barbería Elite",
+        Estrellas: 4.8,
+        Correo: "elite@barber.com",
+        usuario: null,
+      ));
+
+      _empresaController.guardarEmpresa(Empresa(
+        Id: "e2",
+        Nombre: "Spa Relax",
+        Estrellas: 4.5,
+        Correo: "relax@spa.com",
+        usuario:null,
+      ));
+
+      _empresaController.guardarEmpresa(Empresa(
+        Id: "e3",
+        Nombre: "Café Style",
+        Estrellas: 4.2,
+        Correo: "cafe@style.com",
+        usuario: null,
+      ));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final empresas = _empresaController.obtenerEmpresas();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
-          "Ey!! , Vamos apartar una cita hoy ¿?",
+          "Ey!! , Vamos a apartar una cita hoy ¿?",
           style: TextStyle(color: Colors.black87, fontSize: 18),
         ),
         actions: const [
@@ -27,46 +76,9 @@ class UsuarioHome extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔍 Buscador
-              TextField(
-                decoration: InputDecoration(
-                  hintText: "Empresa interesada",
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
+              _buildSearchBar(),
               const SizedBox(height: 20),
-
-              // 📌 Categorías
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text("Categories",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text("See all →",
-                      style: TextStyle(color: Colors.orange, fontSize: 14)),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              SizedBox(
-                height: 100,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildCategory("Corte de caballero", Icons.cut),
-                    _buildCategory("Coloración", Icons.brush),
-                    _buildCategory("Facial", Icons.spa),
-                  ],
-                ),
-              ),
+              _buildCategories(),
               const SizedBox(height: 20),
 
               // ⭐ Empresas Populares
@@ -76,23 +88,26 @@ class UsuarioHome extends StatelessWidget {
                   Text("Empresas Populares",
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text("See all →",
+                  Text("Ver todas →",
                       style: TextStyle(color: Colors.orange, fontSize: 14)),
                 ],
               ),
               const SizedBox(height: 10),
 
-              // Lista de empresas
+              // 🔹 Lista dinámica de empresas
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: 4,
+                itemCount: empresas.length,
                 itemBuilder: (context, index) {
+                  final empresa = empresas[index];
                   return _buildCompanyCard(
-                    "Empresa ${index + 1}",
-                    "Estrellas",
-                    "https://via.placeholder.com/150", // aquí luego pones tus imágenes
-                    4.6,
+                    empresa.Nombre,
+                    empresa.Correo,
+                    empresa.ImagenGeneral != null
+                        ? Image.memory(empresa.ImagenGeneral!).toString()
+                        : "https://via.placeholder.com/150",
+                    empresa.Estrellas,
                   );
                 },
               ),
@@ -102,21 +117,58 @@ class UsuarioHome extends StatelessWidget {
       ),
 
       // 🔽 Bottom Nav
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ""),
-        ],
+      bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+
+  // 🟠 Buscador
+  Widget _buildSearchBar() {
+    return TextField(
+      decoration: InputDecoration(
+        hintText: "Buscar empresa...",
+        prefixIcon: const Icon(Icons.search),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
       ),
     );
   }
 
-  // 🟠 Widget categoría
+  // 🟠 Categorías
+  Widget _buildCategories() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text("Categorías",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text("Ver todas →",
+                style: TextStyle(color: Colors.orange, fontSize: 14)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 100,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              _buildCategory("Corte de caballero", Icons.cut),
+              _buildCategory("Coloración", Icons.brush),
+              _buildCategory("Facial", Icons.spa),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 🟠 Categoría
   static Widget _buildCategory(String title, IconData icon) {
     return Container(
       width: 100,
@@ -139,7 +191,7 @@ class UsuarioHome extends StatelessWidget {
     );
   }
 
-  // 🟠 Widget card empresa
+  // 🟠 Card de empresa
   static Widget _buildCompanyCard(
       String name, String desc, String imageUrl, double rating) {
     return Container(
@@ -158,7 +210,6 @@ class UsuarioHome extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Imagen empresa
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: Image.network(
@@ -190,7 +241,7 @@ class UsuarioHome extends StatelessWidget {
                       direction: Axis.horizontal,
                     ),
                     const SizedBox(width: 6),
-                    Text(rating.toString(),
+                    Text(rating.toStringAsFixed(1),
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -201,4 +252,26 @@ class UsuarioHome extends StatelessWidget {
       ),
     );
   }
+
+  // 🔹 Bottom Nav
+  BottomNavigationBar _buildBottomNav() {
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: Colors.orange,
+      unselectedItemColor: Colors.grey,
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
+        BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: ""),
+        BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ""),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: ""),
+      ],
+    );
+  }
+}
+
+// 🔹 Dummy usuario temporal
+class UsuarioEjemplo {
+  String Id = "u1";
+  String Nombre = "Carlos";
+  String Correo = "carlos@mail.com";
 }

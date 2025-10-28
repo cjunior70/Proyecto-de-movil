@@ -1,5 +1,4 @@
 import 'package:proyecto/Models/Horario.dart';
-import 'package:proyecto/models/Empleado.dart';
 
 class HorarioController {
   List<Horario> listaDeHorarios = [];
@@ -57,7 +56,7 @@ class HorarioController {
     }
 
     print("📅 Lista de Horarios Registrados:");
-    for (var h in listaDeHorarios) {
+    //for (var h in listaDeHorarios) {
       // print("""
       // 🗓️ Día: ${h.DiaSemana}
       // 👨‍💼 Empleado: ${h.empleado} ${h.empleado.PrimerNombre}
@@ -66,6 +65,6 @@ class HorarioController {
       // 🌙 Noche: ${h.TurnoNoche?.format(const TimeOfDayFormatHH_colon_mm) ?? 'No asignado'}
       // ---------------------------------------------
       // """);
-    }
+    //}
   }
 }

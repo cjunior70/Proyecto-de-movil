@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/ui/Registro/Registro.dart';
 import 'package:proyecto/ui/componentes/mistextos.dart';
 import 'package:proyecto/ui/home/homepageAdmin.dart';
 import 'package:proyecto/ui/home/homepageUsuario.dart';
@@ -43,6 +44,74 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
+
+ void mostrarOpcionesRegistro(BuildContext context) {
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "Selecciona el tipo de registro",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton.icon(
+                icon: const Icon(Icons.admin_panel_settings),
+                label: const Text("Administrador"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  minimumSize: const Size(double.infinity, 45),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  // 👉 Aquí podrías navegar a la pantalla de registro de administrador
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Registro como Administrador")),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Registro(rol:"Administrador")),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.person),
+                label: const Text("Cliente"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  minimumSize: const Size(double.infinity, 45),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  // 👉 Aquí podrías navegar a la pantalla de registro de cliente
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Registro como Cliente")),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Registro(rol:"Cliente")),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+ }
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +298,7 @@ class _LoginPageState extends State<LoginPage> {
                     Column(
                       children: [
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () => mostrarOpcionesRegistro(context),
                           child: const Text(
                             "Registrarse",
                             style: TextStyle(

@@ -9,7 +9,7 @@ class Datospersonales {
   String? SegundoApellido;
   String Telefono;
   String? Correo;
-  String Sexo;
+  String? Sexo;
   Uint8List? Foto; // el signo ? permite que sea opcional (puede ser null)
   String Rol;
 
@@ -23,7 +23,7 @@ class Datospersonales {
              this.SegundoApellido,
     required this.Telefono,
              this.Correo,
-    required this.Sexo,
+             this.Sexo,
              this.Foto,
     required this.Rol,
   });

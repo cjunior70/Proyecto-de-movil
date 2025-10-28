@@ -12,15 +12,22 @@ class UsuarioController {
     }
 
     _usuario = nuevoUsuario;
+    print("✅ Usuario guardado correctamente: ${_usuario!.Cedula}");
     print("✅ Usuario guardado correctamente: ${_usuario!.PrimerNombre}");
+    print("✅ Usuario guardado correctamente: ${_usuario!.SegundoNombre}");
+    print("✅ Usuario guardado correctamente: ${_usuario!.PrimerApellido}");
+    print("✅ Usuario guardado correctamente: ${_usuario!.SegundoApellido}");
+    print("✅ Usuario guardado correctamente: ${_usuario!}");
   }
 
   // ✅ Obtener usuario actual
   Usuario? obtenerUsuario() {
     if (_usuario == null) {
+      
       print("⚠️ No hay usuario registrado actualmente.");
       return null;
     }
+    
     return _usuario;
   }
 

@@ -3,12 +3,12 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:proyecto/Models/Reservacion.dart';
 import 'package:proyecto/Models/Vacaciones.dart';
-import 'package:proyecto/Models/empleado_model.dart';
-import 'package:proyecto/Models/usuario_model.dart';
+import 'package:proyecto/Models/empleado.dart';
+import 'package:proyecto/Models/usuario.dart';
 import 'package:proyecto/models/Contabilidad.dart';
 import 'package:proyecto/models/Fecha.dart';
-import 'package:proyecto/models/Ubicacion.dart';
-import 'package:proyecto/models/servicio_model.dart';
+import 'package:proyecto/Models/Ubicacion.dart';
+import 'package:proyecto/Models/Servicio.dart';
 
 class Empresa {
   String Id;
@@ -23,11 +23,11 @@ class Empresa {
   Uint8List? ImagenGeneral;
   TimeOfDay? ComienzoLaboral;
   TimeOfDay? FinalizacionLaboral;
-  Usuario usuario;
+  Usuario? usuario;
   Ubicacion? ubicacion;
   Vacaciones? vacaciones;
   Contabilidad? contabilidad;
-  List<Servicio>? ListaDeServicios;
+  List<Servicios>? ListaDeServicios;
   List<Empleado>? ListaDeEmpleados;
   List<Fecha>? ListaDeFechas;
   List<Reservacion>? ListaDeReservaciones;
@@ -45,7 +45,8 @@ class Empresa {
     this.ImagenGeneral,
     this.ComienzoLaboral,
     this.FinalizacionLaboral,
-    required this.usuario,
+    // required this.usuario,
+    this.usuario,
     this.ubicacion,
     this.vacaciones,
     this.contabilidad,

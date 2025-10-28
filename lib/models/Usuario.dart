@@ -2,11 +2,10 @@ import 'package:proyecto/Models/DatosPersonales.dart';
 import 'package:proyecto/Models/Empresa.dart';
 
 class Usuario extends Datospersonales {
-  
   List<Empresa>? ListaDeEmpresas;
 
+  // 🔹 Constructor principal
   Usuario({
-    //El super es para poder acceder a los atributos de la clase datosperonales y lo agrega autamticamente a la clase Usuarios
     required super.Id,
     required super.Cedula,
     required super.PrimerNombre,
@@ -15,11 +14,26 @@ class Usuario extends Datospersonales {
              super.SegundoApellido,
     required super.Telefono,
              super.Correo,
-    required super.Sexo,
+             super.Sexo,
              super.Foto,
-      required super.Rol,
-            this.ListaDeEmpresas,
-
+    required super.Rol,
+             this.ListaDeEmpresas,
   });
 
+  // 🔹 Constructor vacío corregido
+  Usuario.vacio()
+      : ListaDeEmpresas = [],
+        super(
+          Id: '',
+          Cedula: '',
+          PrimerNombre: '',
+          SegundoNombre: '',
+          PrimerApellido: '',
+          SegundoApellido: '',
+          Telefono: '',
+          Correo: '',
+          Sexo: '',
+          Foto: null,
+          Rol: '',
+        );
 }
