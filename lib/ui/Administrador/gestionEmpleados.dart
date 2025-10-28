@@ -98,7 +98,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados> {
       child: Column(
         children: [
           _buildHeader(),
-          _buildListaEmpleados(),
+          //_buildListaEmpleados(),
         ],
       ),
     );
@@ -146,25 +146,25 @@ class _GestionEmpleadosState extends State<GestionEmpleados> {
     );
   }
 
-  Widget _buildListaEmpleados() {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView.builder(
-          itemCount: _empleadoController.empleados.length,
-          itemBuilder: (context, index) {
-            final empleado = _empleadoController.empleados[index];
-            return EmpleadoCard(
-              empleado: empleado,
-              onEditar: () => _editarEmpleado(index),
-              onCambiarEstado: () => _cambiarEstadoEmpleado(index),
-              index: index,
-            );
-          },
-        ),
-      ),
-    );
-  }
+  // Widget _buildListaEmpleados() {
+  //   return Expanded(
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(16),
+  //       child: ListView.builder(
+  //         itemCount: _empleadoController.empleados.length,
+  //         itemBuilder: (context, index) {
+  //           final empleado = _empleadoController.empleados[index];
+  //           return EmpleadoCard(
+  //             empleado: empleado,
+  //             onEditar: () => _editarEmpleado(index),
+  //             onCambiarEstado: () => _cambiarEstadoEmpleado(index),
+  //             index: index,
+  //           );
+  //         },
+  //       ),
+  //     ),
+  //   );
+  // }
 
   BottomNavigationBar _buildBottomNavigationBar() {
     return BottomNavigationBar(
