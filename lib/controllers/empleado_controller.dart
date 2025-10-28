@@ -1,4 +1,4 @@
-import '../Models/empleado_model.dart';
+import '../models/empleado_model.dart';
 
 class EmpleadoController {
   List<Empleado> _empleados = [];
