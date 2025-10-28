@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/ui/Administrador/RegistrarEmpresaPage.dart';
 import 'package:proyecto/ui/Administrador/mostrarEmpresa.dart';
 
 class HomepageAdmin extends StatelessWidget {
@@ -152,26 +153,12 @@ class HomepageAdmin extends StatelessWidget {
       ),
     );
   }
-
+  
   void _mostrarRegistrarEmpresa(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Registrar Empresa'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Funcionalidad en desarrollo...'),
-            SizedBox(height: 10),
-            Text('Próximamente podrás registrar nuevas empresas en el sistema.'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Entendido'),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RegistrarEmpresaPage(),
       ),
     );
   }
