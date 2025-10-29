@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:proyecto/ui/Registro/Registro.dart';
 import 'package:proyecto/ui/componentes/mistextos.dart';
 import 'package:proyecto/ui/home/homepageAdmin.dart';
-import 'package:proyecto/ui/home/homepageUsuario.dart';
+import 'package:proyecto/ui/home/UsuarioHome.dart';
 
 
 class LoginPage extends StatefulWidget {

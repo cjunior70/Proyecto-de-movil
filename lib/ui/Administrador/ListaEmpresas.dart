@@ -38,14 +38,14 @@ class _ListaEmpresasState extends State<ListaEmpresas> {
   }
 
   void _navegarADetalleEmpresa(Empresa empresa) {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     /* la parte que selecciono con comillas tiene un error ("empresa": empresa)
-    //     builder: (context) => MostrarEmpresa(empresa: empresa),
-    //     */
-    //   ),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        //la parte que selecciono con comillas tiene un error ("empresa": empresa)
+        builder: (context) => MostrarEmpresa(empresa: empresa),
+        
+      ),
+    );
   }
 
   void _mostrarOpcionesEmpresa(Empresa empresa, BuildContext context) {

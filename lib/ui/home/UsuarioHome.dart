@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:proyecto/Controllers/EmpresaController.dart';
 import 'package:proyecto/Models/Empresa.dart';
-import 'package:proyecto/Models/Usuario.dart';
+import 'package:proyecto/ui/Cliente/ClienteDetallePage.dart';
 
 class UsuarioHome extends StatefulWidget {
   const UsuarioHome({super.key});
@@ -13,19 +13,16 @@ class UsuarioHome extends StatefulWidget {
 
 class _UsuarioHomeState extends State<UsuarioHome> {
   final EmpresaController _empresaController = EmpresaController();
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-
-    // 🔹 Cargar datos de ejemplo (solo para pruebas)
     _cargarEmpresasEjemplo();
   }
 
   void _cargarEmpresasEjemplo() {
     if (_empresaController.obtenerEmpresas().isEmpty) {
-      final usuario = Usuario.vacio(); // reemplaza con tu modelo real
-
       _empresaController.guardarEmpresa(Empresa(
         Id: "e1",
         Nombre: "Barbería Elite",
@@ -33,15 +30,13 @@ class _UsuarioHomeState extends State<UsuarioHome> {
         Correo: "elite@barber.com",
         usuario: null,
       ));
-
       _empresaController.guardarEmpresa(Empresa(
         Id: "e2",
         Nombre: "Spa Relax",
         Estrellas: 4.5,
         Correo: "relax@spa.com",
-        usuario:null,
+        usuario: null,
       ));
-
       _empresaController.guardarEmpresa(Empresa(
         Id: "e3",
         Nombre: "Café Style",
@@ -49,6 +44,20 @@ class _UsuarioHomeState extends State<UsuarioHome> {
         Correo: "cafe@style.com",
         usuario: null,
       ));
+    }
+  }
+
+  void _onNavTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 3) {
+      // Navegar a ClienteDetallePage directamente
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ClienteDetallePage()),
+      );
     }
   }
 
@@ -80,21 +89,17 @@ class _UsuarioHomeState extends State<UsuarioHome> {
               const SizedBox(height: 20),
               _buildCategories(),
               const SizedBox(height: 20),
-
-              // ⭐ Empresas Populares
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
                   Text("Empresas Populares",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold)),
                   Text("Ver todas →",
                       style: TextStyle(color: Colors.orange, fontSize: 14)),
                 ],
               ),
               const SizedBox(height: 10),
-
-              // 🔹 Lista dinámica de empresas
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -115,13 +120,10 @@ class _UsuarioHomeState extends State<UsuarioHome> {
           ),
         ),
       ),
-
-      // 🔽 Bottom Nav
       bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-  // 🟠 Buscador
   Widget _buildSearchBar() {
     return TextField(
       decoration: InputDecoration(
@@ -138,7 +140,6 @@ class _UsuarioHomeState extends State<UsuarioHome> {
     );
   }
 
-  // 🟠 Categorías
   Widget _buildCategories() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,7 +169,6 @@ class _UsuarioHomeState extends State<UsuarioHome> {
     );
   }
 
-  // 🟠 Categoría
   static Widget _buildCategory(String title, IconData icon) {
     return Container(
       width: 100,
@@ -191,7 +191,6 @@ class _UsuarioHomeState extends State<UsuarioHome> {
     );
   }
 
-  // 🟠 Card de empresa
   static Widget _buildCompanyCard(
       String name, String desc, String imageUrl, double rating) {
     return Container(
@@ -211,7 +210,8 @@ class _UsuarioHomeState extends State<UsuarioHome> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(16)),
             child: Image.network(
               imageUrl,
               height: 140,
@@ -253,12 +253,13 @@ class _UsuarioHomeState extends State<UsuarioHome> {
     );
   }
 
-  // 🔹 Bottom Nav
   BottomNavigationBar _buildBottomNav() {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.orange,
       unselectedItemColor: Colors.grey,
+      currentIndex: _selectedIndex,
+      onTap: _onNavTapped,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
         BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: ""),
@@ -267,11 +268,4 @@ class _UsuarioHomeState extends State<UsuarioHome> {
       ],
     );
   }
-}
-
-// 🔹 Dummy usuario temporal
-class UsuarioEjemplo {
-  String Id = "u1";
-  String Nombre = "Carlos";
-  String Correo = "carlos@mail.com";
 }
