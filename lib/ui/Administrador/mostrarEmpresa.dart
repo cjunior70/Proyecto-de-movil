@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/models/empresa_model.dart';
 import 'package:proyecto/ui/Administrador/gestionEmpleados.dart';
-import '../../Controllers/empresa_controller.dart';
+import '../../controllers/empresa_controller.dart';
 import '../../Controllers/servicio_controller.dart';
 import '../../Models/servicio_model.dart';
 import '../componentes/servicio_card.dart';
 import '../componentes/servicio_form.dart';
 
 class MostrarEmpresa extends StatefulWidget { 
-  const MostrarEmpresa({super.key});  
+  final Empresa empresa;
+  
+  const MostrarEmpresa({super.key, required this.empresa});  
 
   @override
   State<MostrarEmpresa> createState() => _MostrarEmpresaState();  
@@ -24,7 +27,7 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
   int _selectedIndex = 0;
   Servicio? _servicioEditando;
 
-  @override
+@override
   void initState() {
     super.initState();
     _cargarDatosIniciales();
@@ -32,9 +35,7 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
 
   void _cargarDatosIniciales() {
     _servicioController.cargarServiciosEjemplo();
-    _empresaController.cargarEmpresaEjemplo();
   }
-
   void _mostrarFormularioServicio({Servicio? servicio}) {
     _servicioEditando = servicio;
     
@@ -162,23 +163,15 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
     _servicioEditando = null;
   }
 
-  // Wrapper que coincide con la firma requerida por ServicioForm:
-  // dynamic Function(String, String, String, String?)
   void _onSubmitServicio(String nombre, String precio, String duracion, String? descripcion) {
-    // Rellenar los controllers con los valores recibidos por el formulario
     _nombreController.text = nombre;
     _precioController.text = precio;
     _duracionController.text = duracion;
     _descripcionController.text = descripcion ?? '';
-
-    // Reusar la lógica existente para guardar/actualizar el servicio
-    _guardarServicio();
+    _procesarFormulario();
   }
 
   Widget _buildInfoEmpresa() {
-    final empresa = _empresaController.empresaActual;
-    if (empresa == null) return const SizedBox();
-
     return Card(
       elevation: 3,
       child: Padding(
@@ -190,7 +183,7 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  empresa.nombre,
+                  widget.empresa.nombre, // ← Usar widget.empresa
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -201,7 +194,7 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
                   child: Row(
                     children: [
                       Text(
-                        '${empresa.totalReviews} Reviews',
+                        '${widget.empresa.totalReviews} Reviews',
                         style: const TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.w500,
@@ -215,7 +208,7 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Dirección: ${empresa.direccion}',
+              'Dirección: ${widget.empresa.direccion}',
               style: const TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 16),
@@ -224,7 +217,7 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
-            Text(empresa.descripcion),
+            Text(widget.empresa.descripcion),
             const SizedBox(height: 8),
             const Text('Redes Sociales'),
             const SizedBox(height: 8),
@@ -242,6 +235,22 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
   }
 
   Widget _buildListaServicios() {
+    if (_servicioController.servicios.isEmpty) {
+      return const Column(
+        children: [
+          Text(
+            'Lista de servicios',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'No hay servicios registrados',
+            style: TextStyle(color: Colors.grey, fontSize: 16),
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -369,63 +378,70 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
           ],
         ),
       ),
- bottomNavigationBar: BottomNavigationBar(
-  type: BottomNavigationBarType.fixed, // evita el movimiento entre ítems
-  currentIndex: _selectedIndex,
-  backgroundColor: const Color.fromARGB(255, 240, 208, 48), // color amarillo de tu app
-  selectedItemColor: Colors.white, // ícono y texto del ítem activo
-  unselectedItemColor: Colors.black54, //
-  selectedFontSize: 14,
-  unselectedFontSize: 12,
-  showUnselectedLabels: true,
-  onTap: (index) {
-    setState(() {
-      _selectedIndex = index;
-    });
- 
-    switch (index) {
-      case 0:
-       
-        break;
-      case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const GestionEmpleados()),
-        );
-        break;
-      case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const GestionEmpleados()),
-        );
-        break;
-      case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const GestionEmpleados()),
-        );
-        break;
-    }
-  },
-  items: const [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: 'Inicio',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.calendar_today),
-      label: 'Citas',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.people),
-      label: 'Empleados',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.person),
-      label: 'Perfil',
-    ),
-  ],
-),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        backgroundColor: const Color.fromARGB(255, 240, 208, 48),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.black54,
+        selectedFontSize: 14,
+        unselectedFontSize: 12,
+        showUnselectedLabels: true,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+
+          switch (index) {
+            case 0:
+              // Inicio - ya está en esta página
+              break;
+            case 1:
+              // Citas - mostrar mensaje temporal
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Gestión de Citas - Próximamente'),
+                  backgroundColor: Colors.blue,
+                ),
+              );
+              break;
+            case 2:
+              // SOLO ESTE BOTÓN abre GestionEmpleados
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const GestionEmpleados()),
+              );
+              break;
+            case 3:
+              // Perfil - mostrar mensaje temporal
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Perfil de Usuario - Próximamente'),
+                  backgroundColor: Colors.purple,
+                ),
+              );
+              break;
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Citas',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Empleados',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Perfil',
+          ),
+        ],
+      ),
     );
   }
 
