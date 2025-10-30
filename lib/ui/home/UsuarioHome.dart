@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:proyecto/Controllers/EmpresaController.dart';
-import 'package:proyecto/Models/Empresa.dart';
 import 'package:proyecto/ui/Cliente/ClienteDetallePage.dart';
+import 'package:proyecto/ui/Cliente/ClienteReservacionesPage.dart';
+
+// Componentes
+import '../componentes/comunes/app_bars/app_bar_home.dart';
+import '../componentes/clientes/home/barra_busqueda.dart';
+import '../componentes/clientes/home/categorias_home.dart';
+import '../componentes/clientes/home/lista_empresas_populares.dart';
+import '../componentes/clientes/navegacion/bottom_nav_cliente.dart';
 
 class UsuarioHome extends StatefulWidget {
   const UsuarioHome({super.key});
@@ -12,39 +17,50 @@ class UsuarioHome extends StatefulWidget {
 }
 
 class _UsuarioHomeState extends State<UsuarioHome> {
-  final EmpresaController _empresaController = EmpresaController();
+  final TextEditingController _controladorBusqueda = TextEditingController();
   int _selectedIndex = 0;
+  String? _categoriaSeleccionada;
+  bool _cargandoEmpresas = false;
+
+  // ✅ DATOS DE EJEMPLO - Tu compañero reemplazará esto con API
+  List<dynamic> _empresas = [
+    {
+      'id': '1',
+      'nombre': "Barbería Elite", 
+      'descripcion': "Cortes modernos",
+      'imagenUrl': "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400",
+      'rating': 4.8,
+      'categoria': 'corte',
+    },
+    {
+      'id': '2',
+      'nombre': "Spa Relax",
+      'descripcion': "Belleza integral", 
+      'imagenUrl': "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400",
+      'rating': 4.5,
+      'categoria': 'facial',
+    },
+  ];
 
   @override
   void initState() {
     super.initState();
-    _cargarEmpresasEjemplo();
+    _cargarEmpresasIniciales();
   }
 
-  void _cargarEmpresasEjemplo() {
-    if (_empresaController.obtenerEmpresas().isEmpty) {
-      _empresaController.guardarEmpresa(Empresa(
-        Id: "e1",
-        Nombre: "Barbería Elite",
-        Estrellas: 4.8,
-        Correo: "elite@barber.com",
-        usuario: null,
-      ));
-      _empresaController.guardarEmpresa(Empresa(
-        Id: "e2",
-        Nombre: "Spa Relax",
-        Estrellas: 4.5,
-        Correo: "relax@spa.com",
-        usuario: null,
-      ));
-      _empresaController.guardarEmpresa(Empresa(
-        Id: "e3",
-        Nombre: "Café Style",
-        Estrellas: 4.2,
-        Correo: "cafe@style.com",
-        usuario: null,
-      ));
-    }
+  // ✅ MÉTODO QUE TU COMPAÑERO REEMPLAZARÁ CON LLAMADA API
+  void _cargarEmpresasIniciales() {
+    setState(() {
+      _cargandoEmpresas = true;
+    });
+
+    // Simular carga de API
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        _cargandoEmpresas = false;
+        // _empresas = await EmpresaService.obtenerEmpresasPopulares();
+      });
+    });
   }
 
   void _onNavTapped(int index) {
@@ -52,220 +68,108 @@ class _UsuarioHomeState extends State<UsuarioHome> {
       _selectedIndex = index;
     });
 
-    if (index == 3) {
-      // Navegar a ClienteDetallePage directamente
+    if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ClienteDetallePage()),
+        MaterialPageRoute(builder: (context) => const ClienteReservacionesPage()),
+      );
+    }
+
+    if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ClienteDetallePage()),
       );
     }
   }
 
+  // ✅ FILTRADO - Tu compañero puede hacer esto en el backend
+  void _onCategoriaSeleccionada(String categoriaId) {
+    setState(() {
+      _categoriaSeleccionada = categoriaId;
+    });
+    
+    // Ejemplo de filtrado local (backend sería mejor)
+    final empresasFiltradas = _empresas.where((empresa) {
+      return empresa['categoria'] == categoriaId;
+    }).toList();
+    
+    // En el futuro: _empresas = await EmpresaService.filtrarPorCategoria(categoriaId);
+  }
+
+  // ✅ BUSQUEDA - Tu compañero implementará búsqueda en API
+  void _onBuscar(String query) {
+    if (query.isEmpty) {
+      _cargarEmpresasIniciales();
+      return;
+    }
+    
+    // Ejemplo de búsqueda local
+    final resultados = _empresas.where((empresa) {
+      return empresa['nombre'].toLowerCase().contains(query.toLowerCase());
+    }).toList();
+    
+    // En el futuro: _empresas = await EmpresaService.buscar(query);
+  }
+
+  // ✅ NAVEGACIÓN A DETALLE - Tu compañero pasará el ID real
+  void _onEmpresaSeleccionada(dynamic empresa) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ClienteDetallePage(
+          // ✅ Tu compañero usará empresa.id
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final empresas = _empresaController.obtenerEmpresas();
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          "Ey!! , Vamos a apartar una cita hoy ¿?",
-          style: TextStyle(color: Colors.black87, fontSize: 18),
-        ),
-        actions: const [
-          Icon(Icons.notifications_none, color: Colors.orange),
-          SizedBox(width: 16),
-        ],
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBarHome(
+        titulo: "Encuentra tu estilo ideal",
+        onNotificacionPresionada: () {
+          // TODO: Tu compañero implementará notificaciones
+        },
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      body: SafeArea( // ✅ EVITA OVERFLOW EN PANTALLA
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // ✅ PADDING CONSISTENTE
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSearchBar(),
-              const SizedBox(height: 20),
-              _buildCategories(),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text("Empresas Populares",
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text("Ver todas →",
-                      style: TextStyle(color: Colors.orange, fontSize: 14)),
-                ],
+              BarraBusqueda(
+                controlador: _controladorBusqueda,
+                onChanged: _onBuscar,
               ),
-              const SizedBox(height: 10),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: empresas.length,
-                itemBuilder: (context, index) {
-                  final empresa = empresas[index];
-                  return _buildCompanyCard(
-                    empresa.Nombre,
-                    empresa.Correo,
-                    empresa.ImagenGeneral != null
-                        ? Image.memory(empresa.ImagenGeneral!).toString()
-                        : "https://via.placeholder.com/150",
-                    empresa.Estrellas,
-                  );
+              const SizedBox(height: 20),
+              CategoriasHome(
+                onVerTodas: () {
+                  // TODO: Navegar a página de categorías
                 },
+                onCategoriaSeleccionada: _onCategoriaSeleccionada,
+                categoriaSeleccionada: _categoriaSeleccionada,
               ),
+              const SizedBox(height: 20),
+              ListaEmpresasPopulares(
+                empresas: _empresas,
+                cargando: _cargandoEmpresas,
+                onVerTodas: () {
+                  // TODO: Navegar a lista completa
+                },
+                onEmpresaSeleccionada: _onEmpresaSeleccionada,
+              ),
+              const SizedBox(height: 20), // ✅ ESPACIO EXTRA AL FINAL
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: "Buscar empresa...",
-        prefixIcon: const Icon(Icons.search),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(vertical: 10),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
+      bottomNavigationBar: BottomNavCliente(
+        indiceSeleccionado: _selectedIndex,
+        onItemTapped: _onNavTapped,
       ),
-    );
-  }
-
-  Widget _buildCategories() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text("Categorías",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text("Ver todas →",
-                style: TextStyle(color: Colors.orange, fontSize: 14)),
-          ],
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 100,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              _buildCategory("Corte de caballero", Icons.cut),
-              _buildCategory("Coloración", Icons.brush),
-              _buildCategory("Facial", Icons.spa),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  static Widget _buildCategory(String title, IconData icon) {
-    return Container(
-      width: 100,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: Colors.orange, size: 30),
-          const SizedBox(height: 8),
-          Text(title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildCompanyCard(
-      String name, String desc, String imageUrl, double rating) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              imageUrl,
-              height: 140,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(desc, style: const TextStyle(color: Colors.orange)),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    RatingBarIndicator(
-                      rating: rating,
-                      itemBuilder: (context, _) =>
-                          const Icon(Icons.star, color: Colors.amber),
-                      itemCount: 5,
-                      itemSize: 18,
-                      direction: Axis.horizontal,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(rating.toStringAsFixed(1),
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  BottomNavigationBar _buildBottomNav() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.orange,
-      unselectedItemColor: Colors.grey,
-      currentIndex: _selectedIndex,
-      onTap: _onNavTapped,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
-        BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: ""),
-        BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ""),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: ""),
-      ],
     );
   }
 }

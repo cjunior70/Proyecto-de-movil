@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/ui/Administrador/ListaEmpresas.dart';
 import 'package:proyecto/ui/Administrador/RegistrarEmpresaPage.dart';
+
+
 class HomepageAdmin extends StatelessWidget {
   const HomepageAdmin({super.key});
 
@@ -108,7 +110,7 @@ class HomepageAdmin extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

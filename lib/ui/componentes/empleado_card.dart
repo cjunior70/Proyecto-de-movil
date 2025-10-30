@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../Models/empleado_model.dart';
+import 'package:proyecto/models/Empleado.dart';
 import 'botones_empleado.dart';
 
 class EmpleadoCard extends StatelessWidget {
@@ -52,7 +52,7 @@ class EmpleadoCard extends StatelessWidget {
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.2),
+            color: const Color.fromARGB(255, 240, 208, 48),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -69,7 +69,7 @@ class EmpleadoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                empleado.nombre,
+                '${empleado.PrimerNombre} ${empleado.PrimerApellido}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -77,7 +77,7 @@ class EmpleadoCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                empleado.cargo,
+                empleado.Cargo,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade600,
@@ -93,15 +93,17 @@ class EmpleadoCard extends StatelessWidget {
   }
 
   Widget _buildEstadoBadge() {
+    bool estaActivo = empleado.Estado == "Activado";
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: empleado.estado 
-            ? Colors.green.withOpacity(0.15)
-            : Colors.red.withOpacity(0.15),
+        color: estaActivo 
+            ? Colors.green
+            : Colors.red,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: empleado.estado ? Colors.green : Colors.red,
+          color: estaActivo ? Colors.green : Colors.red,
           width: 1.5,
         ),
       ),
@@ -109,17 +111,17 @@ class EmpleadoCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            empleado.estado ? Icons.check_circle : Icons.remove_circle,
+            estaActivo ? Icons.check_circle : Icons.remove_circle,
             size: 14,
-            color: empleado.estado ? Colors.green : Colors.red,
+            color: estaActivo ? Colors.green : Colors.red,
           ),
           const SizedBox(width: 6),
           Text(
-            empleado.estado ? 'ACTIVADO' : 'DESACTIVADO',
+            empleado.Estado.toUpperCase(),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: empleado.estado ? Colors.green : Colors.red,
+              color: estaActivo ? Colors.green : Colors.red,
             ),
           ),
         ],
@@ -133,7 +135,7 @@ class EmpleadoCard extends StatelessWidget {
         Icon(Icons.phone, size: 16, color: Colors.grey.shade600),
         const SizedBox(width: 8),
         Text(
-          empleado.telefono,
+          empleado.Telefono,
           style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
         ),
         const SizedBox(width: 16),
@@ -141,7 +143,7 @@ class EmpleadoCard extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            empleado.email,
+            empleado.Correo ?? 'No tiene email',
             style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             overflow: TextOverflow.ellipsis,
           ),
