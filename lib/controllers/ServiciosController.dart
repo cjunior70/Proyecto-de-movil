@@ -1,51 +1,51 @@
-// import 'package:proyecto/Models/Servicio.dart';
+import 'package:proyecto/Models/Servicio.dart';
 
-// class ServicioController {
-//   Servicios? _servicio; // Solo un servicio cargado en memoria
+class ServicioController {
+  Servicio? _servicio; // Solo un servicio cargado en memoria
 
-//   // ✅ Guardar servicio (recibe el objeto completo)
-//   void guardarServicio(Servicios servicio) {
-//     _servicio = servicio;
-//     print("✅ Servicio guardado correctamente: ${_servicio!.Nombre}");
-//   }
+  // ✅ Guardar servicio (recibe el objeto completo)
+  void guardarServicio(Servicio servicio) {
+    _servicio = servicio;
+    print("✅ Servicio guardado correctamente: ${_servicio!.Nombre}");
+  }
 
-//   // ✅ Obtener servicio actual
-//   Servicios? obtenerServicio() {
-//     if (_servicio == null) {
-//       print("⚠️ No hay servicio registrado actualmente.");
-//       return null;
-//     }
-//     return _servicio;
-//   }
+  // ✅ Obtener servicio actual
+  Servicio? obtenerServicio() {
+    if (_servicio == null) {
+      print("⚠️ No hay servicio registrado actualmente.");
+      return null;
+    }
+    return _servicio;
+  }
 
-//   // ✅ Actualizar servicio
-//   void actualizarServicio(Servicios servicioActualizado) {
-//     if (_servicio == null) {
-//       print("⚠️ No hay servicio registrado para actualizar.");
-//       return;
-//     }
+  // ✅ Actualizar servicio
+  void actualizarServicio(Servicio servicioActualizado) {
+    if (_servicio == null) {
+      print("⚠️ No hay servicio registrado para actualizar.");
+      return;
+    }
 
-//     if (_servicio!.Id != servicioActualizado.Id) {
-//       print("⚠️ El ID no coincide con el servicio actual.");
-//       return;
-//     }
+    if (_servicio!.Id != servicioActualizado.Id) {
+      print("⚠️ El ID no coincide con el servicio actual.");
+      return;
+    }
 
-//     _servicio = servicioActualizado;
-//     print("🔄 Servicio actualizado correctamente: ${_servicio!.Nombre}");
-//   }
+    _servicio = servicioActualizado;
+    print("🔄 Servicio actualizado correctamente: ${_servicio!.Nombre}");
+  }
 
-//   // ✅ Eliminar servicio
-//   void eliminarServicio() {
-//     if (_servicio == null) {
-//       print("⚠️ No hay servicio registrado para eliminar.");
-//       return;
-//     }
+  // ✅ Eliminar servicio
+  void eliminarServicio() {
+    if (_servicio == null) {
+      print("⚠️ No hay servicio registrado para eliminar.");
+      return;
+    }
 
-//     print("🗑️ Servicio eliminado: ${_servicio!.Nombre}");
-//     _servicio = null;
-//   }
+    print("🗑️ Servicio eliminado: ${_servicio!.Nombre}");
+    _servicio = null;
+  }
 
-//   // ✅ Mostrar detalles del servicio
+  // ✅ Mostrar detalles del servicio
 //   void mostrarServicio() {
 //     if (_servicio == null) {
 //       print("⚠️ No hay servicio registrado.");
@@ -57,7 +57,7 @@
 // 🆔 ID: ${_servicio!.Id}
 // 📛 Nombre: ${_servicio!.Nombre}
 // 💰 Precio: \$${_servicio!.Precio}
-// ⏱️ Tiempo promedio: ${_servicio!.TiempoPromedio.inMinutes} minutos
+// ⏱️ Tiempo promedio: ${_servicio!.TiempoPromedio.inMinutes ?? " "} minutos
 // """);
 //   }
-// }
+}

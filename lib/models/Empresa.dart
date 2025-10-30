@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:proyecto/Models/Reservacion.dart';
 import 'package:proyecto/Models/Vacaciones.dart';
 import 'package:proyecto/Models/empleado.dart';
-import 'package:proyecto/Models/usuario.dart';
-import 'package:proyecto/models/Contabilidad.dart';
-import 'package:proyecto/models/Fecha.dart';
+import 'package:proyecto/Models/Contabilidad.dart';
+import 'package:proyecto/Models/Fecha.dart';
 import 'package:proyecto/Models/Ubicacion.dart';
 import 'package:proyecto/Models/Servicio.dart';
+import 'package:proyecto/Models/Usuario.dart';
 
 class Empresa {
   String? Id;
@@ -27,7 +27,7 @@ class Empresa {
   Ubicacion? ubicacion;
   Vacaciones? vacaciones;
   Contabilidad? contabilidad;
-  List<Servicios>? ListaDeServicios = [];
+  List<Servicio>? ListaDeServicios = [];
   List<Empleado>? ListaDeEmpleados = [];
   List<Fecha>? ListaDeFechas = [];
   List<Reservacion>? ListaDeReservaciones = [];

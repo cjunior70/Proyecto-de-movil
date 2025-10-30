@@ -1,7 +1,7 @@
 import 'package:proyecto/Models/Cliente.dart';
 import 'package:proyecto/Models/Empleado.dart';
 import 'package:proyecto/Models/Empresa.dart';
-import 'package:proyecto/models/Contabilidad.dart';
+import 'package:proyecto/Models/Contabilidad.dart';
 
 class Reservacion {
   String? Id;

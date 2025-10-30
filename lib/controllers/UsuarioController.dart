@@ -2,6 +2,11 @@ import 'package:proyecto/Models/Usuario.dart';
 import 'package:proyecto/Models/Empresa.dart';
 
 class UsuarioController {
+
+  static final UsuarioController _instance = UsuarioController._internal();
+  factory UsuarioController() => _instance;
+  UsuarioController._internal();
+
   Usuario? _usuario; // único usuario en memoria
 
   // ✅ Guardar usuario

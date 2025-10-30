@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:proyecto/Models/Empresa.dart';
 import 'package:proyecto/controllers/EmpresaController.dart';
+import 'package:proyecto/controllers/UsuarioController.dart';
 
 class RegistrarEmpresaPage extends StatefulWidget {
   const RegistrarEmpresaPage({super.key});
@@ -14,8 +15,7 @@ class RegistrarEmpresaPage extends StatefulWidget {
 class _RegistroEmpresaPageState extends State<RegistrarEmpresaPage> {
   final _formKey = GlobalKey<FormState>();
   final EmpresaController _empresaController = EmpresaController();
-  
- 
+
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _direccionController = TextEditingController();
@@ -82,6 +82,34 @@ class _RegistroEmpresaPageState extends State<RegistrarEmpresaPage> {
           _horaFin = horaSeleccionada;
         }
       });
+    }
+  }
+
+  var usuarioCtrl = UsuarioController().obtenerUsuario();
+
+   // 💾 Método para guardar la empresa 
+  void _guardarEmpresa() {
+  if (_formKey.currentState!.validate()) {
+    final nuevaEmpresa = Empresa(
+      Id: DateTime.now().millisecondsSinceEpoch.toString(),
+      Nombre: _nombreController.text,
+      DescripcionUbicacion: _direccionController.text,
+      Correo: _emailController.text,
+      Facebook: _facebookController.text.isNotEmpty ? _facebookController.text : null,
+      Instagram: _instagramController.text.isNotEmpty ? _instagramController.text : null,
+      WhatsApp: _whatsappController.text.isNotEmpty ? _whatsappController.text : null,
+      Estrellas: 0.0, // o el campo que uses para el rating
+      usuario: usuarioCtrl, // 👈 aquí va coma, no punto y coma
+    );
+
+     print("Empresa guardada: ${nuevaEmpresa.Nombre} del usuario: ${usuarioCtrl?.Id}");
+
+    // Guardar en controller
+    _empresaController.guardarEmpresa(nuevaEmpresa);
+
+    // Volver y enviar la nueva empresa
+    Navigator.pop(context, nuevaEmpresa);
+     
     }
   }
 
@@ -505,27 +533,4 @@ class _RegistroEmpresaPageState extends State<RegistrarEmpresaPage> {
     );
   }
 
-  // 💾 Método para guardar la empresa 
-  void _guardarEmpresa() {
-  if (_formKey.currentState!.validate()) {
-    final nuevaEmpresa = Empresa(
-    Id: DateTime.now().millisecondsSinceEpoch.toString(),
-    Nombre: _nombreController.text,
-    DescripcionUbicacion: _direccionController.text,
-    Correo: _emailController.text,
-    Facebook: _facebookController.text.isNotEmpty ? _facebookController.text : null,
-    Instagram: _instagramController.text.isNotEmpty ? _instagramController.text : null,
-    WhatsApp: _whatsappController.text.isNotEmpty ? _whatsappController.text : null,
-    Estrellas: 0.0, // o el campo que uses para el rating
-    );
-
-
-      // Guardar en controller
-      _empresaController.actualizarEmpresa(nuevaEmpresa);
-
-      // Volver y enviar la nueva empresa
-      Navigator.pop(context, nuevaEmpresa);
-     
-    }
-  }
 }

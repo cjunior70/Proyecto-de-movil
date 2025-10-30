@@ -1,10 +1,17 @@
 import 'package:proyecto/Models/Empresa.dart';
+import 'package:proyecto/Models/Servicio.dart';
+import 'package:proyecto/Models/Empleado.dart';
 
 class EmpresaController {
-  // ✅ Lista de todas las empresas en memoria
-  List<Empresa> listaEmpresas = [];
+  // Singleton
+  static final EmpresaController _instance = EmpresaController._internal();
+  factory EmpresaController() => _instance;
+  EmpresaController._internal();
 
-  // 🔹 1. Guardar empresa
+  // Lista de todas las empresas en memoria
+  final List<Empresa> listaEmpresas = [];
+
+  // 1. Guardar empresa
   void guardarEmpresa(Empresa nuevaEmpresa) {
     bool existe = listaEmpresas.any((e) => e.Id == nuevaEmpresa.Id);
 
@@ -17,7 +24,7 @@ class EmpresaController {
     print("✅ Empresa guardada correctamente: ${nuevaEmpresa.Nombre}");
   }
 
-  // 🔹 2. Eliminar empresa por ID
+  // 2. Eliminar empresa por ID
   void eliminarEmpresa(String id) {
     int index = listaEmpresas.indexWhere((e) => e.Id == id);
 
@@ -30,7 +37,7 @@ class EmpresaController {
     listaEmpresas.removeAt(index);
   }
 
-  // 🔹 3. Obtener una empresa por ID
+  // 3. Obtener una empresa por ID
   Empresa? obtenerEmpresaPorId(String id) {
     try {
       return listaEmpresas.firstWhere((e) => e.Id == id);
@@ -40,7 +47,7 @@ class EmpresaController {
     }
   }
 
-  // 🔹 4. Obtener todas las empresas
+  // 4. Obtener todas las empresas
   List<Empresa> obtenerEmpresas() {
     if (listaEmpresas.isEmpty) {
       print("⚠️ No hay empresas registradas.");
@@ -48,7 +55,7 @@ class EmpresaController {
     return listaEmpresas;
   }
 
-  // 🔹 5. Actualizar una empresa existente
+  // 5. Actualizar una empresa existente
   void actualizarEmpresa(Empresa empresaActualizada) {
     int index = listaEmpresas.indexWhere((e) => e.Id == empresaActualizada.Id);
 
@@ -61,8 +68,8 @@ class EmpresaController {
     print("🔄 Empresa actualizada: ${empresaActualizada.Nombre}");
   }
 
-  // 🔹 6. Agregar servicio a una empresa específica
-  void agregarServicio(String idEmpresa, servicio) {
+  // 6. Agregar servicio a una empresa específica
+  void agregarServicio(String idEmpresa, Servicio servicio) {
     Empresa? empresa = obtenerEmpresaPorId(idEmpresa);
 
     if (empresa == null) {
@@ -75,21 +82,21 @@ class EmpresaController {
     print("🧩 Servicio agregado a la empresa: ${empresa.Nombre}");
   }
 
-  // 🔹 7. Agregar empleado a una empresa específica
-  void agregarEmpleado(String idEmpresa, empleado) {
-    Empresa? empresa = obtenerEmpresaPorId(idEmpresa);
+  // 7. Agregar empleado a una empresa específica
+  // void agregarEmpleado(String idEmpresa, Empleado empleado) {
+  //   Empresa? empresa = obtenerEmpresaPorId(idEmpresa);
 
-    if (empresa == null) {
-      print("⚠️ No se encontró la empresa con ID '$idEmpresa'");
-      return;
-    }
+  //   if (empresa == null) {
+  //     print("⚠️ No se encontró la empresa con ID '$idEmpresa'");
+  //     return;
+  //   }
 
-    empresa.ListaDeEmpleados ??= [];
-    empresa.ListaDeEmpleados!.add(empleado);
-    print("👨‍💼 Empleado agregado a la empresa: ${empresa.Nombre}");
-  }
+  //   empresa.ListaDeEmpleados ??= [];
+  //   empresa.ListaDeEmpleados!.add(empleado);
+  //   print("👨‍💼 Empleado agregado a la empresa: ${empresa.Nombre}");
+  // }
 
-  // 🔹 8. Mostrar resumen de todas las empresas
+  // 8. Mostrar resumen de todas las empresas
   void mostrarResumenEmpresas() {
     if (listaEmpresas.isEmpty) {
       print("⚠️ No hay empresas registradas.");

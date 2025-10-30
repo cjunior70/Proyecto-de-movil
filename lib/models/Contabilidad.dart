@@ -1,4 +1,4 @@
-import 'package:proyecto/models/Empresa.dart';
+import 'package:proyecto/Models/Empresa.dart';
 
 class Contabilidad {
   String? Id;

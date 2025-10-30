@@ -5,6 +5,15 @@ import 'package:proyecto/ui/login/loginpage.dart';
 class HomepageAdmin extends StatelessWidget {
   const HomepageAdmin({super.key});
 
+  void _mostrarRegistrarEmpresa(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RegistrarEmpresaPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +81,7 @@ class HomepageAdmin extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    MaterialPageRoute(builder: (context) => const ListaEmpresas()),
                   );
                 },
               ),
@@ -153,13 +162,5 @@ class HomepageAdmin extends StatelessWidget {
       ),
     );
   }
-  
-  void _mostrarRegistrarEmpresa(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const RegistrarEmpresaPage(),
-      ),
-    );
-  }
+
 }

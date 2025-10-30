@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:proyecto/Controllers/EmpresaController.dart';
 import 'package:proyecto/Models/Empresa.dart';
 import 'package:proyecto/ui/Cliente/ClienteDetallePage.dart';
-import 'package:proyecto/ui/Cliente/ClienteReservacionesPage.dart';
-import 'package:proyecto/ui/componentes/CartaEmpresa.dart';
 import 'package:proyecto/ui/componentes/CartaEmpresa.dart';
 
 class UsuarioHome extends StatefulWidget {
