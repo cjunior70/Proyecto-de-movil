@@ -1,15 +1,15 @@
-import 'package:proyecto/Models/empresa_model.dart';
+import 'package:proyecto/models/Empresa.dart';
 
 class Fecha {
-  String Id;
-  DateTime FechaActual;
-  String Estado;
-  Empresa empresa;
+  String? Id;
+  DateTime? FechaActual;
+  String? Estado;
+  Empresa? empresa;
 
   Fecha({
-    required this.Id,
-    required this.FechaActual,
-    required this.Estado,
-    required this.empresa,
+    this.Id,
+    this.FechaActual,
+    this.Estado,
+    this.empresa,
   });
 }

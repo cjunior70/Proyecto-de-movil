@@ -3,6 +3,9 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:proyecto/Controllers/EmpresaController.dart';
 import 'package:proyecto/Models/Empresa.dart';
 import 'package:proyecto/ui/Cliente/ClienteDetallePage.dart';
+import 'package:proyecto/ui/Cliente/ClienteReservacionesPage.dart';
+import 'package:proyecto/ui/componentes/CartaEmpresa.dart';
+import 'package:proyecto/ui/componentes/CartaEmpresa.dart';
 
 class UsuarioHome extends StatefulWidget {
   const UsuarioHome({super.key});
@@ -52,11 +55,17 @@ class _UsuarioHomeState extends State<UsuarioHome> {
       _selectedIndex = index;
     });
 
-    if (index == 3) {
-      // Navegar a ClienteDetallePage directamente
+    if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ClienteDetallePage()),
+        MaterialPageRoute(builder: (context) => const ClienteDetallePage()),
+      );
+    }
+
+    if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ClienteDetallePage()),
       );
     }
   }
@@ -92,27 +101,35 @@ class _UsuarioHomeState extends State<UsuarioHome> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Text("Empresas Populares",
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text("Ver todas →",
-                      style: TextStyle(color: Colors.orange, fontSize: 14)),
+                  Text(
+                    "Empresas Populares",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "Ver todas →",
+                    style: TextStyle(color: Colors.orange, fontSize: 14),
+                  ),
                 ],
               ),
               const SizedBox(height: 10),
+
+              // Aquí usamos el componente reutilizable EmpresaCard
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: empresas.length,
                 itemBuilder: (context, index) {
                   final empresa = empresas[index];
-                  return _buildCompanyCard(
-                    empresa.Nombre,
-                    empresa.Correo,
-                    empresa.ImagenGeneral != null
-                        ? Image.memory(empresa.ImagenGeneral!).toString()
-                        : "https://via.placeholder.com/150",
-                    empresa.Estrellas,
+                  return Cartaempresa(
+                    empresa: empresa,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ClienteDetallePage(),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -186,68 +203,6 @@ class _UsuarioHomeState extends State<UsuarioHome> {
           Text(title,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildCompanyCard(
-      String name, String desc, String imageUrl, double rating) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              imageUrl,
-              height: 140,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(desc, style: const TextStyle(color: Colors.orange)),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    RatingBarIndicator(
-                      rating: rating,
-                      itemBuilder: (context, _) =>
-                          const Icon(Icons.star, color: Colors.amber),
-                      itemCount: 5,
-                      itemSize: 18,
-                      direction: Axis.horizontal,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(rating.toStringAsFixed(1),
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

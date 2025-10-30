@@ -1,13 +1,13 @@
 class Ubicacion {
-  String Id;
+  String? Id;
   double? Latitud;
   double? Longitud;
 
   Ubicacion({
 
-    required this.Id,
-    required this.Latitud,
-    required this.Longitud,
+    this.Id,
+    this.Latitud,
+    this.Longitud,
 
   });
 

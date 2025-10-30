@@ -11,10 +11,10 @@ import 'package:proyecto/Models/Ubicacion.dart';
 import 'package:proyecto/Models/Servicio.dart';
 
 class Empresa {
-  String Id;
-  String Nombre;
-  double Estrellas;
-  String Correo;
+  String? Id;
+  String? Nombre;
+  double? Estrellas;
+  String? Correo;
   String? DescripcionUbicacion;
   String? WhatsApp;
   String? Facebook;
@@ -27,16 +27,16 @@ class Empresa {
   Ubicacion? ubicacion;
   Vacaciones? vacaciones;
   Contabilidad? contabilidad;
-  List<Servicios>? ListaDeServicios;
-  List<Empleado>? ListaDeEmpleados;
-  List<Fecha>? ListaDeFechas;
-  List<Reservacion>? ListaDeReservaciones;
+  List<Servicios>? ListaDeServicios = [];
+  List<Empleado>? ListaDeEmpleados = [];
+  List<Fecha>? ListaDeFechas = [];
+  List<Reservacion>? ListaDeReservaciones = [];
 
   Empresa({
-    required this.Id,
-    required this.Nombre,
-    required this.Estrellas,
-    required this.Correo,
+    this.Id,
+    this.Nombre,
+    this.Estrellas,
+    this.Correo,
     this.DescripcionUbicacion,
     this.WhatsApp,
     this.Facebook,

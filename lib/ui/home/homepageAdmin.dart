@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/ui/Administrador/ListaEmpresas.dart';
 import 'package:proyecto/ui/Administrador/RegistrarEmpresaPage.dart';
+import 'package:proyecto/ui/login/loginpage.dart';
 class HomepageAdmin extends StatelessWidget {
   const HomepageAdmin({super.key});
 
@@ -71,7 +72,7 @@ class HomepageAdmin extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ListaEmpresas()),
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
                   );
                 },
               ),

@@ -4,29 +4,29 @@ import 'package:proyecto/Models/Empresa.dart';
 import 'package:proyecto/models/Contabilidad.dart';
 
 class Reservacion {
-  String Id;
-  DateTime Creacion;
-  DateTime Fecha;
-  double Total;
-  String Estado;
+  String? Id;
+  DateTime? Creacion;
+  DateTime? Fecha;
+  double? Total;
+  String? Estado;
   String? Comentario;
   double? Estrellas;
-  Empresa empresa;
-  Cliente cliente;
-  Contabilidad contabilidad;
-  List<Empleado>? ListaDeEmpleados;
+  Empresa? empresa;
+  Cliente? cliente;
+  Contabilidad? contabilidad;
+  List<Empleado>? ListaDeEmpleados = [];
 
   Reservacion({
-    required this.Id,
-    required this.Creacion,
-    required this.Fecha,
-    required this.Total,
-    required this.Estado,
+    this.Id,
+    this.Creacion,
+    this.Fecha,
+    this.Total,
+    this.Estado,
     this.Comentario,
     this.Estrellas,
-    required this.empresa,
-    required this.cliente,
-    required this.contabilidad,
+    this.empresa,
+    this.cliente,
+    this.contabilidad,
     this.ListaDeEmpleados,
   });
 }

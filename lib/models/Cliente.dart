@@ -3,21 +3,21 @@ import 'package:proyecto/Models/Reservacion.dart';
 
 class Cliente extends Datospersonales {
 
-    List<Reservacion>? ListaDeReservaciones;
+    List<Reservacion>? ListaDeReservaciones = [];
 
     Cliente({
       //El super es para poder acceder a los atributos de la clase datosperonales y lo agrega autamticamente a la clase Usuarios
-      required super.Id,
-      required super.Cedula,
-      required super.PrimerNombre,
+       super.Id,
+       super.Cedula,
+       super.PrimerNombre,
               super.SegundoNombre,
-      required super.PrimerApellido,
+       super.PrimerApellido,
               super.SegundoApellido,
-      required super.Telefono,
+       super.Telefono,
               super.Correo,
-      required super.Sexo,
+       super.Sexo,
               super.Foto,
-      required super.Rol,
+       super.Rol,
             this.ListaDeReservaciones,
     });
 

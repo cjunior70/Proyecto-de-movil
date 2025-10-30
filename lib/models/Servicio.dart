@@ -1,17 +1,17 @@
 
 class Servicios {
 
-  String Id;
-  String Nombre;
-  double Precio;
-  Duration TiempoPromedio;
+  String? Id;
+  String? Nombre;
+  double? Precio;
+  Duration? TiempoPromedio;
 
   Servicios({
 
-    required this.Id,
-    required this.Nombre,
-    required this.Precio,
-    required this.TiempoPromedio
+    this.Id,
+    this.Nombre,
+    this.Precio,
+    this.TiempoPromedio
 
   });
 

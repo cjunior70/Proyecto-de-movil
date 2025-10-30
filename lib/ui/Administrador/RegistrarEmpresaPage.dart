@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:proyecto/Controllers/empresa_controller.dart';
-import 'package:proyecto/models/empresa_model.dart';
+import 'package:proyecto/Models/Empresa.dart';
+import 'package:proyecto/controllers/EmpresaController.dart';
 
 class RegistrarEmpresaPage extends StatefulWidget {
   const RegistrarEmpresaPage({super.key});
@@ -509,19 +509,14 @@ class _RegistroEmpresaPageState extends State<RegistrarEmpresaPage> {
   void _guardarEmpresa() {
   if (_formKey.currentState!.validate()) {
     final nuevaEmpresa = Empresa(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      nombre: _nombreController.text,
-      direccion: _direccionController.text,
-      telefono: _telefonoController.text,
-      email: _emailController.text,
-      descripcion: _descripcionController.text,
-      redesSociales: [
-        if (_facebookController.text.isNotEmpty) _facebookController.text,
-        if (_instagramController.text.isNotEmpty) _instagramController.text,
-        if (_whatsappController.text.isNotEmpty) _whatsappController.text,
-      ],
-      totalReviews: 0,
-      ratingPromedio: 0.0,
+    Id: DateTime.now().millisecondsSinceEpoch.toString(),
+    Nombre: _nombreController.text,
+    DescripcionUbicacion: _direccionController.text,
+    Correo: _emailController.text,
+    Facebook: _facebookController.text.isNotEmpty ? _facebookController.text : null,
+    Instagram: _instagramController.text.isNotEmpty ? _instagramController.text : null,
+    WhatsApp: _whatsappController.text.isNotEmpty ? _whatsappController.text : null,
+    Estrellas: 0.0, // o el campo que uses para el rating
     );
 
 
