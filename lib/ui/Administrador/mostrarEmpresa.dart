@@ -64,13 +64,14 @@ class _MostrarEmpresaState extends State<MostrarEmpresa> {
   }
 
   void _procesarFormulario() {
-    // Validación básica
-    if (_nombreController.text.isEmpty ||
-        _precioController.text.isEmpty ||
-        _duracionController.text.isEmpty) {
+  final nombre = _nombreController.text.trim();
+  final precio = _precioController.text.trim();
+  final descripcion = _descripcionController.text.trim();
+
+    if (nombre.isEmpty || precio.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Todos los campos son obligatorios'),
+          content: const Text('Todos los campos obligatorios'),
           backgroundColor: Colors.red.shade400,
         ),
       );
