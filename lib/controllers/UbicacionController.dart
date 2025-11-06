@@ -1,62 +1,124 @@
-import 'package:proyecto/Models/Ubicacion.dart';
+import 'package:proyecto/Conexion/supabase_service.dart';
+import 'package:proyecto/models/Ubicacion.dart';
 
 class UbicacionController {
-  Ubicacion? _ubicacion; // Solo una ubicación cargada en memoria
+  
+  Ubicacion? datosdeUbicacion; // Solo una ubicación cargada en memoria
 
-  // ✅ Guardar ubicación (recibe el objeto completo)
-  void guardarUbicacion(Ubicacion nuevaUbicacion) {
-    _ubicacion = nuevaUbicacion;
-    print("✅ Ubicación guardada correctamente: ID ${_ubicacion!.Id}");
+   List<Ubicacion> lista_de_Ubicaciones = [];
+
+  //  Guardar ubicación (recibe el objeto completo)
+  Future<bool> guardarUbicacion(Ubicacion nuevoUbicacion) async {
+    try{
+
+      //Guardar los daots del Ubicacion temporalmente
+      datosdeUbicacion = nuevoUbicacion;
+
+      await SupabaseService.client
+          .from('Ubicacion')
+          .insert(nuevoUbicacion.toJson());
+
+      print("Ubicacion insertado correctamente en Supabase");
+
+      return true;
+
+    }
+    catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el guardado del Ubicacion + $e" );
+
+      return false;
+    }
   }
 
-  // ✅ Obtener ubicación actual
-  Ubicacion? obtenerUbicacion() {
-    if (_ubicacion == null) {
-      print("⚠️ No hay ubicación registrada actualmente.");
-      return null;
-    }
-    return _ubicacion;
+  //  Obtener ubicación actual
+  Future<List<Ubicacion>> obtenerTodasUbicacions() async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Ubicacion')
+        .select();
+
+    print("Ubicacions encontradas correctamente en Supabase: $respuesta");
+
+    // Convertir la lista de mapas a lista de objetos Ubicacion
+    final List<Ubicacion> listaUbicacions = (respuesta as List)
+        .map((e) => Ubicacion.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    lista_de_Ubicaciones = listaUbicacions;
+    return listaUbicacions;
+  } catch (e) {
+    print("Hay un problema al obtener las Ubicacions: $e");
+    return [];
   }
+}
 
-  // ✅ Actualizar ubicación existente
-  void actualizarUbicacion(Ubicacion ubicacionActualizada) {
-    if (_ubicacion == null) {
-      print("⚠️ No hay ubicación registrada para actualizar.");
-      return;
+  Future<List<Ubicacion>> obtenerUbicacionsPorId(String usuarioId) async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Ubicacion')
+        .select()
+        .eq("Id", usuarioId);
+
+    print("Ubicacions encontradas correctamente en Supabase: $respuesta");
+
+    // Convertir la lista de mapas a lista de objetos Ubicacion
+    final List<Ubicacion> listaUbicacions = (respuesta as List)
+        .map((e) => Ubicacion.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    lista_de_Ubicaciones = listaUbicacions;
+    print(listaUbicacions);
+    return listaUbicacions;
+  } catch (e) {
+    print("Hay un problema al obtener las Ubicacions: $e");
+    return [];
+  }
+}
+
+  // Actualizar ubicación existente
+ Future<bool> actualizarUbicacion(Ubicacion UbicacionActualizado) async {
+    try{
+
+      await SupabaseService.client
+          .from('Ubicacion')
+          .update(UbicacionActualizado.toJson()) //Los datoa actualizados convertidos a json
+          .eq("Id", UbicacionActualizado.Id!);
+
+      print("Ubicacion actualizados correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Ubicacion + $e" );
+
+      return false;
     }
-
-    if (_ubicacion!.Id != ubicacionActualizada.Id) {
-      print("⚠️ El ID no coincide con la ubicación actual.");
-      return;
-    }
-
-    _ubicacion = ubicacionActualizada;
-    print("🔄 Ubicación actualizada correctamente: ID ${_ubicacion!.Id}");
   }
 
   // ✅ Eliminar ubicación
-  void eliminarUbicacion() {
-    if (_ubicacion == null) {
-      print("⚠️ No hay ubicación registrada para eliminar.");
-      return;
-    }
+  Future<bool> eliminarUbicacion(String Id)  async{
+    try{
 
-    print("🗑️ Ubicación eliminada: ID ${_ubicacion!.Id}");
-    _ubicacion = null;
+      await SupabaseService.client
+          .from('Ubicacion')
+          .delete()
+          .eq("Id",Id);
+
+      print("Ubicacion borrado correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Ubicacion + $e" );
+
+      return false;
+    }
   }
 
-  // ✅ Mostrar detalles de la ubicación
-  void mostrarUbicacion() {
-    if (_ubicacion == null) {
-      print("⚠️ No hay ubicación registrada.");
-      return;
-    }
-
-    print("""
-📍 UBICACIÓN REGISTRADA
-🆔 ID: ${_ubicacion!.Id}
-🌎 Latitud: ${_ubicacion!.Latitud ?? 'No definida'}
-🌍 Longitud: ${_ubicacion!.Longitud ?? 'No definida'}
-""");
-  }
 }

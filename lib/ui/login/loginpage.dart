@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto/Models/Ubicacion.dart';
+import 'package:proyecto/models/Ubicacion.dart';
 import 'package:proyecto/controllers/EmpleadosController.dart';
 import 'package:proyecto/controllers/ServiciosController.dart';
+import 'package:proyecto/controllers/UbicacionController.dart';
 import 'package:proyecto/models/Empleado.dart';
 import 'package:proyecto/Models/Empresa.dart';
 import 'package:proyecto/models/Servicio.dart';
@@ -31,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _testConnection() async {
     try {
-      ServicioController o=new ServicioController();
+      UbicacionController o=new UbicacionController();
 
       // Empresa empresaPrueba = Empresa(
       //   Id: "4be17d32-9b48-42eb-8e47-3ddee605d666", // UUID generado en frontend
@@ -80,16 +81,13 @@ class _LoginPageState extends State<LoginPage> {
   
     // );
 
-    final servicio = Servicio(
-      Id: "288603cd-bdc6-4141-8d01-d0d841415160",
-      Nombre: "Corte de Cabello",
-      Precio: 15000,
-      TiempoPromedio: Duration(hours: 2, minutes: 40),
-      Descripcion: "Corte moderno con máquina y tijera",
+    Ubicacion ubBogota = Ubicacion(
+      Id: "ab828466-c6e1-420c-84c8-f08189cace15",
+      Latitud: 4.6486253333,
+      Longitud: -74.06300322222,
     );
 
-
-    var situacon = await o.eliminarServicio("288603cd-bdc6-4141-8d01-d0d841415160");
+    var situacon = await o.eliminarUbicacion("ab828466-c6e1-420c-84c8-f08189cace15");
 
     print("ESTADO DE LA OPERACION: $situacon");
 
