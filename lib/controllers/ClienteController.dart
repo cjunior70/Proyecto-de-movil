@@ -1,50 +1,108 @@
+import 'package:proyecto/Conexion/supabase_service.dart';
 import 'package:proyecto/Models/Cliente.dart';
 
 class ClienteController {
-  // Singleton
+  // Singleton privada 
   static final ClienteController _instance = ClienteController._internal();
   factory ClienteController() => _instance;
   ClienteController._internal();
 
   Cliente? _cliente;
 
-  // Guardar cliente
-  void guardarCliente(Cliente nuevoCliente) {
-    if (_cliente != null) {
-      print("⚠️ Ya existe un cliente registrado. Usa actualizarCliente().");
-      return;
+  // Guardar cliente publicamente si fuera privada tendria que colocar un _ jusnto al nomobre de la funcion
+  Future<bool> guardarCliente(Cliente nuevoCliente) async {
+    try{
+
+      //Guardar los daots del cliente temporalmente
+      _cliente = nuevoCliente;
+
+      await SupabaseService.client
+          .from('Clientes')
+          .insert(nuevoCliente.toJson());
+
+      print("Cliente insertado correctamente en Supabase");
+
+      return true;
+
     }
-    _cliente = nuevoCliente;
-    print("✅ Cliente guardado correctamente: ${_cliente!.PrimerNombre}");
+    catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el guardado del cliente + $e" );
+
+      return false;
+    }
   }
 
-  // Eliminar cliente
-  void eliminarCliente() {
-    if (_cliente == null) {
-      print("⚠️ No hay cliente registrado para eliminar.");
-      return;
-    }
-    print("🗑️ Cliente eliminado: ${_cliente!.PrimerNombre}");
-    _cliente = null;
-  }
-
+ 
   // Obtener cliente
-  Cliente? obtenerCliente() {
-    if (_cliente == null) {
-      print("⚠️ No hay cliente registrado actualmente.");
+  Future<Cliente?> obtenerCliente(String Id) async {
+    try{
+
+      final respuesta = await SupabaseService.client
+          .from('Clientes')
+          .select().eq("Id", Id)
+          //Single es para traer solo un registro
+          .single();
+
+      print("Cliente encontrado correctamente en Supabase : $respuesta");
+
+      _cliente=Cliente.fromJson(respuesta);
+
+      return _cliente;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el cliente + $e" );
+
       return null;
     }
-    print("✅ Datos mostrados: ${_cliente!.Cedula}");
-    return _cliente;
+
   }
 
   // Actualizar cliente
-  void actualizarCliente(Cliente clienteActualizado) {
-    if (_cliente == null) {
-      print("⚠️ No hay cliente para actualizar.");
-      return;
+  Future<bool> actualizarCliente(Cliente clienteActualizado) async {
+    try{
+
+      await SupabaseService.client
+          .from('Clientes')
+          .update(clienteActualizado.toJson()) //Los datoa actualizados convertidos a json
+          .eq("Id", clienteActualizado.Id!);
+
+      print("Cliente actualizados correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el cliente + $e" );
+
+      return false;
     }
-    _cliente = clienteActualizado;
-    print("🔄 Cliente actualizado correctamente: ${_cliente!.PrimerNombre}");
   }
+
+   // Eliminar cliente
+  Future<bool> eliminarCliente(Cliente nuevoCliente)  async{
+    try{
+
+      await SupabaseService.client
+          .from('Clientes')
+          .delete()
+          .eq("Id", nuevoCliente.Id!);
+
+      print("Cliente borrado correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el cliente + $e" );
+
+      return false;
+    }
+  }
+
 }

@@ -1,90 +1,108 @@
-import 'package:proyecto/Models/Usuario.dart';
+import 'package:proyecto/Conexion/supabase_service.dart';
+import 'package:proyecto/models/Usuario.dart';
 import 'package:proyecto/Models/Empresa.dart';
 
 class UsuarioController {
+
+  static final UsuarioController _instance = UsuarioController._internal();
+  factory UsuarioController() => _instance;
+  UsuarioController._internal();
+
   Usuario? _usuario; // único usuario en memoria
 
-  // ✅ Guardar usuario
-  void guardarUsuario(Usuario nuevoUsuario) {
-    if (_usuario != null) {
-      print("⚠️ Ya hay un usuario registrado. Usa actualizarUsuario().");
-      return;
-    }
+  // Guardar usuario publicamente si fuera privada tendria que colocar un _ jusnto al nomobre de la funcion
+  Future<bool> guardarUsuario(Usuario nuevoUsuario) async {
+    try{
 
-    _usuario = nuevoUsuario;
-    print("✅ Usuario guardado correctamente: ${_usuario!.Cedula}");
-    print("✅ Usuario guardado correctamente: ${_usuario!.PrimerNombre}");
-    print("✅ Usuario guardado correctamente: ${_usuario!.SegundoNombre}");
-    print("✅ Usuario guardado correctamente: ${_usuario!.PrimerApellido}");
-    print("✅ Usuario guardado correctamente: ${_usuario!.SegundoApellido}");
-    print("✅ Usuario guardado correctamente: ${_usuario!}");
+      //Guardar los daots del Usuario temporalmente
+      _usuario = nuevoUsuario;
+
+      await SupabaseService.client
+          .from('Usuarios')
+          .insert(nuevoUsuario.toJson());
+
+      print("Usuario insertado correctamente en Supabase");
+
+      return true;
+
+    }
+    catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el guardado del Usuario + $e" );
+
+      return false;
+    }
   }
 
   // ✅ Obtener usuario actual
-  Usuario? obtenerUsuario() {
-    if (_usuario == null) {
-      
-      print("⚠️ No hay usuario registrado actualmente.");
+  Future<Usuario?> obtenerUsuario(String Id) async {
+    try{
+
+      final respuesta = await SupabaseService.client
+          .from('Usuarios')
+          .select().eq("Id", Id)
+          //Single es para traer solo un registro
+          .single();
+
+      print("Usuario encontrado correctamente en Supabase : $respuesta");
+
+      _usuario=Usuario.fromJson(respuesta);
+
+      return _usuario;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Usuario + $e" );
+
       return null;
     }
-    
-    return _usuario;
+
   }
-
   // ✅ Actualizar usuario
-  void actualizarUsuario(Usuario usuarioActualizado) {
-    if (_usuario == null) {
-      print("⚠️ No hay usuario registrado para actualizar.");
-      return;
-    }
+  Future<bool> actualizarUsuario(Usuario UsuarioActualizado) async {
+    try{
 
-    if (_usuario!.Id != usuarioActualizado.Id) {
-      print("⚠️ El ID no coincide con el usuario actual.");
-      return;
-    }
+      await SupabaseService.client
+          .from('Usuarios')
+          .update(UsuarioActualizado.toJson()) //Los datoa actualizados convertidos a json
+          .eq("Id", UsuarioActualizado.Id!);
 
-    _usuario = usuarioActualizado;
-    print("🔄 Usuario actualizado correctamente: ${_usuario!.PrimerNombre}");
+      print("Usuario actualizados correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Usuario + $e" );
+
+      return false;
+    }
   }
 
   // ✅ Eliminar usuario
-  void eliminarUsuario() {
-    if (_usuario == null) {
-      print("⚠️ No hay usuario registrado para eliminar.");
-      return;
-    }
+ Future<bool> eliminarUsuario(String Id)  async{
+    try{
 
-    print("🗑️ Usuario eliminado: ${_usuario!.PrimerNombre}");
-    _usuario = null;
+      await SupabaseService.client
+          .from('Usuarios')
+          .delete()
+          .eq("Id", Id);
+
+      print("Usuario borrado correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Usuario + $e" );
+
+      return false;
+    }
   }
 
-  // ✅ Agregar empresa al usuario
-  void agregarEmpresa(Empresa empresa) {
-    if (_usuario == null) {
-      print("⚠️ No hay usuario registrado para asignarle una empresa.");
-      return;
-    }
 
-    _usuario!.ListaDeEmpresas ??= [];
-    _usuario!.ListaDeEmpresas!.add(empresa);
-
-    print("🏢 Empresa agregada al usuario: ${empresa.Nombre}");
-  }
-
-  // ✅ Mostrar resumen del usuario
-  void mostrarResumen() {
-    if (_usuario == null) {
-      print("⚠️ No hay usuario registrado.");
-      return;
-    }
-
-    print("""
-👤 USUARIO REGISTRADO
-🆔 ID: ${_usuario!.Id}
-🪪 Cédula: ${_usuario!.Cedula}
-👨‍💼 Nombre: ${_usuario!.PrimerNombre} ${_usuario!.PrimerApellido}
-📧 Correo: ${_usuario!.Correo ?? 'No definido'}
-🏢 Empresas asociadas: ${_usuario!.ListaDeEmpresas?.length ?? 0}
-""");
-  }
 }

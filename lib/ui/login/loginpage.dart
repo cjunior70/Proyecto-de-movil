@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/Models/Ubicacion.dart';
+import 'package:proyecto/controllers/EmpleadosController.dart';
+import 'package:proyecto/controllers/ServiciosController.dart';
+import 'package:proyecto/models/Empleado.dart';
+import 'package:proyecto/Models/Empresa.dart';
+import 'package:proyecto/models/Servicio.dart';
+import 'package:proyecto/models/Usuario.dart';
 import 'package:proyecto/ui/Registro/Registro.dart';
 import 'package:proyecto/ui/componentes/mistextos.dart';
-import 'package:proyecto/ui/home/homepageAdmin.dart';
-import 'package:proyecto/ui/home/UsuarioHome.dart';
+import 'package:uuid/uuid.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -17,19 +23,96 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController txtClave = TextEditingController();
   String rolSeleccionado = 'usuario';
 
+  @override
+  void initState() {
+    super.initState();
+    _testConnection();
+  }
+
+  void _testConnection() async {
+    try {
+      ServicioController o=new ServicioController();
+
+      // Empresa empresaPrueba = Empresa(
+      //   Id: "4be17d32-9b48-42eb-8e47-3ddee605d666", // UUID generado en frontend
+      //   Nombre: "Peluquería La Estrella mas bonita",
+      //   Estrellas: 4.8,
+      //   Correo: "contacto@laestrellapepe.com",
+      //   DescripcionUbicacion: "Calle 123 #45-67, Bogotá",
+      //   WhatsApp: "3101234567",
+      //   Facebook: "@laestrellaFB",
+      //   Instagram: "@laestrellaIG",
+      //   ImagenMiniatura: null, // si no tienes imagen de prueba
+      //   ImagenGeneral: null,
+      //   ComienzoLaboral: TimeOfDay(hour: 9, minute: 0), // 09:00 AM
+      //   FinalizacionLaboral: TimeOfDay(hour: 18, minute: 0), // 06:00 PM
+      //   usuario: Usuario(
+      //     Id: "e610188b-85f8-4416-b2ff-565012ee85d6"
+      //   ),
+      //   ubicacion: Ubicacion(
+      //     Id:"9bf7e236-34db-4026-8027-a2518a548cc5",
+      //   ),
+      // );
+
+      // Empleado empleadoPrueba = Empleado(
+      //   Id: "18cb2fef-53d2-4734-b0d9-1c07735b9c7e",
+      //   Cedula: "123456789",
+      //   PrimerNombre: "carlos",
+      //   SegundoNombre: "junior",
+      //   PrimerApellido: "gaviria",
+      //   SegundoApellido: "marquez",
+      //   Telefono: "3119876543",
+      //   Correo: "andres.ramirez@empresa.com",
+      //   Sexo: "M",
+      //   Foto: null, // sin imagen por ahora
+
+      //   // Fechas
+      //   FechaDeInicio: DateTime(2024, 02, 01),
+      //   FechaActual: DateTime.now(),
+
+      //   // Datos laborales
+      //   Cargo: "Barbero Senior",
+      //   Estado: "Activo",
+      //   Estacion: "Silla 3",
+
+      //   // Vinculación a empresa (solo el ID)
+      //   empresa: empresaPrueba,
+  
+    // );
+
+    final servicio = Servicio(
+      Id: "288603cd-bdc6-4141-8d01-d0d841415160",
+      Nombre: "Corte de Cabello",
+      Precio: 15000,
+      TiempoPromedio: Duration(hours: 2, minutes: 40),
+      Descripcion: "Corte moderno con máquina y tijera",
+    );
+
+
+    var situacon = await o.eliminarServicio("288603cd-bdc6-4141-8d01-d0d841415160");
+
+    print("ESTADO DE LA OPERACION: $situacon");
+
+    }
+    catch(e)
+    {
+      print("Erro afuera de todo lo conocido");
+    }
+  }
+
   void _login() {
     if (txtUsuario.text == 'papasconquesos' &&
         txtClave.text == 'yarkit123') {
       if (rolSeleccionado == "usuario") {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const UsuarioHome()),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => const UsuarioHome()),
+        // );
       } else if (rolSeleccionado == "administrador") {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const HomepageAdmin()),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => const HomepageAdmin()),
+        // );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

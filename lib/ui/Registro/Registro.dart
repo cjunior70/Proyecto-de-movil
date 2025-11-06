@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:proyecto/Models/Cliente.dart';
 import 'package:proyecto/Controllers/ClienteController.dart';
+import 'package:proyecto/controllers/UsuarioController.dart';
+import 'package:proyecto/models/Usuario.dart';
 import 'dart:io';
-
 import 'package:proyecto/ui/login/loginpage.dart';
 
 class Registro extends StatefulWidget {
@@ -41,8 +42,35 @@ class _RegistroState extends State<Registro> {
 
   void _guardarFormulario() {
     if (_formKey.currentState!.validate()) {
-      if (widget.rol != "Administrador") {
+      if (widget.rol == "Administrador") {
         // Guardar cliente usando singleton
+        Usuario nuevoUsuario = Usuario(
+          Id: "c1",
+          Cedula: cedulaCtrl.text,
+          PrimerNombre: primerNombreCtrl.text,
+          SegundoNombre: segundoNombreCtrl.text,
+          PrimerApellido: primerApellidoCtrl.text,
+          SegundoApellido: segundoApellidoCtrl.text,
+          Telefono: "12345",
+          Correo: correoCtrl.text,
+          Sexo: sexoSeleccionado,
+          // Foto: foto,
+          Rol: widget.rol,
+        );
+
+        UsuarioController().guardarUsuario(nuevoUsuario);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Usuario registrado ✅')),
+        );
+
+        // Ir a página de login (o donde quieras)
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      }
+      else{
         Cliente nuevoCliente = Cliente(
           Id: "c1",
           Cedula: cedulaCtrl.text,
@@ -55,7 +83,6 @@ class _RegistroState extends State<Registro> {
           Sexo: sexoSeleccionado,
           // Foto: foto,
           Rol: widget.rol,
-          ListaDeReservaciones: null,
         );
 
         ClienteController().guardarCliente(nuevoCliente);

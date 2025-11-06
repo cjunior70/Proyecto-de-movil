@@ -1,15 +1,15 @@
-import 'package:proyecto/Models/empresa_model.dart';
+import 'package:proyecto/Models/Empresa.dart';
 
 class Contabilidad {
-  String Id;
-  double PagoPorDia;
-  DateTime Fecha;
-  Empresa empresa;
+  String? Id;
+  double? PagoPorDia;
+  DateTime? Fecha;
+  Empresa? empresa;
 
   Contabilidad({
-    required this.Id,
-    required this.PagoPorDia,
-    required this.Fecha,
-    required this.empresa
+    this.Id,
+    this.PagoPorDia,
+    this.Fecha,
+    this.empresa
   });
 }

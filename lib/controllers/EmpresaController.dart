@@ -1,112 +1,133 @@
-import 'package:proyecto/Models/Empresa.dart';
+import 'package:proyecto/Conexion/supabase_service.dart';
+import 'package:proyecto/models/Empresa.dart';
 
 class EmpresaController {
-  // ✅ Lista de todas las empresas en memoria
-  List<Empresa> listaEmpresas = [];
+  // Singleton
+  static final EmpresaController _instance = EmpresaController._internal();
+  factory EmpresaController() => _instance;
+  EmpresaController._internal();
 
-  // 🔹 1. Guardar empresa
-  void guardarEmpresa(Empresa nuevaEmpresa) {
-    bool existe = listaEmpresas.any((e) => e.Id == nuevaEmpresa.Id);
+   // Lista de todas las empresas en memoria
+  Empresa? datosdeempresa;
 
-    if (existe) {
-      print("⚠️ Ya existe una empresa con el ID '${nuevaEmpresa.Id}'. Usa actualizarEmpresa().");
-      return;
+  List<Empresa> lista_de_empresas = [];
+
+  // 1. Guardar empresa
+  // Guardar Empresa publicamente si fuera privada tendria que colocar un _ jusnto al nomobre de la funcion
+  Future<bool> guardarEmpresa(Empresa nuevoEmpresa) async {
+    try{
+
+      //Guardar los daots del Empresa temporalmente
+      datosdeempresa = nuevoEmpresa;
+
+      await SupabaseService.client
+          .from('Empresas')
+          .insert(nuevoEmpresa.toJson());
+
+      print("Empresa insertado correctamente en Supabase");
+
+      return true;
+
     }
+    catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el guardado del Empresa + $e" );
 
-    listaEmpresas.add(nuevaEmpresa);
-    print("✅ Empresa guardada correctamente: ${nuevaEmpresa.Nombre}");
-  }
-
-  // 🔹 2. Eliminar empresa por ID
-  void eliminarEmpresa(String id) {
-    int index = listaEmpresas.indexWhere((e) => e.Id == id);
-
-    if (index == -1) {
-      print("⚠️ No se encontró la empresa con ID '$id'");
-      return;
-    }
-
-    print("🗑️ Empresa eliminada: ${listaEmpresas[index].Nombre}");
-    listaEmpresas.removeAt(index);
-  }
-
-  // 🔹 3. Obtener una empresa por ID
-  Empresa? obtenerEmpresaPorId(String id) {
-    try {
-      return listaEmpresas.firstWhere((e) => e.Id == id);
-    } catch (e) {
-      print("⚠️ No se encontró la empresa con ID '$id'");
-      return null;
+      return false;
     }
   }
 
-  // 🔹 4. Obtener todas las empresas
-  List<Empresa> obtenerEmpresas() {
-    if (listaEmpresas.isEmpty) {
-      print("⚠️ No hay empresas registradas.");
-    }
+  
+  Future<List<Empresa>> obtenerTodasEmpresas() async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Empresas')
+        .select();
+
+    print("Empresas encontradas correctamente en Supabase: $respuesta");
+
+    // Convertir la lista de mapas a lista de objetos Empresa
+    final List<Empresa> listaEmpresas = (respuesta as List)
+        .map((e) => Empresa.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    lista_de_empresas = listaEmpresas;
     return listaEmpresas;
+  } catch (e) {
+    print("Hay un problema al obtener las empresas: $e");
+    return [];
   }
+}
 
-  // 🔹 5. Actualizar una empresa existente
-  void actualizarEmpresa(Empresa empresaActualizada) {
-    int index = listaEmpresas.indexWhere((e) => e.Id == empresaActualizada.Id);
+  // 3. Obtener una empresa por id del usuario
+  Future<List<Empresa>> obtenerEmpresasPorUsuario(String usuarioId) async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Empresas')
+        .select()
+        .eq("Id_Usuario", usuarioId);
 
-    if (index == -1) {
-      print("⚠️ No se encontró empresa con ID '${empresaActualizada.Id}'");
-      return;
-    }
+    print("Empresas encontradas correctamente en Supabase: $respuesta");
 
-    listaEmpresas[index] = empresaActualizada;
-    print("🔄 Empresa actualizada: ${empresaActualizada.Nombre}");
+    // Convertir la lista de mapas a lista de objetos Empresa
+    final List<Empresa> listaEmpresas = (respuesta as List)
+        .map((e) => Empresa.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    lista_de_empresas = listaEmpresas;
+    print(listaEmpresas);
+    return listaEmpresas;
+  } catch (e) {
+    print("Hay un problema al obtener las empresas: $e");
+    return [];
   }
+}
 
-  // 🔹 6. Agregar servicio a una empresa específica
-  void agregarServicio(String idEmpresa, servicio) {
-    Empresa? empresa = obtenerEmpresaPorId(idEmpresa);
 
-    if (empresa == null) {
-      print("⚠️ No se encontró la empresa con ID '$idEmpresa'");
-      return;
-    }
+  // 5. Actualizar una empresa existente
+  Future<bool> actualizarEmpresa(Empresa EmpresaActualizado) async {
+    try{
 
-    empresa.ListaDeServicios ??= [];
-    empresa.ListaDeServicios!.add(servicio);
-    print("🧩 Servicio agregado a la empresa: ${empresa.Nombre}");
-  }
+      await SupabaseService.client
+          .from('Empresas')
+          .update(EmpresaActualizado.toJson()) //Los datoa actualizados convertidos a json
+          .eq("Id", EmpresaActualizado.Id!);
 
-  // 🔹 7. Agregar empleado a una empresa específica
-  void agregarEmpleado(String idEmpresa, empleado) {
-    Empresa? empresa = obtenerEmpresaPorId(idEmpresa);
+      print("Empresa actualizados correctamente en Supabase");
 
-    if (empresa == null) {
-      print("⚠️ No se encontró la empresa con ID '$idEmpresa'");
-      return;
-    }
+      return true;
 
-    empresa.ListaDeEmpleados ??= [];
-    empresa.ListaDeEmpleados!.add(empleado);
-    print("👨‍💼 Empleado agregado a la empresa: ${empresa.Nombre}");
-  }
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Empresa + $e" );
 
-  // 🔹 8. Mostrar resumen de todas las empresas
-  void mostrarResumenEmpresas() {
-    if (listaEmpresas.isEmpty) {
-      print("⚠️ No hay empresas registradas.");
-      return;
-    }
-
-    for (var e in listaEmpresas) {
-      print("""
-🏢 Empresa: ${e.Nombre}
-⭐ Estrellas: ${e.Estrellas}
-📧 Correo: ${e.Correo}
-📍 Ubicación: ${e.DescripcionUbicacion ?? 'No definida'}
-👥 Empleados: ${e.ListaDeEmpleados?.length ?? 0}
-🧩 Servicios: ${e.ListaDeServicios?.length ?? 0}
-📅 Reservaciones: ${e.ListaDeReservaciones?.length ?? 0}
------------------------------------------
-""");
+      return false;
     }
   }
+
+
+  // 2. Eliminar empresa por ID
+ Future<bool> eliminarEmpresa(String Id)  async{
+    try{
+
+      await SupabaseService.client
+          .from('Empresas')
+          .delete()
+          .eq("Id",Id);
+
+      print("Empresa borrado correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Empresa + $e" );
+
+      return false;
+    }
+  }
+
 }

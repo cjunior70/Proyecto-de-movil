@@ -1,63 +1,124 @@
-import 'package:proyecto/Models/Servicio.dart';
+import 'package:proyecto/Conexion/supabase_service.dart';
+import 'package:proyecto/models/Servicio.dart';
 
 class ServicioController {
-  Servicios? _servicio; // Solo un servicio cargado en memoria
+
+  Servicio? servicio; // Solo un servicio cargado en memoria
+
+  List<Servicio> listadeServicios = [];
 
   // ✅ Guardar servicio (recibe el objeto completo)
-  void guardarServicio(Servicios servicio) {
-    _servicio = servicio;
-    print("✅ Servicio guardado correctamente: ${_servicio!.Nombre}");
+  Future<bool> guardarServicio(Servicio nuevoServicio) async {
+    try{
+
+      //Guardar los daots del Servicio temporalmente
+      servicio = nuevoServicio;
+
+      await SupabaseService.client
+          .from('Servicios')
+          .insert(nuevoServicio.toJson());
+
+      print("Servicio insertado correctamente en Supabase");
+
+      return true;
+
+    }
+    catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el guardado del Servicio + $e" );
+
+      return false;
+    }
   }
 
+  Future<List<Servicio>> obtenerTodasServicios() async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Servicios')
+        .select();
+
+    print("Servicios encontradas correctamente en Supabase: $respuesta");
+
+    // Convertir la lista de mapas a lista de objetos Servicio
+    final List<Servicio> listaServicios = (respuesta as List)
+        .map((e) => Servicio.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    listadeServicios = listaServicios;
+    return listaServicios;
+  } catch (e) {
+    print("Hay un problema al obtener las Servicios: $e");
+    return [];
+  }
+}
+
   // ✅ Obtener servicio actual
-  Servicios? obtenerServicio() {
-    if (_servicio == null) {
-      print("⚠️ No hay servicio registrado actualmente.");
-      return null;
+  Future<List<Servicio>> obtenerServiciosPorId(String usuarioId) async {
+    try {
+      final respuesta = await SupabaseService.client
+          .from('Servicios')
+          .select()
+          .eq("Id", usuarioId);
+
+      print("Servicios encontradas correctamente en Supabase: $respuesta");
+
+      // Convertir la lista de mapas a lista de objetos Servicio
+      final List<Servicio> listaServicios = (respuesta as List)
+          .map((e) => Servicio.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      listadeServicios = listaServicios;
+      print(listaServicios);
+      return listaServicios;
+    } catch (e) {
+      print("Hay un problema al obtener las Servicios: $e");
+      return [];
     }
-    return _servicio;
   }
 
   // ✅ Actualizar servicio
-  void actualizarServicio(Servicios servicioActualizado) {
-    if (_servicio == null) {
-      print("⚠️ No hay servicio registrado para actualizar.");
-      return;
-    }
+  // 5. Actualizar una Servicio existente
+  Future<bool> actualizarServicio(Servicio ServicioActualizado) async {
+    try{
 
-    if (_servicio!.Id != servicioActualizado.Id) {
-      print("⚠️ El ID no coincide con el servicio actual.");
-      return;
-    }
+      await SupabaseService.client
+          .from('Servicios')
+          .update(ServicioActualizado.toJson()) //Los datoa actualizados convertidos a json
+          .eq("Id", ServicioActualizado.Id!);
 
-    _servicio = servicioActualizado;
-    print("🔄 Servicio actualizado correctamente: ${_servicio!.Nombre}");
+      print("Servicio actualizados correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Servicio + $e" );
+
+      return false;
+    }
   }
 
   // ✅ Eliminar servicio
-  void eliminarServicio() {
-    if (_servicio == null) {
-      print("⚠️ No hay servicio registrado para eliminar.");
-      return;
+ Future<bool> eliminarServicio(String Id)  async{
+    try{
+
+      await SupabaseService.client
+          .from('Servicios')
+          .delete()
+          .eq("Id",Id);
+
+      print("Servicio borrado correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Servicio + $e" );
+
+      return false;
     }
-
-    print("🗑️ Servicio eliminado: ${_servicio!.Nombre}");
-    _servicio = null;
-  }
-
-  // ✅ Mostrar detalles del servicio
-  void mostrarServicio() {
-    if (_servicio == null) {
-      print("⚠️ No hay servicio registrado.");
-      return;
-    }
-
-    print("""
-💈 SERVICIO REGISTRADO
-🆔 ID: ${_servicio!.Id}
-📛 Nombre: ${_servicio!.Nombre}
-💰 Precio: \$${_servicio!.Precio}
-⏱️ Tiempo promedio: ${_servicio!.TiempoPromedio.inMinutes} minutos
-""");
   }
 }

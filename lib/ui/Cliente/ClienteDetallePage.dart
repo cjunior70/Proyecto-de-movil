@@ -27,14 +27,14 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
   void initState() {
     super.initState();
     // Obtener cliente desde singleton
-    cliente = ClienteController().obtenerCliente();
+    //cliente = ClienteController().obtenerCliente();
 
     if (cliente != null) {
       // Inicializar campos con datos actuales
-      cedulaCtrl.text = cliente!.Cedula;
-      primerNombreCtrl.text = cliente!.PrimerNombre;
+      cedulaCtrl.text = cliente!.Cedula ?? "";
+      primerNombreCtrl.text = cliente!.PrimerNombre ?? "";
       segundoNombreCtrl.text = cliente!.SegundoNombre ?? "";
-      primerApellidoCtrl.text = cliente!.PrimerApellido;
+      primerApellidoCtrl.text = cliente!.PrimerApellido ?? "";
       segundoApellidoCtrl.text = cliente!.SegundoApellido ?? "";
       telefonoCtrl.text = cliente!.Telefono ?? "";
       correoCtrl.text = cliente!.Correo ?? "";
@@ -62,7 +62,7 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
       ClienteController().actualizarCliente(actualizado);
 
       setState(() {
-        cliente = ClienteController().obtenerCliente();
+        //cliente = ClienteController().obtenerCliente();
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -98,10 +98,10 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
             ElevatedButton(
               onPressed: () {
                 _guardarCambios(); // Esto guarda los cambios y refresca la UI
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => UsuarioHome()),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => UsuarioHome()),
+                // );
               },
               child: const Text("Guardar cambios"),
             ),
