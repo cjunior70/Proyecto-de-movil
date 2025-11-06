@@ -3,7 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:proyecto/Models/Cliente.dart';
 import 'package:proyecto/Controllers/ClienteController.dart';
 import 'package:proyecto/controllers/UsuarioController.dart';
-import 'package:proyecto/Models/Usuario.dart';
+import 'package:proyecto/models/Usuario.dart';
 import 'dart:io';
 import 'package:proyecto/ui/login/loginpage.dart';
 
@@ -83,7 +83,6 @@ class _RegistroState extends State<Registro> {
           Sexo: sexoSeleccionado,
           // Foto: foto,
           Rol: widget.rol,
-          ListaDeReservaciones: null,
         );
 
         ClienteController().guardarCliente(nuevoCliente);

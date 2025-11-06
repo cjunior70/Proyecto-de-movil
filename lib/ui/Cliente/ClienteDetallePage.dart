@@ -27,7 +27,7 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
   void initState() {
     super.initState();
     // Obtener cliente desde singleton
-    cliente = ClienteController().obtenerCliente();
+    //cliente = ClienteController().obtenerCliente();
 
     if (cliente != null) {
       // Inicializar campos con datos actuales
@@ -62,7 +62,7 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
       ClienteController().actualizarCliente(actualizado);
 
       setState(() {
-        cliente = ClienteController().obtenerCliente();
+        //cliente = ClienteController().obtenerCliente();
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

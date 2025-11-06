@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:uuid/uuid.dart';
+
 class Datospersonales {
   String? Id;
   String? Cedula;
@@ -10,10 +12,9 @@ class Datospersonales {
   String? Telefono;
   String? Correo;
   String? Sexo;
-  Uint8List? Foto; // el signo ? permite que sea opcional (puede ser null)
+  Uint8List? Foto;
   String? Rol;
 
-  //Constructor
   Datospersonales({
     this.Id,
     this.Cedula,
@@ -28,18 +29,16 @@ class Datospersonales {
     this.Rol,
   });
 
-  // Constructor vacío es para que los datos este por defecto solos porque el required no permite que este sin nd
-  // Datospersonales.vacio()
-  //     : Id = '',
-  //       Cedula = '',
-  //       PrimerNombre = '',
-  //       SegundoNombre = '',
-  //       PrimerApellido = '',
-  //       SegundoApellido = '',
-  //       Telefono = '',
-  //       Correo = '',
-  //       Sexo = '',
-  //       Foto = null,
-  //       Rol = "";
-
+  Datospersonales.vacio()
+      : Id =null,
+        Cedula = '',
+        PrimerNombre = '',
+        SegundoNombre = '',
+        PrimerApellido = '',
+        SegundoApellido = '',
+        Telefono = '',
+        Correo = '',
+        Sexo = '',
+        Foto = null,
+        Rol = "";
 }
