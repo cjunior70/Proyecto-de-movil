@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto/models/Ubicacion.dart';
+import 'package:proyecto/Models/Ubicacion.dart';
 import 'package:proyecto/controllers/EmpleadosController.dart';
+import 'package:proyecto/controllers/ReservacionController.dart';
 import 'package:proyecto/controllers/ServiciosController.dart';
 import 'package:proyecto/controllers/UbicacionController.dart';
+import 'package:proyecto/models/Cliente.dart';
+import 'package:proyecto/models/Contabilidad.dart';
 import 'package:proyecto/models/Empleado.dart';
-import 'package:proyecto/Models/Empresa.dart';
+import 'package:proyecto/models/Empresa.dart';
+import 'package:proyecto/models/Reservacion.dart';
 import 'package:proyecto/models/Servicio.dart';
 import 'package:proyecto/models/Usuario.dart';
 import 'package:proyecto/ui/Registro/Registro.dart';
@@ -32,62 +36,21 @@ class _LoginPageState extends State<LoginPage> {
 
   void _testConnection() async {
     try {
-      UbicacionController o=new UbicacionController();
+      ReservacionController o=new ReservacionController();
 
-      // Empresa empresaPrueba = Empresa(
-      //   Id: "4be17d32-9b48-42eb-8e47-3ddee605d666", // UUID generado en frontend
-      //   Nombre: "Peluquería La Estrella mas bonita",
-      //   Estrellas: 4.8,
-      //   Correo: "contacto@laestrellapepe.com",
-      //   DescripcionUbicacion: "Calle 123 #45-67, Bogotá",
-      //   WhatsApp: "3101234567",
-      //   Facebook: "@laestrellaFB",
-      //   Instagram: "@laestrellaIG",
-      //   ImagenMiniatura: null, // si no tienes imagen de prueba
-      //   ImagenGeneral: null,
-      //   ComienzoLaboral: TimeOfDay(hour: 9, minute: 0), // 09:00 AM
-      //   FinalizacionLaboral: TimeOfDay(hour: 18, minute: 0), // 06:00 PM
-      //   usuario: Usuario(
-      //     Id: "e610188b-85f8-4416-b2ff-565012ee85d6"
-      //   ),
-      //   ubicacion: Ubicacion(
-      //     Id:"9bf7e236-34db-4026-8027-a2518a548cc5",
-      //   ),
-      // );
-
-      // Empleado empleadoPrueba = Empleado(
-      //   Id: "18cb2fef-53d2-4734-b0d9-1c07735b9c7e",
-      //   Cedula: "123456789",
-      //   PrimerNombre: "carlos",
-      //   SegundoNombre: "junior",
-      //   PrimerApellido: "gaviria",
-      //   SegundoApellido: "marquez",
-      //   Telefono: "3119876543",
-      //   Correo: "andres.ramirez@empresa.com",
-      //   Sexo: "M",
-      //   Foto: null, // sin imagen por ahora
-
-      //   // Fechas
-      //   FechaDeInicio: DateTime(2024, 02, 01),
-      //   FechaActual: DateTime.now(),
-
-      //   // Datos laborales
-      //   Cargo: "Barbero Senior",
-      //   Estado: "Activo",
-      //   Estacion: "Silla 3",
-
-      //   // Vinculación a empresa (solo el ID)
-      //   empresa: empresaPrueba,
-  
-    // );
-
-    Ubicacion ubBogota = Ubicacion(
-      Id: "ab828466-c6e1-420c-84c8-f08189cace15",
-      Latitud: 4.6486253333,
-      Longitud: -74.06300322222,
+    Reservacion testReservacion = Reservacion(
+      Id: "36b83a3f-6e8d-4c86-bb88-430ca6700ca7",
+      Creacion: DateTime.now(),
+      Fecha: DateTime(2025, 3, 14, 15, 30),
+      Total: 450000,
+      Estado: "Espera..",
+      Comentario: "Cliente pidió corte + barba.",
+      Estrellas: 5,
+      empresa: Empresa(Id: "4be17d32-9b48-42eb-8e47-3ddee605d666"),
+      cliente: Cliente(Id: "3fee39e0-d29b-4d04-bd3b-f1241585b829"),
     );
 
-    var situacon = await o.eliminarUbicacion("ab828466-c6e1-420c-84c8-f08189cace15");
+    var situacon = await o.eliminarReservacion("36b83a3f-6e8d-4c86-bb88-430ca6700ca7");
 
     print("ESTADO DE LA OPERACION: $situacon");
 
