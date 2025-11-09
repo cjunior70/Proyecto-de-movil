@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:proyecto/ui/Registro/Registro.dart';
 import 'package:proyecto/ui/home/homepageAdmin.dart';
 import 'package:proyecto/ui/home/UsuarioHome.dart';
-
-
 import '../componentes/Login/tarjetas/tarjeta_login.dart';
 import '../componentes/Login/encabezados/encabezado_bienvenida.dart';
 import '../componentes/Login/formularios/formulario_login.dart';

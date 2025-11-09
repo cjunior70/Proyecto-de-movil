@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'tarjeta_empresa.dart';
 
+/// ✅ Lista de empresas con diseño oscuro premium y estados de carga
 class ListaEmpresasPopulares extends StatelessWidget {
-  final List<dynamic> empresas; // ✅ dynamic para cualquier modelo del backend
+  final List<dynamic> empresas;
   final VoidCallback? onVerTodas;
-  final ValueChanged<dynamic>? onEmpresaSeleccionada; // ✅ dynamic para cualquier modelo
+  final ValueChanged<dynamic>? onEmpresaSeleccionada;
   final bool cargando;
 
   const ListaEmpresasPopulares({
@@ -24,6 +25,7 @@ class ListaEmpresasPopulares extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ✅ Header mejorado
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
@@ -32,26 +34,54 @@ class ListaEmpresasPopulares extends StatelessWidget {
               const Text(
                 "Empresas Populares",
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
                 ),
               ),
               GestureDetector(
                 onTap: onVerTodas,
-                child: const Text(
-                  "Ver todas",
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color.fromARGB(255, 240, 208, 48)
+                          .withOpacity(0.3),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Ver todas",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 240, 208, 48),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Color.fromARGB(255, 240, 208, 48),
+                        size: 12,
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
+
+        // ✅ Lista de empresas o estado vacío
         empresas.isEmpty
             ? _buildListaVacia()
             : ListView.builder(
@@ -60,23 +90,20 @@ class ListaEmpresasPopulares extends StatelessWidget {
                 itemCount: empresas.length,
                 itemBuilder: (context, index) {
                   final empresa = empresas[index];
-                  
-                  // ✅ INTERFAZ PREPARADA PARA BACKEND
-                  // Tu compañero solo necesita mapear estos campos:
-                return TarjetaEmpresa(
-                  nombre: empresa is Map
-                      ? (empresa['nombre'] ?? 'Sin nombre')
-                      : (empresa.nombre ?? 'Sin nombre'),
-                  descripcion: empresa is Map
-                      ? (empresa['descripcion'] ?? 'Sin descripción')
-                      : (empresa.descripcion ?? 'Sin descripción'),
-                  imagenUrl: empresa is Map
-                      ? (empresa['imagenUrl'] ?? '')
-                      : (empresa.imagenUrl ?? ''),
-                  rating: _obtenerRating(empresa),
-                  onTap: () => onEmpresaSeleccionada?.call(empresa),
-                );
 
+                  return TarjetaEmpresa(
+                    nombre: empresa is Map
+                        ? (empresa['nombre'] ?? 'Sin nombre')
+                        : (empresa.nombre ?? 'Sin nombre'),
+                    descripcion: empresa is Map
+                        ? (empresa['descripcion'] ?? 'Sin descripción')
+                        : (empresa.descripcion ?? 'Sin descripción'),
+                    imagenUrl: empresa is Map
+                        ? (empresa['imagenUrl'] ?? '')
+                        : (empresa.imagenUrl ?? ''),
+                    rating: _obtenerRating(empresa),
+                    onTap: () => onEmpresaSeleccionada?.call(empresa),
+                  );
                 },
               ),
       ],
@@ -84,13 +111,13 @@ class ListaEmpresasPopulares extends StatelessWidget {
   }
 
   double _obtenerRating(dynamic empresa) {
-    // ✅ Flexible para diferentes estructuras de modelo
     if (empresa is Map) {
       return (empresa['rating'] ?? empresa['estrellas'] ?? 0.0).toDouble();
     }
     return empresa.rating ?? empresa.estrellas ?? 0.0;
   }
 
+  // ✅ Skeleton loader mejorado
   Widget _buildCargando() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,24 +130,25 @@ class ListaEmpresasPopulares extends StatelessWidget {
               const Text(
                 "Empresas Populares",
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Colors.white,
                 ),
               ),
               Container(
                 width: 80,
-                height: 16,
+                height: 20,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
-        // Skeletons de carga
+        const SizedBox(height: 16),
+
+        // ✅ Skeletons animados
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -128,11 +156,15 @@ class ListaEmpresasPopulares extends StatelessWidget {
           itemBuilder: (context, index) {
             return Container(
               margin: const EdgeInsets.only(bottom: 16),
-              height: 200,
+              height: 260,
               decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(16),
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.1),
+                ),
               ),
+              child: const _SkeletonShimmer(),
             );
           },
         ),
@@ -140,26 +172,101 @@ class ListaEmpresasPopulares extends StatelessWidget {
     );
   }
 
+  // ✅ Estado vacío mejorado
   Widget _buildListaVacia() {
     return Container(
-      height: 150,
+      height: 200,
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
-      child: const Column(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.business, color: Colors.grey, size: 40),
-          SizedBox(height: 8),
-          Text(
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.business_rounded,
+              color: Colors.white38,
+              size: 50,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
             "No hay empresas disponibles",
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: Colors.white54,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Intenta buscar o ajustar los filtros",
+            style: TextStyle(
+              color: Colors.white38,
+              fontSize: 13,
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+// ✅ Efecto de shimmer para el skeleton
+class _SkeletonShimmer extends StatefulWidget {
+  const _SkeletonShimmer();
+
+  @override
+  State<_SkeletonShimmer> createState() => _SkeletonShimmerState();
+}
+
+class _SkeletonShimmerState extends State<_SkeletonShimmer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment(-1.0 + _controller.value * 2, 0),
+              end: Alignment(1.0 + _controller.value * 2, 0),
+              colors: [
+                Colors.white.withOpacity(0.05),
+                Colors.white.withOpacity(0.15),
+                Colors.white.withOpacity(0.05),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
