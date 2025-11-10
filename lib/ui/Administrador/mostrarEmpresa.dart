@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto/Models/Empresa.dart';
-import 'package:proyecto/Models/Servicio.dart';
-import 'package:proyecto/controllers/EmpresaController.dart';
+import 'package:proyecto/models/Empresa.dart';
 import 'package:proyecto/ui/Administrador/gestionEmpleados.dart';
-import '../componentes/servicio_card.dart';
-import '../componentes/servicio_form.dart';
+import 'package:proyecto/ui/Administrador/gestionServicios.dart';
 
+/// ✅ MOSTRAR EMPRESA - Diseño Oscuro Premium con Tabs
 class MostrarEmpresa extends StatefulWidget {
   final Empresa empresa;
 
@@ -15,354 +13,673 @@ class MostrarEmpresa extends StatefulWidget {
   State<MostrarEmpresa> createState() => _MostrarEmpresaState();
 }
 
-class _MostrarEmpresaState extends State<MostrarEmpresa> {
-  final EmpresaController _empresaController = EmpresaController();
-  final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _precioController = TextEditingController();
-  final TextEditingController _duracionController = TextEditingController();
-  final TextEditingController _descripcionController = TextEditingController();
 
-  int _selectedIndex = 0;
-  Servicio? _servicioEditando;
 
-  void _mostrarFormularioServicio({Servicio? servicio}) {
-    _servicioEditando = servicio;
+class _MostrarEmpresaState extends State<MostrarEmpresa>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
-    if (servicio != null) {
-      _nombreController.text = servicio.Nombre ?? "";
-      _precioController.text = servicio.Precio.toString();
-      _duracionController.text = servicio.TiempoPromedio.inMinutes.toString();
-      _descripcionController.text = servicio.Descripcion ?? '';
-    } else {
-      _limpiarFormulario();
-    }
+  // Datos de ejemplo para estadísticas
+  final Map<String, dynamic> _estadisticas = {
+    'empleados': 8,
+    'servicios': 15,
+    'reservasHoy': 12,
+  };
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(servicio == null ? 'Agregar Servicio' : 'Editar Servicio'),
-        content: ServicioForm(
-          nombreInicial: _nombreController.text,
-          precioInicial: _precioController.text,
-          duracionInicial: _duracionController.text,
-          descripcionInicial: _descripcionController.text,
-          esEdicion: servicio != null,
-          onSubmit: _onSubmitServicio,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: _procesarFormulario,
-            child: Text(servicio == null ? 'Guardar' : 'Actualizar'),
-          ),
-        ],
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
   }
 
-  void _procesarFormulario() {
-  final nombre = _nombreController.text.trim();
-  final precio = _precioController.text.trim();
-  final descripcion = _descripcionController.text.trim();
-
-    if (nombre.isEmpty || precio.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Todos los campos obligatorios'),
-          backgroundColor: Colors.red.shade400,
-        ),
-      );
-      return;
-    }
-
-    _guardarServicio();
-  }
-
-  void _guardarServicio() {
-    final nuevoServicio = Servicio(
-      Id: _servicioEditando?.Id ??
-          DateTime.now().millisecondsSinceEpoch.toString(),
-      Nombre: _nombreController.text,
-      Precio: double.parse(_precioController.text),
-      TiempoPromedio: Duration(minutes: int.parse(_duracionController.text)),
-      Descripcion:
-          _descripcionController.text.isEmpty ? null : _descripcionController.text,
-    );
-
-    setState(() {
-      if (_servicioEditando == null) {
-        widget.empresa.ListaDeServicios ??= [];
-        widget.empresa.ListaDeServicios!.add(nuevoServicio);
-      } else {
-        int index = widget.empresa.ListaDeServicios!
-            .indexWhere((s) => s.Id == _servicioEditando!.Id);
-        if (index != -1) {
-          widget.empresa.ListaDeServicios![index] = nuevoServicio;
-        }
-      }
-    });
-
-    _limpiarFormulario();
-    Navigator.pop(context);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_servicioEditando == null
-            ? 'Servicio agregado exitosamente'
-            : 'Servicio actualizado exitosamente'),
-        backgroundColor: Colors.green.shade400,
-      ),
-    );
-  }
-
-  void _eliminarServicio(String id) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar Servicio'),
-        content: const Text('¿Estás seguro de eliminar este servicio?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                widget.empresa.ListaDeServicios!
-                    .removeWhere((s) => s.Id == id);
-              });
-              Navigator.pop(context);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Servicio eliminado exitosamente'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _limpiarFormulario() {
-    _nombreController.clear();
-    _precioController.clear();
-    _duracionController.clear();
-    _descripcionController.clear();
-    _servicioEditando = null;
-  }
-
-  void _onSubmitServicio(
-      String nombre, String precio, String duracion, String? descripcion) {
-    _nombreController.text = nombre;
-    _precioController.text = precio;
-    _duracionController.text = duracion;
-    _descripcionController.text = descripcion ?? '';
-    _procesarFormulario();
-  }
-
-  Widget _buildInfoEmpresa() {
-    return Card(
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.empresa.Nombre ?? 'Empresa',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Dirección: ${widget.empresa.DescripcionUbicacion ?? 'No definida'}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 16),
-            Text(widget.empresa.DescripcionUbicacion ?? ''),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _buildSectionButton('Servicios', Icons.spa),
-                const SizedBox(width: 12),
-                _buildSectionButton('Mapa', Icons.map),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionButton(String text, IconData icon) {
-    return Expanded(
-      child: ElevatedButton.icon(
-        onPressed: () {},
-        icon: Icon(icon, size: 16),
-        label: Text(text),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 1,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildListaServicios() {
-    final listaServicios = widget.empresa.ListaDeServicios ?? [];
-
-    if (listaServicios.isEmpty) {
-      return const Column(
-        children: [
-          Text(
-            'Lista de servicios',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 20),
-          Text(
-            'No hay servicios registrados',
-            style: TextStyle(color: Colors.grey, fontSize: 16),
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Lista de servicios',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        ...listaServicios.map((servicio) => ServicioCard(
-              servicio: servicio,
-              onEditar: () => _mostrarFormularioServicio(servicio: servicio),
-              onEliminar: () => _eliminarServicio(servicio.Id!),
-            )),
-      ],
-    );
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.empresa.Nombre ?? 'Empresa'),
-        backgroundColor: const Color.fromARGB(255, 240, 208, 48),
-        foregroundColor: Colors.white,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.fromARGB(255, 35, 35, 35),
+              Color.fromARGB(255, 50, 50, 50),
+              Color.fromARGB(255, 70, 70, 70),
+            ],
+            stops: [0.0, 0.5, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(),
+              _buildEmpresaCard(),
+              _buildEstadisticas(),
+              _buildTabBar(),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildTabInformacion(),
+                    _buildTabServicios(),
+                    _buildTabEmpleados(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildInfoEmpresa(),
-            const SizedBox(height: 24),
-            _buildListaServicios(),
-            const SizedBox(height: 20),
-            Row(
+    );
+  }
+
+  // ✅ HEADER
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _mostrarFormularioServicio(),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Agregar'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 240, 208, 48),
-                      foregroundColor: Colors.white,
-                    ),
+                Text(
+                  'Detalles de',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  'Empresa',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
                   ),
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        backgroundColor: const Color.fromARGB(255, 240, 208, 48),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.black54,
-        selectedFontSize: 14,
-        unselectedFontSize: 12,
-        showUnselectedLabels: true,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-
-          switch (index) {
-            case 0:
-              break;
-            case 1:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Gestión de Citas - Próximamente'),
-                  backgroundColor: Colors.blue,
-                ),
-              );
-              break;
-            case 2:
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (_) =>
-              //         gestionEmpleados(empresa: widget.empresa),
-              //   ),
-              // );
-              break;
-            case 3:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Perfil de Usuario - Próximamente'),
-                  backgroundColor: Colors.purple,
-                ),
-              );
-              break;
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Inicio',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Citas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Empleados',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Perfil',
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
+              onPressed: _editarEmpresa,
+              tooltip: 'Editar',
+            ),
           ),
         ],
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _nombreController.dispose();
-    _precioController.dispose();
-    _duracionController.dispose();
-    _descripcionController.dispose();
-    super.dispose();
+  // ✅ TARJETA DE EMPRESA
+  Widget _buildEmpresaCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 240, 208, 48),
+                  Color.fromARGB(255, 255, 220, 100),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.4),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.business_rounded,
+              color: Colors.white,
+              size: 35,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.empresa.Nombre!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.location_on_rounded,
+                        color: Colors.white.withOpacity(0.6), size: 16),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        widget.empresa.DescripcionUbicacion!,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Row(
+                //   children: [
+                //     const Icon(Icons.star_rounded,
+                //         color: Color.fromARGB(255, 240, 208, 48), size: 18),
+                //     const SizedBox(width: 4),
+                //     Text(
+                //       widget.empresa.ratingPromedio.toStringAsFixed(1),
+                //       style: const TextStyle(
+                //         color: Colors.white,
+                //         fontWeight: FontWeight.bold,
+                //         fontSize: 14,
+                //       ),
+                //     ),
+                //     const SizedBox(width: 12),
+                //     Icon(Icons.reviews_rounded,
+                //         color: Colors.white.withOpacity(0.5), size: 16),
+                //     const SizedBox(width: 4),
+                //     Text(
+                //       '${widget.empresa.totalReviews} reviews',
+                //       style: TextStyle(
+                //         color: Colors.white.withOpacity(0.7),
+                //         fontSize: 13,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ ESTADÍSTICAS
+  Widget _buildEstadisticas() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.15)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildEstadisticaItem(
+            Icons.people_rounded,
+            '${_estadisticas['empleados']}',
+            'Empleados',
+            Colors.blue,
+          ),
+          Container(
+            width: 1,
+            height: 40,
+            color: Colors.white.withOpacity(0.2),
+          ),
+          _buildEstadisticaItem(
+            Icons.room_service_rounded,
+            '${_estadisticas['servicios']}',
+            'Servicios',
+            Colors.purple,
+          ),
+          Container(
+            width: 1,
+            height: 40,
+            color: Colors.white.withOpacity(0.2),
+          ),
+          _buildEstadisticaItem(
+            Icons.calendar_today_rounded,
+            '${_estadisticas['reservasHoy']}',
+            'Hoy',
+            Colors.green,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEstadisticaItem(
+    IconData icono,
+    String valor,
+    String titulo,
+    Color color,
+  ) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.2),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icono, color: color, size: 20),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          valor,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          titulo,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.6),
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ✅ TAB BAR
+  Widget _buildTabBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.15)),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        indicator: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color.fromARGB(255, 240, 208, 48),
+              Color.fromARGB(255, 255, 220, 100),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white.withOpacity(0.6),
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+        tabs: const [
+          Tab(text: 'Información'),
+          Tab(text: 'Servicios'),
+          Tab(text: 'Empleados'),
+        ],
+      ),
+    );
+  }
+
+  // ✅ TAB 1: INFORMACIÓN
+ Widget _buildTabInformacion() {
+  final redes = [
+    if (widget.empresa.WhatsApp != null && widget.empresa.WhatsApp!.isNotEmpty)
+      widget.empresa.WhatsApp!,
+    if (widget.empresa.Facebook != null && widget.empresa.Facebook!.isNotEmpty)
+      widget.empresa.Facebook!,
+    if (widget.empresa.Instagram != null && widget.empresa.Instagram!.isNotEmpty)
+      widget.empresa.Instagram!,
+  ];
+
+  return SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSeccion(
+          'Contacto',
+          Icons.contact_phone_rounded,
+          [
+            _buildInfoRow(Icons.email_rounded, 'Email', widget.empresa.Correo!),
+            _buildInfoRow(
+                Icons.location_on_rounded, 'Dirección', widget.empresa.DescripcionUbicacion!),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildSeccion(
+          'Descripción',
+          Icons.description_rounded,
+          [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                widget.empresa.DescripcionUbicacion!,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Sección de Redes Sociales
+        if (redes.isNotEmpty)
+          _buildSeccion(
+            'Redes Sociales',
+            Icons.share_rounded,
+            redes.map((red) => _buildSocialChip(red)).toList(),
+          ),
+      ],
+    ),
+  );
+}
+
+
+  // ✅ TAB 2: SERVICIOS
+  Widget _buildTabServicios() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.room_service_rounded,
+              size: 60,
+              color: Colors.white.withOpacity(0.3),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Gestión de Servicios',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Administra los servicios de esta empresa',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GestionServicios(empresa: widget.empresa),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 240, 208, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+            label: const Text(
+              'Ir a Servicios',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ TAB 3: EMPLEADOS
+  Widget _buildTabEmpleados() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.people_rounded,
+              size: 60,
+              color: Colors.white.withOpacity(0.3),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Gestión de Empleados',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Administra el equipo de esta empresa',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GestionEmpleados(empresa: widget.empresa),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 240, 208, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+            label: const Text(
+              'Ir a Empleados',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ WIDGETS AUXILIARES
+  Widget _buildSeccion(String titulo, IconData icono, List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icono,
+                    color: const Color.fromARGB(255, 240, 208, 48),
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  titulo,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icono, String titulo, String valor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Icon(icono, color: Colors.white.withOpacity(0.6), size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titulo,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  valor,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSocialChip(String red) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.link_rounded, color: Color.fromARGB(255, 240, 208, 48), size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              red,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ ACCIONES
+  void _editarEmpresa() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Función de editar empresa'),
+        backgroundColor: const Color.fromARGB(255, 240, 208, 48),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 }

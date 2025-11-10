@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../Models/Servicio.dart';
+import 'package:proyecto/models/Servicio.dart';
 
 class ServicioCard extends StatelessWidget {
   final Servicio servicio;
@@ -13,19 +13,6 @@ class ServicioCard extends StatelessWidget {
     required this.onEliminar,
   });
 
-  // Getter para formatear el tiempo de duración
-  String get tiempoFormateado {
-    if (servicio.TiempoPromedio == null) return '';
-    final minutos = servicio.TiempoPromedio!.inMinutes;
-    if (minutos < 60) {
-      return '$minutos min';
-    } else {
-      final horas = minutos ~/ 60;
-      final minRestantes = minutos % 60;
-      return minRestantes == 0 ? '$horas h' : '$horas h $minRestantes min';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -34,18 +21,16 @@ class ServicioCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            // Nombre del servicio
             Expanded(
               flex: 2,
               child: Text(
-                servicio.Nombre ?? '',
+                servicio.Nombre!,
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
             ),
-            // Precio del servicio
             Expanded(
               child: Text(
-                '\$${servicio.Precio?.toStringAsFixed(0) ?? '0'}',
+                '\$${servicio.Precio!.toStringAsFixed(0)}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
@@ -53,15 +38,13 @@ class ServicioCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Tiempo promedio del servicio
             Expanded(
               child: Text(
-                tiempoFormateado,
+                '${servicio.TiempoPromedio.inHours.toString().padLeft(2,'0')}:${(servicio.TiempoPromedio.inMinutes % 60).toString().padLeft(2,'0')}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.grey),
               ),
             ),
-            // Botones de editar y eliminar
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
