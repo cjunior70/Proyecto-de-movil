@@ -1,71 +1,127 @@
-// import 'package:proyecto/Models/Horario.dart';
+import 'package:proyecto/Conexion/supabase_service.dart';
+import 'package:proyecto/models/Horario.dart';
 
 
-// class HorarioController {
-//   List<Horario> listaDeHorarios = [];
+class HorarioController {
+  List<Horario> listaDeHorarios = [];
 
-//   // 🔹 1. Guardar horario
-//   void guardarHorario(Horario nuevoHorario) {
-//     listaDeHorarios.add(nuevoHorario);
-//     print("✅ Horario agregado para el día: ${nuevoHorario.DiaSemana}");
-//   }
+  Horario? datosdeHorario;
 
-//   // 🔹 2. Eliminar horario por ID
-//   void eliminarHorarioPorId(String id) {
-//     listaDeHorarios.removeWhere((h) => h.Id == id);
-//     print("🗑️ Horario con ID $id eliminado correctamente.");
-//   }
+  // Guardar Horario publicamente si fuera privada tendria que colocar un _ jusnto al nomobre de la funcion
+  Future<bool> guardarHorario(Horario nuevoHorario) async {
+    try{
 
-//   // 🔹 3. Buscar horario por día o ID
-//   Horario? obtenerHorarioPorId(String id) {
-//     try {
-//       return listaDeHorarios.firstWhere((h) => h.Id == id);
-//     } catch (e) {
-//       print("⚠️ No se encontró un horario con ID $id");
-//       return null;
-//     }
-//   }
+      //Guardar los daots del Horario temporalmente
+      datosdeHorario = nuevoHorario;
 
-//   Horario? obtenerHorarioPorDia(String diaSemana) {
-//     try {
-//       return listaDeHorarios.firstWhere(
-//         (h) => h.DiaSemana.toLowerCase() == diaSemana.toLowerCase(),
-//       );
-//     } catch (e) {
-//       print("⚠️ No se encontró un horario para el día $diaSemana");
-//       return null;
-//     }
-//   }
+      await SupabaseService.client
+          .from('Horario')
+          .insert(nuevoHorario.toJson());
 
-//   // 🔹 4. Actualizar horario
-//   void actualizarHorario(Horario horarioActualizado) {
-//     final index = listaDeHorarios.indexWhere((h) => h.Id == horarioActualizado.Id);
-//     if (index == -1) {
-//       print("⚠️ No existe un horario con ID ${horarioActualizado.Id}");
-//       return;
-//     }
+      print("Horario insertado correctamente en Supabase");
 
-//     listaDeHorarios[index] = horarioActualizado;
-//     print("🔄 Horario actualizado correctamente para el día: ${horarioActualizado.DiaSemana}");
-//   }
+      return true;
 
-//   // 🔹 5. Mostrar todos los horarios
-//   void mostrarHorarios() {
-//     if (listaDeHorarios.isEmpty) {
-//       print("⚠️ No hay horarios registrados.");
-//       return;
-//     }
+    }
+    catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el guardado del Horario + $e" );
 
-//     print("📅 Lista de Horarios Registrados:");
-//     //for (var h in listaDeHorarios) {
-//       // print("""
-//       // 🗓️ Día: ${h.DiaSemana}
-//       // 👨‍💼 Empleado: ${h.empleado} ${h.empleado.PrimerNombre}
-//       // 🌅 Mañana: ${h.TurnoManana?.format(const TimeOfDayFormat.HH_colon_mm) ?? 'No asignado'}
-//       // 🌇 Tarde: ${h.TurnoTarde?.format(const TimeOfDayFormat.HH_colon_mm) ?? 'No asignado'}
-//       // 🌙 Noche: ${h.TurnoNoche?.format(const TimeOfDayFormatHH_colon_mm) ?? 'No asignado'}
-//       // ---------------------------------------------
-//       // """);
-//     //}
-//   }
-// }
+      return false;
+    }
+  }
+
+  
+  Future<List<Horario>> obtenerTodasHorarios() async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Horario')
+        .select();
+
+    print("Horarios encontradas correctamente en Supabase: $respuesta");
+
+    // Convertir la lista de mapas a lista de objetos Horario
+    final List<Horario> listaHorarios = (respuesta as List)
+        .map((e) => Horario.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    listaDeHorarios = listaHorarios;
+    return listaHorarios;
+  } catch (e) {
+    print("Hay un problema al obtener las Horarios: $e");
+    return [];
+  }
+}
+
+  // 3. Obtener una Horario por id del usuario
+  Future<List<Horario>> obtenerHorariosPorUsuario(String usuarioId) async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Horario')
+        .select()
+        .eq("Id_Empleado", usuarioId);
+
+    print("Horarios encontradas correctamente en Supabase: $respuesta");
+
+    // Convertir la lista de mapas a lista de objetos Horario
+    final List<Horario> listaHorarios = (respuesta as List)
+        .map((e) => Horario.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    listaDeHorarios = listaHorarios;
+    print(listaHorarios);
+    return listaHorarios;
+  } catch (e) {
+    print("Hay un problema al obtener las Horarios: $e");
+    return [];
+  }
+}
+
+
+  // 5. Actualizar una Horario existente
+  Future<bool> actualizarHorario(Horario HorarioActualizado) async {
+    try{
+
+      await SupabaseService.client
+          .from('Horario')
+          .update(HorarioActualizado.toJson()) //Los datoa actualizados convertidos a json
+          .eq("Id", HorarioActualizado.Id!);
+
+      print("Horario actualizados correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Horario + $e" );
+
+      return false;
+    }
+  }
+
+
+  // 2. Eliminar Horario por ID
+ Future<bool> eliminarHorario(String Id)  async{
+    try{
+
+      await SupabaseService.client
+          .from('Horario')
+          .delete()
+          .eq("Id",Id);
+
+      print("Horario borrado correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Horario + $e" );
+
+      return false;
+    }
+  }
+ 
+}

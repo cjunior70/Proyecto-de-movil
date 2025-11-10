@@ -1,37 +1,128 @@
-import 'package:proyecto/Models/Reservacion.dart';
+import 'package:proyecto/Conexion/supabase_service.dart';
+import 'package:proyecto/models/Reservacion.dart';
 
 class ReservacionController {
   Reservacion? _reservacion;
 
-  // ✅ Guardar la reservación (recibe el objeto completo)
-  void guardarReservacion(Reservacion reservacion) {
-    _reservacion = reservacion;
-    print("✅ Reservación guardada correctamente.");
+  List<Reservacion> Listadereservacionesdeempresas = [];
+  List<Reservacion> Listadereservacionesdecliente = [];
+
+  // Guardar la reservación (recibe el objeto completo)
+  Future<bool> guardarReservacion(Reservacion nuevoReservacion) async {
+    try{
+
+      //Guardar los daots del Reservacion temporalmente
+      _reservacion = nuevoReservacion;
+
+      await SupabaseService.client
+          .from('Reservaciones')
+          .insert(nuevoReservacion.toJson());
+
+      print("Reservacion insertado correctamente en Supabase");
+
+      return true;
+
+    }
+    catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el guardado del Reservacion + $e" );
+
+      return false;
+    }
   }
 
-  // ✅ Obtener la reservación
-  Reservacion? obtenerReservacion() {
-    return _reservacion;
+  
+  Future<List<Reservacion>> obtenerReservacionesPorEmpresa(String Empresa_id) async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Reservaciones')
+        .select()
+        .eq("Id_Empresa", Empresa_id);
+
+    print("Reservacions encontradas correctamente en Supabase: $respuesta");
+
+    // Convertir la lista de mapas a lista de objetos Reservacion
+    final List<Reservacion> listaReservacions = (respuesta as List)
+        .map((e) => Reservacion.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    Listadereservacionesdeempresas = listaReservacions;
+    print(listaReservacions);
+    return listaReservacions;
+  } catch (e) {
+    print("Hay un problema al obtener las Reservacions: $e");
+    return [];
+  }
+}
+
+  // 3. Obtener una Reservacion por id del usuario
+  Future<List<Reservacion>> obtenerReservacionesPorCliente(String Cliente_id) async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Reservaciones')
+        .select()
+        .eq("Id_Cliente", Cliente_id);
+
+    print("Reservacions encontradas correctamente en Supabase: $respuesta");
+
+    // Convertir la lista de mapas a lista de objetos Reservacion
+    final List<Reservacion> listaReservacions = (respuesta as List)
+        .map((e) => Reservacion.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    Listadereservacionesdecliente = listaReservacions;
+    print(listaReservacions);
+    return listaReservacions;
+  } catch (e) {
+    print("Hay un problema al obtener las Reservacions: $e");
+    return [];
+  }
+}
+
+
+  // 5. Actualizar una Reservacion existente
+  Future<bool> actualizarReservacion(Reservacion ReservacionActualizado) async {
+    try{
+
+      await SupabaseService.client
+          .from('Reservaciones')
+          .update(ReservacionActualizado.toJson()) //Los datoa actualizados convertidos a json
+          .eq("Id", ReservacionActualizado.Id!);
+
+      print("Reservacion actualizados correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Reservacion + $e" );
+
+      return false;
+    }
   }
 
-  // // ✅ Mostrar la información de la reservación
-  // void mostrarReservacion() {
-  //   if (_reservacion == null) {
-  //     print("⚠️ No hay ninguna reservación registrada.");
-  //     return;
-  //   }
 
-  //   print("===== RESERVACIÓN =====");
-  //   print("ID: ${_reservacion!.Id}");
-  //   print("Creación: ${_reservacion!.Creacion}");
-  //   print("Fecha: ${_reservacion!.Fecha}");
-  //   print("Total: \$${_reservacion!.Total}");
-  //   print("Estado: ${_reservacion!.Estado}");
-  //   print("Comentario: ${_reservacion!.Comentario ?? 'Ninguno'}");
-  //   print("Estrellas: ${_reservacion!.Estrellas ?? 'Sin calificar'}");
-  //   print("Empresa: ${_reservacion!.empresa.Nombre}");
-  //   print("Cliente: ${_reservacion!.cliente.PrimerNombre}");
-  //   print(
-  //       "Empleados asignados: ${_reservacion!.ListaDeEmpleados?.length ?? 0}");
-  // }
+  // 2. Eliminar Reservacion por ID
+ Future<bool> eliminarReservacion(String Id)  async{
+    try{
+
+      await SupabaseService.client
+          .from('Reservaciones')
+          .delete()
+          .eq("Id",Id);
+
+      print("Reservacion borrado correctamente en Supabase");
+
+      return true;
+
+    }catch(e)
+    {
+      //Es necesario concatenar
+      print("Hay un problema en el eliminar el Reservacion + $e" );
+
+      return false;
+    }
+  }
 }
