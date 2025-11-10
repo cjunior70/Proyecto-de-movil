@@ -1,54 +1,33 @@
+import 'package:proyecto/Conexion/supabase_service.dart';
 import 'package:proyecto/Models/Contabilidad.dart';
 
 class ContabilidadController {
   Contabilidad? contabilidad; // solo una contabilidad activa
 
-  // 🔹 1. Guardar contabilidad
-  void guardarContabilidad(Contabilidad nuevaContabilidad) {
-    if (contabilidad != null) {
-      print("⚠️ Ya existe una contabilidad registrada. Usa actualizarContabilidad().");
-      return;
-    }
+  List<Contabilidad> ListadeContabilidadesdeempresas = [];
 
-    contabilidad = nuevaContabilidad;
-    print("✅ Contabilidad guardada correctamente con ID: ${contabilidad!.Id}");
+  //  Obtener contabilidad de la empresax|
+  Future<List<Contabilidad>> obtenerContabilidadesPorEmpresa(String Empresa_id) async {
+  try {
+    final respuesta = await SupabaseService.client
+        .from('Contabilidad')
+        .select()
+        .eq("Id_Empresa", Empresa_id);
+
+    print("Contabilidads encontradas correctamente en Supabase: $respuesta");
+
+    // Convertir la lista de mapas a lista de objetos Contabilidad
+    final List<Contabilidad> listaContabilidads = (respuesta as List)
+        .map((e) => Contabilidad.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    ListadeContabilidadesdeempresas = listaContabilidads;
+    print(listaContabilidads);
+    return listaContabilidads;
+  } catch (e) {
+    print("Hay un problema al obtener las Contabilidads: $e");
+    return [];
   }
+}
 
-  // 🔹 2. Eliminar contabilidad
-  void eliminarContabilidad() {
-    if (contabilidad == null) {
-      print("⚠️ No hay contabilidad registrada para eliminar.");
-      return;
-    }
-
-    print("🗑️ Contabilidad eliminada con ID: ${contabilidad!.Id}");
-    contabilidad = null;
-  }
-
-  // 🔹 3. Obtener contabilidad actual
-  Contabilidad? obtenerContabilidad() {
-    if (contabilidad == null) {
-      print("⚠️ No hay contabilidad registrada actualmente.");
-      return null;
-    }
-    return contabilidad;
-  }
-
-  // 🔹 4. Actualizar contabilidad (por ID)
-  void actualizarContabilidad(Contabilidad contabilidadActualizada) {
-    if (contabilidad == null) {
-      print("⚠️ No hay contabilidad registrada para actualizar.");
-      return;
-    }
-
-    if (contabilidad!.Id != contabilidadActualizada.Id) {
-      print("⚠️ El ID ingresado no coincide con la contabilidad actual.");
-      return;
-    }
-
-    contabilidad = contabilidadActualizada;
-    contabilidad!.Fecha = DateTime.now(); // 👈 actualiza fecha automáticamente
-
-    print("🔄 Contabilidad actualizada correctamente con ID: ${contabilidad!.Id}");
-  }
 }

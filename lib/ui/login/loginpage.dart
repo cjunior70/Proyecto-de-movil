@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto/Models/Ubicacion.dart';
-import 'package:proyecto/controllers/EmpleadosController.dart';
-import 'package:proyecto/controllers/ReservacionController.dart';
-import 'package:proyecto/controllers/ServiciosController.dart';
-import 'package:proyecto/controllers/UbicacionController.dart';
-import 'package:proyecto/models/Cliente.dart';
-import 'package:proyecto/models/Contabilidad.dart';
-import 'package:proyecto/models/Empleado.dart';
-import 'package:proyecto/models/Empresa.dart';
-import 'package:proyecto/models/Reservacion.dart';
-import 'package:proyecto/models/Servicio.dart';
-import 'package:proyecto/models/Usuario.dart';
+import 'package:proyecto/controllers/ContabilidadController.dart';
+import 'package:proyecto/controllers/HorarioController.dart';
+import 'package:proyecto/Models/Empleado.dart';
+import 'package:proyecto/models/Horario.dart';
 import 'package:proyecto/ui/Registro/Registro.dart';
 import 'package:proyecto/ui/componentes/mistextos.dart';
 import 'package:uuid/uuid.dart';
@@ -36,21 +28,21 @@ class _LoginPageState extends State<LoginPage> {
 
   void _testConnection() async {
     try {
-      ReservacionController o=new ReservacionController();
+      ContabilidadController o=new ContabilidadController();
 
-    Reservacion testReservacion = Reservacion(
-      Id: "36b83a3f-6e8d-4c86-bb88-430ca6700ca7",
-      Creacion: DateTime.now(),
-      Fecha: DateTime(2025, 3, 14, 15, 30),
-      Total: 450000,
-      Estado: "Espera..",
-      Comentario: "Cliente pidió corte + barba.",
-      Estrellas: 5,
-      empresa: Empresa(Id: "4be17d32-9b48-42eb-8e47-3ddee605d666"),
-      cliente: Cliente(Id: "3fee39e0-d29b-4d04-bd3b-f1241585b829"),
+    Horario horarioPrueba = Horario(
+      Id: "0034511c-0124-41ea-86db-17ed4a6285cb",
+      DiaSemana: "martes",
+      TurnoManana: TimeOfDay(hour: 10, minute: 30),   // 08:30 AM
+      TurnoTarde: TimeOfDay(hour: 14, minute: 0),    // 02:00 PM
+      TurnoNoche: TimeOfDay(hour: 19, minute: 30),   // 07:30 PM
+      empleado: Empleado(
+        Id: "48a39950-7156-4369-a45f-65b6fbaa2730",  // id válido del empleado
+      ),
     );
 
-    var situacon = await o.eliminarReservacion("36b83a3f-6e8d-4c86-bb88-430ca6700ca7");
+
+    var situacon = await o.obtenerContabilidadesPorEmpresa("4be17d32-9b48-42eb-8e47-ddee605d666");
 
     print("ESTADO DE LA OPERACION: $situacon");
 
