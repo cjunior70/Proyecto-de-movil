@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 
-/// ✅ AppBar personalizado con diseño oscuro premium
+/// ✅ AppBar personalizado con diseño oscuro premium y botón de cerrar sesión
 class AppBarHome extends StatelessWidget {
   final String titulo;
   final String? subtitulo;
-  final VoidCallback? onNotificacionPresionada;
-  final bool mostrarNotificaciones;
-  final int? contadorNotificaciones;
+  final VoidCallback? onCerrarSesionPresionado;
+  final bool mostrarCerrarSesion;
 
   const AppBarHome({
     super.key,
     required this.titulo,
     this.subtitulo,
-    this.onNotificacionPresionada,
-    this.mostrarNotificaciones = true,
-    this.contadorNotificaciones,
+    this.onCerrarSesionPresionado,
+    this.mostrarCerrarSesion = true,
   });
 
   @override
@@ -67,91 +65,45 @@ class AppBarHome extends StatelessWidget {
             ),
           ),
 
-          // ✅ Botón de notificaciones mejorado
-          if (mostrarNotificaciones) _buildBotonNotificaciones(),
+          // ✅ Botón de cerrar sesión mejorado
+          if (mostrarCerrarSesion) _buildBotonCerrarSesion(),
         ],
       ),
     );
   }
 
-  Widget _buildBotonNotificaciones() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+  Widget _buildBotonCerrarSesion() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onNotificacionPresionada,
-              borderRadius: BorderRadius.circular(14),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.notifications_none_rounded,
-                  color: const Color.fromARGB(255, 240, 208, 48),
-                  size: 24,
-                ),
-              ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onCerrarSesionPresionado,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Icon(
+              Icons.logout_rounded,
+              color: const Color.fromARGB(255, 240, 208, 48), // Mismo color dorado
+              size: 24,
             ),
           ),
         ),
-
-        // ✅ Badge de contador de notificaciones
-        if (contadorNotificaciones != null && contadorNotificaciones! > 0)
-          Positioned(
-            top: -4,
-            right: -4,
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: const Color.fromARGB(255, 43, 43, 43),
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.red.withOpacity(0.5),
-                    blurRadius: 8,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              constraints: const BoxConstraints(
-                minWidth: 20,
-                minHeight: 20,
-              ),
-              child: Center(
-                child: Text(
-                  contadorNotificaciones! > 99
-                      ? '99+'
-                      : contadorNotificaciones.toString(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
+      ),
     );
   }
 }

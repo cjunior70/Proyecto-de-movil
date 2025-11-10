@@ -92,6 +92,106 @@ class _UsuarioHomeState extends State<UsuarioHome>
     });
   }
 
+  // ✅ MÉTODO CERRAR SESIÓN (Similar al Admin)
+  void _cerrarSesion() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 35, 35, 35),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.1)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: const BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.logout_rounded,
+                  color: Colors.white,
+                  size: 36,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '¿Cerrar Sesión?',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Tu sesión será cerrada y deberás iniciar sesión nuevamente',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        // ✅ Navegar al login - ajusta según tu flujo de autenticación
+                        Navigator.of(context).popUntil((route) => route.isFirst);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Salir',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _onNavTapped(int index) {
     if (index == _selectedIndex) return;
 
@@ -165,23 +265,14 @@ class _UsuarioHomeState extends State<UsuarioHome>
         child: SafeArea(
           child: Column(
             children: [
-              // ✅ APP BAR COMPONENTE
+              // ✅ APP BAR COMPONENTE ACTUALIZADO
               FadeTransition(
                 opacity: _animationController,
                 child: AppBarHome(
                   titulo: "Estilo Ideal",
-                  subtitulo: "Encuentra tu",
-                  onNotificacionPresionada: () {
-                    // TODO: Implementar notificaciones
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Notificaciones'),
-                        backgroundColor: Colors.white.withOpacity(0.1),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  contadorNotificaciones: 3,
+                  subtitulo: "Encuentra tu estilo perfecto",
+                  onCerrarSesionPresionado: _cerrarSesion,
+                  mostrarCerrarSesion: true,
                 ),
               ),
 
