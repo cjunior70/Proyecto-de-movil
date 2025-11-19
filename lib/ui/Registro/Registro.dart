@@ -6,6 +6,7 @@ import 'package:proyecto/controllers/UsuarioController.dart';
 import 'package:proyecto/models/Usuario.dart';
 import 'dart:io';
 import 'package:proyecto/ui/login/loginpage.dart';
+import 'package:uuid/uuid.dart';
 
 class Registro extends StatefulWidget {
   final String rol;
@@ -14,9 +15,18 @@ class Registro extends StatefulWidget {
 
   @override
   State<Registro> createState() => _RegistroState();
+
+  
 }
 
+
 class _RegistroState extends State<Registro> {
+  
+    @override
+    void initState() {
+      super.initState();
+    }
+
   final _formKey = GlobalKey<FormState>();
   bool _cargando = false;
 
@@ -51,7 +61,6 @@ class _RegistroState extends State<Registro> {
 
       if (widget.rol == "Administrador") {
         Usuario nuevoUsuario = Usuario(
-          Id: "u${DateTime.now().millisecondsSinceEpoch}",
           Cedula: cedulaCtrl.text,
           PrimerNombre: primerNombreCtrl.text,
           SegundoNombre: segundoNombreCtrl.text,
@@ -68,7 +77,6 @@ class _RegistroState extends State<Registro> {
         _mostrarExito('Usuario registrado exitosamente');
       } else {
         Cliente nuevoCliente = Cliente(
-          Id: "c${DateTime.now().millisecondsSinceEpoch}",
           Cedula: cedulaCtrl.text,
           PrimerNombre: primerNombreCtrl.text,
           SegundoNombre: segundoNombreCtrl.text,

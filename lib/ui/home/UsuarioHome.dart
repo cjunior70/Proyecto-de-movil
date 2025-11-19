@@ -55,6 +55,15 @@ class _UsuarioHomeState extends State<UsuarioHome>
       'rating': 4.7,
       'categoria': 'coloracion',
     },
+    {
+      'id': '4',
+      'nombre': "Salón Colors",
+      'descripcion': "Expertos en coloración y tratamientos",
+      'imagenUrl':
+          "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400",
+      'rating': 4.7,
+      'categoria': 'coloracion',
+    },
   ];
 
   @override

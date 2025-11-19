@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/ui/Administrador/ListaEmpresas.dart';
+import 'package:proyecto/ui/Administrador/UsuarioDetallePage.dart';
 // import 'package:proyecto/ui/Cliente/ClienteDetallePage.dart';
 
 /// ✅ HOMEPAGE ADMINISTRADOR - OPTIMIZADO PARA MÓVIL
@@ -50,6 +51,14 @@ class _HomepageAdminState extends State<HomepageAdmin> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ListaEmpresas()),
+      );
+      return;
+    }
+
+    if (ruta == 'perfil') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Usuariodetallepage()),
       );
       return;
     }

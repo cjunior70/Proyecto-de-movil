@@ -16,6 +16,18 @@ class ClienteController {
       //Guardar los daots del cliente temporalmente
       _cliente = nuevoCliente;
 
+      final uid = await _crearClienteAuth(nuevoCliente);
+
+      if (uid == null) {
+        print("❌ No se pudo crear el usuario. Proceso detenido.");
+        return false;
+      }
+      else{
+         print("todo en orden uid : ${uid} ");
+      }
+
+      nuevoCliente.Id = uid;
+
       await SupabaseService.client
           .from('Clientes')
           .insert(nuevoCliente.toJson());
@@ -34,7 +46,24 @@ class ClienteController {
     }
   }
 
- 
+  Future<String?> _crearClienteAuth(Cliente cliente) async {
+    try {
+      final res = await SupabaseService.client.auth.signUp(
+        email: cliente.Correo,
+        password: cliente.Cedula!, // la cédula como contraseña
+        data: {
+          'nombre': cliente.PrimerNombre,
+          'telefono': cliente.Telefono,
+        },
+      );
+
+      return res.user?.id; // devuelve el UID de Supabase
+    } catch (e) {
+      print("❌ Error creando usuario en autenticación: $e");
+      return null;
+    }
+  }
+
   // Obtener cliente
   Future<Cliente?> obtenerCliente(String Id) async {
     try{
@@ -65,10 +94,13 @@ class ClienteController {
   Future<bool> actualizarCliente(Cliente clienteActualizado) async {
     try{
 
+    print(clienteActualizado);
+    print("Utimas modificaciones");
+
       await SupabaseService.client
           .from('Clientes')
           .update(clienteActualizado.toJson()) //Los datoa actualizados convertidos a json
-          .eq("Id", clienteActualizado.Id!);
+          .eq("Id", clienteActualizado.Id!).select();
 
       print("Cliente actualizados correctamente en Supabase");
 
@@ -104,5 +136,6 @@ class ClienteController {
       return false;
     }
   }
+
 
 }
