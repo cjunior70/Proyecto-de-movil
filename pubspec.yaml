@@ -40,6 +40,7 @@ dependencies:
   uuid: ^4.5.2
   table_calendar: ^3.0.9
   cached_network_image: ^3.3.0
+  shared_preferences: ^2.5.3
 
   
 dev_dependencies:

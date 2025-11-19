@@ -94,10 +94,13 @@ class ClienteController {
   Future<bool> actualizarCliente(Cliente clienteActualizado) async {
     try{
 
+    print(clienteActualizado);
+    print("Utimas modificaciones");
+
       await SupabaseService.client
           .from('Clientes')
           .update(clienteActualizado.toJson()) //Los datoa actualizados convertidos a json
-          .eq("Id", clienteActualizado.Id!);
+          .eq("Id", clienteActualizado.Id!).select();
 
       print("Cliente actualizados correctamente en Supabase");
 
