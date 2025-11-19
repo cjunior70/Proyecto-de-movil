@@ -3,6 +3,7 @@ import 'package:proyecto/controllers/ClienteController.dart';
 import 'package:proyecto/controllers/UsuarioController.dart';
 import 'package:proyecto/Models/Cliente.dart';
 import 'package:proyecto/models/Usuario.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<bool> Conexion(String correo, String password, String rolSeleccionado) async {
   UsuarioController usuarioCtrl = UsuarioController();
@@ -21,6 +22,13 @@ Future<bool> Conexion(String correo, String password, String rolSeleccionado) as
     }
 
     final uid = res.user!.id;
+
+    //Para almacenar los datos temporalmente
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('uid', uid);
+    
+    print("💾 UID guardado localmente: $uid");
+
     print("🔑 UID autenticado: $uid");
 
     // 2. Validar rol
