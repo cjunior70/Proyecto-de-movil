@@ -544,7 +544,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
             padding: EdgeInsets.zero,
             itemCount: _actividadReciente.length,
             separatorBuilder: (context, index) => Divider(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white,
               height: 1,
             ),
             itemBuilder: (context, index) {
@@ -578,7 +578,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                 subtitle: Text(
                   actividad['descripcion'],
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white,
                     fontSize: 11,
                   ),
                   maxLines: 1,
@@ -587,7 +587,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                 trailing: Text(
                   actividad['tiempo'],
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
+                    color: Colors.white,
                     fontSize: 10,
                   ),
                 ),
