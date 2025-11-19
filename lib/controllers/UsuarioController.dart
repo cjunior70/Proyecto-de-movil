@@ -14,6 +14,20 @@ class UsuarioController {
   Future<bool> guardarUsuario(Usuario nuevoUsuario) async {
     try{
 
+      final uid = await _crearUsuarioAuth(nuevoUsuario);
+
+      print("este es el id ${uid}");
+
+       if (uid == null) {
+        print("❌ No se pudo crear el usuario. Proceso detenido.");
+        return false;
+      }
+      else{
+         print("todo en orden uid : ${uid} ");
+      }
+
+      nuevoUsuario.Id = uid;
+
       //Guardar los daots del Usuario temporalmente
       _usuario = nuevoUsuario;
 
@@ -32,6 +46,24 @@ class UsuarioController {
       print("Hay un problema en el guardado del Usuario + $e" );
 
       return false;
+    }
+  }
+
+    Future<String?> _crearUsuarioAuth(Usuario usuario) async {
+    try {
+      final res = await SupabaseService.client.auth.signUp(
+        email: usuario.Correo,
+        password: usuario.Cedula!, // la cédula como contraseña
+        data: {
+          'nombre': usuario.PrimerNombre,
+          'telefono': usuario.Telefono,
+        },
+      );
+
+      return res.user?.id; // devuelve el UID de Supabase
+    } catch (e) {
+      print("❌ Error creando usuario en autenticación: $e");
+      return null;
     }
   }
 
