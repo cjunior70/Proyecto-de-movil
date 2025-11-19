@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/Controllers/ClienteController.dart';
 import 'package:proyecto/Models/Cliente.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ClienteDetallePage extends StatefulWidget {
   const ClienteDetallePage({super.key});
@@ -24,26 +25,48 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
   final TextEditingController correoCtrl = TextEditingController();
   String? sexoSeleccionado;
 
+  var _uid_global;
+
   @override
   void initState() {
     super.initState();
     _cargarDatosCliente();
   }
 
+  bool cargando = true;
+
   void _cargarDatosCliente() async {
-    // ✅ Tu compañero conectará esto con el API
-    cliente = await ClienteController().obtenerCliente("");
+    
+   final prefs = await SharedPreferences.getInstance();
+   final String? uid = prefs.getString('uid');
+
+    if (uid == null) {
+      print("❌ Error: UID es null");
+      return;
+    }
+
+    _uid_global = uid;
+
+    cliente = await ClienteController().obtenerCliente(uid);
+
+    print("DATOS ENCONTRADOS : ${cliente}");
 
     if (cliente != null) {
-      cedulaCtrl.text = cliente!.Cedula ?? "";
-      primerNombreCtrl.text = cliente!.PrimerNombre ?? "";
-      segundoNombreCtrl.text = cliente!.SegundoNombre ?? "";
-      primerApellidoCtrl.text = cliente!.PrimerApellido ?? "";
-      segundoApellidoCtrl.text = cliente!.SegundoApellido ?? "";
-      telefonoCtrl.text = cliente!.Telefono ?? "";
-      correoCtrl.text = cliente!.Correo ?? "";
-      sexoSeleccionado = cliente!.Sexo;
+      setState(() {
+        cedulaCtrl.text = cliente!.Cedula ?? "";
+        primerNombreCtrl.text = cliente!.PrimerNombre ?? "";
+        segundoNombreCtrl.text = cliente!.SegundoNombre ?? "";
+        primerApellidoCtrl.text = cliente!.PrimerApellido ?? "";
+        segundoApellidoCtrl.text = cliente!.SegundoApellido ?? "";
+        telefonoCtrl.text = cliente!.Telefono ?? "";
+        correoCtrl.text = cliente!.Correo ?? "";
+        sexoSeleccionado = cliente!.Sexo;
+      });
     }
+
+    setState(() {
+      cargando = false;
+    });
   }
 
   void _toggleModoEdicion() {
@@ -65,7 +88,7 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
     await Future.delayed(const Duration(seconds: 1));
 
     Cliente actualizado = Cliente(
-      Id: cliente!.Id,
+      Id: _uid_global,
       Cedula: cedulaCtrl.text,
       PrimerNombre: primerNombreCtrl.text,
       SegundoNombre: segundoNombreCtrl.text,
@@ -75,14 +98,17 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
       Correo: correoCtrl.text,
       Sexo: sexoSeleccionado,
       Foto: cliente!.Foto,
-      Rol: cliente!.Rol,
-      ListaDeReservaciones: cliente!.ListaDeReservaciones,
     );
 
+    print(actualizado);
+    print("Utimas modificaciones lo que viene es lo que llega");
+    
     ClienteController().actualizarCliente(actualizado);
 
-    setState(() async {
-      cliente =await ClienteController().obtenerCliente("");
+    Cliente? clienteActualizado = await ClienteController().obtenerCliente(_uid_global);
+
+    setState(() {
+      cliente = clienteActualizado;
       _guardando = false;
       _modoEdicion = false;
     });
@@ -113,7 +139,7 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (cliente == null) {
+    if (cargando) {
       return Scaffold(
         body: Container(
           decoration: const BoxDecoration(

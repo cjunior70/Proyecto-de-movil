@@ -95,7 +95,7 @@ class UsuarioController {
   // ✅ Actualizar usuario
   Future<bool> actualizarUsuario(Usuario UsuarioActualizado) async {
     try{
-
+      print("id :  ${UsuarioActualizado.Id}");
       await SupabaseService.client
           .from('Usuarios')
           .update(UsuarioActualizado.toJson()) //Los datoa actualizados convertidos a json
