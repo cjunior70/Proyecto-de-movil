@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/controllers/Conexion.dart';
 import 'package:proyecto/ui/Registro/Registro.dart';
 import 'package:proyecto/ui/home/homepageAdmin.dart';
 import 'package:proyecto/ui/home/UsuarioHome.dart';
@@ -21,8 +22,12 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController controladorClave = TextEditingController();
   String rolSeleccionado = 'usuario';
 
-  void _iniciarSesion() {
-    if (controladorUsuario.text == 'papasconquesos' && controladorClave.text == 'yarkit123') {
+  void _iniciarSesion() async {
+
+    bool conexion = await Conexion(controladorUsuario.text, controladorClave.text,rolSeleccionado);
+
+    if(conexion)
+    {
       if (rolSeleccionado == "usuario") {
         Navigator.push(
           context,
