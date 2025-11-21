@@ -32,11 +32,11 @@ class ServicioController {
     }
   }
 
-  Future<List<Servicio>> obtenerTodasServicios() async {
+  Future<List<Servicio>> obtenerTodasServiciosPorEmpresa(String id_empresa) async {
   try {
     final respuesta = await SupabaseService.client
         .from('Servicios')
-        .select();
+        .select().eq("Id_Empresa", id_empresa);
 
     print("Servicios encontradas correctamente en Supabase: $respuesta");
 

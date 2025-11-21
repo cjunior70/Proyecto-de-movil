@@ -1,4 +1,4 @@
-import 'package:proyecto/Models/Empresa.dart';
+import 'package:proyecto/models/Empresa.dart';
 import 'package:proyecto/models/Reservacion.dart';
 
 class Contabilidad {

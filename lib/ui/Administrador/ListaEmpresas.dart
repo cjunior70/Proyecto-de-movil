@@ -3,6 +3,7 @@ import 'package:proyecto/controllers/EmpresaController.dart';
 import 'package:proyecto/models/Empresa.dart';
 import 'package:proyecto/ui/Administrador/mostrarEmpresa.dart';
 import 'package:proyecto/ui/Administrador/RegistrarEmpresaPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// ✅ Lista de empresas con diseño oscuro premium y funcionalidad completa
 class ListaEmpresas extends StatefulWidget {
@@ -38,21 +39,33 @@ class _ListaEmpresasState extends State<ListaEmpresas>
     super.dispose();
   }
 
-  void _cargarEmpresas() {
+  void _cargarEmpresas() async {
     setState(() {
       _isLoading = true;
     });
 
-    Future.delayed(const Duration(milliseconds: 800), () {
-      _empresaController.obtenerTodasEmpresas();
-      setState(() {
-        _empresas = List.from(_empresaController.lista_de_empresas);
-        _empresasFiltradas = List.from(_empresas);
-        _isLoading = false;
-      });
-      _animationController.forward();
+    final prefs = await SharedPreferences.getInstance();
+    final String? uid = prefs.getString('uid');
+
+    if (uid == null) {
+      print("❌ Error: UID es null");
+      return;
+    }
+
+    // ⭐ IMPORTANTE: ESPERAR LA RESPUESTA
+    final empresas = await _empresaController.obtenerEmpresasPorUsuario(uid);
+
+    setState(() {
+      _empresas = empresas;
+      _empresasFiltradas = List.from(empresas);
+      _isLoading = false;
     });
+
+    _animationController.forward();
+
+    print("Empresas cargadas: $_empresas");
   }
+
 
   void _filtrarEmpresas(String query) {
     setState(() {

@@ -20,8 +20,13 @@ class Empresa {
   String? WhatsApp;
   String? Facebook;
   String? Instagram;
+  
+  // ✅ Campos para manejar tanto URLs como bytes
   Uint8List? ImagenMiniatura;
   Uint8List? ImagenGeneral;
+  String? ImagenMiniaturaUrl; // Para URLs de imágenes
+  String? ImagenGeneralUrl;   // Para URLs de imágenes
+  
   TimeOfDay? ComienzoLaboral;
   TimeOfDay? FinalizacionLaboral;
   Usuario? usuario;
@@ -44,9 +49,10 @@ class Empresa {
     this.Instagram,
     this.ImagenMiniatura,
     this.ImagenGeneral,
+    this.ImagenMiniaturaUrl,
+    this.ImagenGeneralUrl,
     this.ComienzoLaboral,
     this.FinalizacionLaboral,
-    // required this.usuario,
     this.usuario,
     this.ubicacion,
     this.vacaciones,
@@ -60,7 +66,6 @@ class Empresa {
   // Conversión de objeto a JSON
   Map<String, dynamic> toJson() {
     return {
-      "Id": Id,
       "Nombre": Nombre,
       "Extrellas": Estrellas,
       "Correo": Correo,
@@ -68,40 +73,113 @@ class Empresa {
       "Whatsapp": WhatsApp,
       "Facebook": Facebook,
       "Instagram": Instagram,
-      "ImagenEnMiniatura": ImagenMiniatura != null ? base64Encode(ImagenMiniatura!) : null,
-      "ImagenGeneral": ImagenGeneral != null ? base64Encode(ImagenGeneral!) : null,
-      "ComienzoLaboral": ComienzoLaboral != null ? "${ComienzoLaboral!.hour}:${ComienzoLaboral!.minute}" : null,
-      "FinalizacionLaboral": FinalizacionLaboral != null ? "${FinalizacionLaboral!.hour}:${FinalizacionLaboral!.minute}" : null,
-      "Id_Usuario": usuario?.Id, // solo el UUID del usuario
-      "Id_Ubicacion": ubicacion?.Id, // solo el UUID de la ubicación
+      // ✅ Guardar como URL o base64 según lo que tengas
+      "ImagenEnMiniatura": ImagenMiniaturaUrl ?? 
+          (ImagenMiniatura != null ? base64Encode(ImagenMiniatura!) : null),
+      "ImagenGeneral": ImagenGeneralUrl ?? 
+          (ImagenGeneral != null ? base64Encode(ImagenGeneral!) : null),
+      "ComienzoLaboral": ComienzoLaboral != null 
+          ? "${ComienzoLaboral!.hour}:${ComienzoLaboral!.minute}" 
+          : null,
+      "FinalizacionLaboral": FinalizacionLaboral != null 
+          ? "${FinalizacionLaboral!.hour}:${FinalizacionLaboral!.minute}" 
+          : null,
+      "Id_Usuario": usuario?.Id,
+      "Id_Ubicacion": ubicacion?.Id,
     };
   }
 
-  // Conversión de JSON a objeto
+  // ✅ Conversión de JSON a objeto CORREGIDA
   factory Empresa.fromJson(Map<String, dynamic> json) {
     TimeOfDay? parseTime(String? time) {
-      if (time == null) return null;
-      final parts = time.split(":");
-      if (parts.length != 2) return null;
-      return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+      if (time == null || time.isEmpty) return null;
+      try {
+        final parts = time.split(":");
+        if (parts.length != 2) return null;
+        return TimeOfDay(
+          hour: int.parse(parts[0]), 
+          minute: int.parse(parts[1])
+        );
+      } catch (e) {
+        print("⚠ Error parseando tiempo: $time - $e");
+        return null;
+      }
+    }
+
+    // ✅ Helper para determinar si es URL o base64
+    bool _isUrl(String? value) {
+      if (value == null) return false;
+      return value.startsWith('http://') || value.startsWith('https://');
+    }
+
+    // ✅ Procesar imagen miniatura
+    String? imagenMiniaturaUrl;
+    Uint8List? imagenMiniaturaBytes;
+    
+    final imagenMini = json["ImagenEnMiniatura"];
+    if (imagenMini != null && imagenMini is String) {
+      if (_isUrl(imagenMini)) {
+        imagenMiniaturaUrl = imagenMini;
+      } else {
+        try {
+          imagenMiniaturaBytes = base64Decode(imagenMini);
+        } catch (e) {
+          print("⚠️ Error decodificando imagen miniatura: $e");
+        }
+      }
+    }
+
+    // ✅ Procesar imagen general
+    String? imagenGeneralUrl;
+    Uint8List? imagenGeneralBytes;
+    
+    final imagenGen = json["ImagenGeneral"];
+    if (imagenGen != null && imagenGen is String) {
+      if (_isUrl(imagenGen)) {
+        imagenGeneralUrl = imagenGen;
+      } else {
+        try {
+          imagenGeneralBytes = base64Decode(imagenGen);
+        } catch (e) {
+          print("⚠️ Error decodificando imagen general: $e");
+        }
+      }
     }
 
     return Empresa(
       Id: json["Id"],
-      Nombre: json["Nombre"],
-      Estrellas: json["Estrellas"] != null ? (json["Estrellas"] as num).toDouble() : null,
-      Correo: json["Correo"],
-      DescripcionUbicacion: json["DescripciondelaUbicacion"],
-      WhatsApp: json["WhatsApp"],
-      Facebook: json["Facebook"],
-      Instagram: json["Instagram"],
-      ImagenMiniatura: json["ImagenEnMiniatura"] != null ? base64Decode(json["ImagenMiniatura"]) : null,
-      ImagenGeneral: json["ImagenGeneral"] != null ? base64Decode(json["ImagenGeneral"]) : null,
+      Nombre: json["Nombre"] ?? "",
+      Estrellas: json["Extrellas"] != null 
+          ? (json["Extrellas"] as num).toDouble() 
+          : 0.0,
+      Correo: json["Correo"] ?? "",
+      DescripcionUbicacion: json["DescripciondelaUbicacion"] ?? "",
+      WhatsApp: json["Whatsapp"] ?? "",
+      Facebook: json["Facebook"] ?? "",
+      Instagram: json["Instagram"] ?? "",
+      ImagenMiniatura: imagenMiniaturaBytes,
+      ImagenGeneral: imagenGeneralBytes,
+      ImagenMiniaturaUrl: imagenMiniaturaUrl,
+      ImagenGeneralUrl: imagenGeneralUrl,
       ComienzoLaboral: parseTime(json["ComienzoLaboral"]),
       FinalizacionLaboral: parseTime(json["FinalizacionLaboral"]),
-      usuario: Usuario(Id: json["usuarioId"]),
-      ubicacion: json["ubicacionId"] != null ? Ubicacion(Id: json["ubicacionId"]) : null,
-    );
+      usuario: json["Id_Usuario"] != null 
+          ? Usuario(Id: json["Id_Usuario"])
+          : null,
+      ubicacion: json["Id_Ubicacion"] != null 
+          ? Ubicacion(Id: json["Id_Ubicacion"])
+          : null,
+);
+
+  }
+
+  // ✅ Helper para obtener la URL de imagen (prioriza URL sobre bytes)
+  String? getImagenMiniaturaUrl() {
+    return ImagenMiniaturaUrl;
+  }
+
+  String? getImagenGeneralUrl() {
+    return ImagenGeneralUrl;
   }
 
   String formatTime(TimeOfDay? t) {
@@ -111,10 +189,8 @@ class Empresa {
     return "$hour:$minute";
   }
 
-@override
-String toString() {
-  return 'Empresa{Id: $Id, Nombre: $Nombre, Estrellas: $Estrellas, Correo: $Correo, Horario: ${formatTime(ComienzoLaboral)} - ${formatTime(FinalizacionLaboral)}}';
-}
-
-
+  @override
+  String toString() {
+    return 'Empresa{Id: $Id, Nombre: $Nombre, Estrellas: $Estrellas, Correo: $Correo, Horario: ${formatTime(ComienzoLaboral)} - ${formatTime(FinalizacionLaboral)}}';
+  }
 }
