@@ -18,7 +18,7 @@ class EmpresaController {
     try{
 
       //Guardar los daots del Empresa temporalmente
-      datosdeempresa = nuevoEmpresa;
+      lista_de_empresas.add(nuevoEmpresa);
 
       await SupabaseService.client
           .from('Empresas')
@@ -59,6 +59,17 @@ class EmpresaController {
     return [];
   }
 }
+
+  Empresa? FiltrarEmpresa(String id) {
+    try {
+      return lista_de_empresas.firstWhere(
+        (empresa) => empresa.Id == id,
+      );
+    } catch (e) {
+      return null; // si no existe
+    }
+  }
+
 
   // 3. Obtener una empresa por id del usuario
   Future<List<Empresa>> obtenerEmpresasPorUsuario(String usuarioId) async {
@@ -129,5 +140,4 @@ class EmpresaController {
       return false;
     }
   }
-
-}
+} 

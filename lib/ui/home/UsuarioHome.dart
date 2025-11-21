@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/Controllers/EmpresaController.dart';
+import 'package:proyecto/models/Empresa.dart';
 import 'package:proyecto/ui/Cliente/ClienteDetallePage.dart';
 import 'package:proyecto/ui/Cliente/ClienteReservacionesPage.dart';
 import 'package:proyecto/ui/Cliente/EmpresaDetallePage.dart';
@@ -10,7 +12,6 @@ import '../componentes/clientes/home/categorias_home.dart';
 import '../componentes/clientes/home/lista_empresas_populares.dart';
 import '../componentes/clientes/navegacion/bottom_nav_cliente.dart';
 
-/// ✅ HOME DEL USUARIO - Diseño Oscuro Premium con Componentes Organizados
 class UsuarioHome extends StatefulWidget {
   const UsuarioHome({super.key});
 
@@ -21,50 +22,16 @@ class UsuarioHome extends StatefulWidget {
 class _UsuarioHomeState extends State<UsuarioHome>
     with SingleTickerProviderStateMixin {
   final TextEditingController _controladorBusqueda = TextEditingController();
+  final EmpresaController _empresaController = EmpresaController();
+  
   int _selectedIndex = 0;
   String? _categoriaSeleccionada;
   bool _cargandoEmpresas = false;
   late AnimationController _animationController;
 
-  // ✅ DATOS DE EJEMPLO - Tu compañero reemplazará con API
-  List<dynamic> _empresas = [
-    {
-      'id': '1',
-      'nombre': "Barbería Elite",
-      'descripcion': "Cortes modernos y profesionales con estilo",
-      'imagenUrl':
-          "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400",
-      'rating': 4.8,
-      'categoria': 'corte',
-    },
-    {
-      'id': '2',
-      'nombre': "Spa Relax",
-      'descripcion': "Belleza y bienestar integral para ti",
-      'imagenUrl':
-          "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400",
-      'rating': 4.5,
-      'categoria': 'facial',
-    },
-    {
-      'id': '3',
-      'nombre': "Salón Colors",
-      'descripcion': "Expertos en coloración y tratamientos",
-      'imagenUrl':
-          "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400",
-      'rating': 4.7,
-      'categoria': 'coloracion',
-    },
-    {
-      'id': '4',
-      'nombre': "Salón Colors",
-      'descripcion': "Expertos en coloración y tratamientos",
-      'imagenUrl':
-          "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400",
-      'rating': 4.7,
-      'categoria': 'coloracion',
-    },
-  ];
+  // ✅ Lista de empresas real desde el controlador
+  List<Empresa> _empresas = [];
+  List<Empresa> _empresasFiltradas = [];
 
   @override
   void initState() {
@@ -84,24 +51,33 @@ class _UsuarioHomeState extends State<UsuarioHome>
     super.dispose();
   }
 
-  // ✅ MÉTODO QUE TU COMPAÑERO REEMPLAZARÁ CON API
-  void _cargarEmpresasIniciales() {
+  // ✅ MÉTODO QUE CARGA EMPRESAS DESDE EL CONTROLLER
+  Future<void> _cargarEmpresasIniciales() async {
     setState(() {
       _cargandoEmpresas = true;
     });
 
-    // Simular carga de API
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      final empresas = await _empresaController.obtenerTodasEmpresas();
+      
+      if (mounted) {
+        setState(() {
+          _empresas = empresas;
+          _empresasFiltradas = empresas;
+          _cargandoEmpresas = false;
+        });
+      }
+    } catch (e) {
+      print('❌ Error al cargar empresas: $e');
       if (mounted) {
         setState(() {
           _cargandoEmpresas = false;
-          // _empresas = await EmpresaService.obtenerEmpresasPopulares();
         });
       }
-    });
+    }
   }
 
-  // ✅ MÉTODO CERRAR SESIÓN (Similar al Admin)
+  // ✅ MÉTODO CERRAR SESIÓN
   void _cerrarSesion() {
     showDialog(
       context: context,
@@ -171,8 +147,9 @@ class _UsuarioHomeState extends State<UsuarioHome>
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                        // ✅ Limpiar caché al cerrar sesión
+                        ;
                         Navigator.pop(context);
-                        // ✅ Navegar al login - ajusta según tu flujo de autenticación
                         Navigator.of(context).popUntil((route) => route.isFirst);
                       },
                       style: ElevatedButton.styleFrom(
@@ -228,28 +205,39 @@ class _UsuarioHomeState extends State<UsuarioHome>
     setState(() {
       if (_categoriaSeleccionada == categoriaId) {
         _categoriaSeleccionada = null;
-        _cargarEmpresasIniciales();
+        _empresasFiltradas = _empresas;
       } else {
         _categoriaSeleccionada = categoriaId;
-        // Filtrar empresas por categoría
-        // En el futuro: _empresas = await EmpresaService.filtrarPorCategoria(categoriaId);
+        // ✅ Filtrar empresas por categoría (ajusta según tu lógica)
+        _empresasFiltradas = _empresas.where((empresa) {
+          // Implementa tu lógica de filtrado
+          // Por ejemplo, si tienes una lista de servicios con categorías
+          return true; // Placeholder
+        }).toList();
       }
     });
   }
 
   void _onBuscar(String query) {
-    if (query.isEmpty) {
-      _cargarEmpresasIniciales();
-      return;
-    }
-    // En el futuro: _empresas = await EmpresaService.buscar(query);
+    setState(() {
+      if (query.isEmpty) {
+        _empresasFiltradas = _empresas;
+      } else {
+        _empresasFiltradas = _empresas.where((empresa) {
+          final nombre = empresa.Nombre?.toLowerCase() ?? '';
+          final descripcion = empresa.DescripcionUbicacion?.toLowerCase() ?? '';
+          final busqueda = query.toLowerCase();
+          return nombre.contains(busqueda) || descripcion.contains(busqueda);
+        }).toList();
+      }
+    });
   }
 
-  void _onEmpresaSeleccionada(dynamic empresa) {
+  void _onEmpresaSeleccionada(Empresa empresa) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EmpresaDetallePage(empresaId: empresa['id']),
+        builder: (context) => EmpresaDetallePage(empresa: empresa ),
       ),
     );
   }
@@ -257,7 +245,6 @@ class _UsuarioHomeState extends State<UsuarioHome>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ✅ FONDO OSCURO DEGRADADO PREMIUM
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -274,7 +261,6 @@ class _UsuarioHomeState extends State<UsuarioHome>
         child: SafeArea(
           child: Column(
             children: [
-              // ✅ APP BAR COMPONENTE ACTUALIZADO
               FadeTransition(
                 opacity: _animationController,
                 child: AppBarHome(
@@ -285,7 +271,6 @@ class _UsuarioHomeState extends State<UsuarioHome>
                 ),
               ),
 
-              // ✅ CONTENIDO SCROLLABLE CON ANIMACIONES
               Expanded(
                 child: FadeTransition(
                   opacity: _animationController,
@@ -298,30 +283,24 @@ class _UsuarioHomeState extends State<UsuarioHome>
                       children: [
                         const SizedBox(height: 8),
 
-                        // ✅ BARRA DE BÚSQUEDA
                         BarraBusqueda(
                           controlador: _controladorBusqueda,
                           onChanged: _onBuscar,
                         ),
                         const SizedBox(height: 28),
 
-                        // ✅ CATEGORÍAS
                         CategoriasHome(
-                          onVerTodas: () {
-                            // TODO: Navegar a todas las categorías
-                          },
+                          onVerTodas: () {},
                           onCategoriaSeleccionada: _onCategoriaSeleccionada,
                           categoriaSeleccionada: _categoriaSeleccionada,
                         ),
                         const SizedBox(height: 28),
 
-                        // ✅ EMPRESAS POPULARES
+                        // ✅ Pasar empresas reales al componente
                         ListaEmpresasPopulares(
-                          empresas: _empresas,
+                          empresas: _empresasFiltradas,
                           cargando: _cargandoEmpresas,
-                          onVerTodas: () {
-                            // TODO: Navegar a lista completa
-                          },
+                          onVerTodas: () {},
                           onEmpresaSeleccionada: _onEmpresaSeleccionada,
                         ),
                         const SizedBox(height: 24),
@@ -335,7 +314,6 @@ class _UsuarioHomeState extends State<UsuarioHome>
         ),
       ),
 
-      // ✅ BOTTOM NAVIGATION COMPONENTE
       bottomNavigationBar: BottomNavCliente(
         indiceSeleccionado: _selectedIndex,
         onItemTapped: _onNavTapped,
