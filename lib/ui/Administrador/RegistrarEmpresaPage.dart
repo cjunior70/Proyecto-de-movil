@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:proyecto/models/Usuario.dart';
 import 'package:proyecto/controllers/EmpresaController.dart';
 import 'package:proyecto/models/Empresa.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// ✅ Registro de empresa con diseño oscuro premium y validaciones
 class RegistrarEmpresaPage extends StatefulWidget {
@@ -111,7 +113,6 @@ class _RegistrarEmpresaPageState extends State<RegistrarEmpresaPage> {
 
   Future<void> _guardarEmpresa() async {
 
-    
     if (!_formKey.currentState!.validate()) {
       _mostrarSnackBar('Por favor completa todos los campos requeridos', Colors.red);
       return;
@@ -124,20 +125,29 @@ class _RegistrarEmpresaPageState extends State<RegistrarEmpresaPage> {
     // Simular guardado
     await Future.delayed(const Duration(seconds: 2));
 
+    final prefs = await SharedPreferences.getInstance();
+    final String? uid = prefs.getString('uid');
+
+    print("Esre es id del usuario como tal, osea dueño de la empresa : ${uid}");
+
+    if (uid == null) {
+      print("❌ Error: UID es null");
+      return;
+    }
+
     final nuevaEmpresa = Empresa(
-      Id: DateTime.now().millisecondsSinceEpoch.toString(),
       Nombre: _nombreController.text,
       DescripcionUbicacion: _direccionController.text,
-      // WhatsApp: _telefonoController.text,
       Correo: _emailController.text,
       WhatsApp: _whatsappController.text,  // Aquí va el WhatsApp
       Facebook: _facebookController.text,  // Facebook
       Instagram: _instagramController.text, // Instagram
+      usuario: Usuario(Id: uid) as Usuario?,
       // totalReviews: 0,
       // ratingPromedio: 0.0,
     );
 
-    _empresaController.actualizarEmpresa(nuevaEmpresa);
+    _empresaController.guardarEmpresa(nuevaEmpresa);
 
     setState(() {
       _guardando = false;
