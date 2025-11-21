@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/models/Empresa.dart';
 import 'tarjeta_empresa.dart';
 
-/// ✅ Lista de empresas con diseño oscuro premium y estados de carga
 class ListaEmpresasPopulares extends StatelessWidget {
-  final List<dynamic> empresas;
+  final List<Empresa> empresas;
   final VoidCallback? onVerTodas;
-  final ValueChanged<dynamic>? onEmpresaSeleccionada;
+  final ValueChanged<Empresa>? onEmpresaSeleccionada;
   final bool cargando;
 
   const ListaEmpresasPopulares({
@@ -25,7 +25,6 @@ class ListaEmpresasPopulares extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ✅ Header mejorado
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
@@ -81,7 +80,6 @@ class ListaEmpresasPopulares extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // ✅ Lista de empresas o estado vacío
         empresas.isEmpty
             ? _buildListaVacia()
             : ListView.builder(
@@ -92,16 +90,11 @@ class ListaEmpresasPopulares extends StatelessWidget {
                   final empresa = empresas[index];
 
                   return TarjetaEmpresa(
-                    nombre: empresa is Map
-                        ? (empresa['nombre'] ?? 'Sin nombre')
-                        : (empresa.nombre ?? 'Sin nombre'),
-                    descripcion: empresa is Map
-                        ? (empresa['descripcion'] ?? 'Sin descripción')
-                        : (empresa.descripcion ?? 'Sin descripción'),
-                    imagenUrl: empresa is Map
-                        ? (empresa['imagenUrl'] ?? '')
-                        : (empresa.imagenUrl ?? ''),
-                    rating: _obtenerRating(empresa),
+                    nombre: empresa.Nombre ?? 'Sin nombre',
+                    descripcion: empresa.DescripcionUbicacion ?? 'Sin descripción',
+                    // ✅ Usar el helper que obtiene la URL
+                    imagenUrl: _obtenerImagenUrl(empresa),
+                    rating: empresa.Estrellas ?? 0.0,
                     onTap: () => onEmpresaSeleccionada?.call(empresa),
                   );
                 },
@@ -110,14 +103,24 @@ class ListaEmpresasPopulares extends StatelessWidget {
     );
   }
 
-  double _obtenerRating(dynamic empresa) {
-    if (empresa is Map) {
-      return (empresa['rating'] ?? empresa['estrellas'] ?? 0.0).toDouble();
+  // ✅ Helper mejorado para obtener URL de imagen
+  String _obtenerImagenUrl(Empresa empresa) {
+    // Prioridad: URL > Bytes > Placeholder
+    if (empresa.ImagenMiniaturaUrl != null && empresa.ImagenMiniaturaUrl!.isNotEmpty) {
+      return empresa.ImagenMiniaturaUrl!;
     }
-    return empresa.rating ?? empresa.estrellas ?? 0.0;
+    
+    if (empresa.ImagenGeneralUrl != null && empresa.ImagenGeneralUrl!.isNotEmpty) {
+      return empresa.ImagenGeneralUrl!;
+    }
+
+    // Si tiene bytes, podrías convertirlos a base64 data URL
+    // pero no es recomendado para listas largas por performance
+    
+    // Imagen por defecto
+    return 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400';
   }
 
-  // ✅ Skeleton loader mejorado
   Widget _buildCargando() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +151,6 @@ class ListaEmpresasPopulares extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // ✅ Skeletons animados
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -172,7 +174,6 @@ class ListaEmpresasPopulares extends StatelessWidget {
     );
   }
 
-  // ✅ Estado vacío mejorado
   Widget _buildListaVacia() {
     return Container(
       height: 200,

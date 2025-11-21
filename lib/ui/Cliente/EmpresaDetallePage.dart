@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'ServicioEmpleadosPage.dart'; // ✅ Importar la página de empleados
+import 'package:proyecto/models/Empresa.dart';
+import 'package:proyecto/models/Servicio.dart';
+import 'package:proyecto/controllers/ServiciosController.dart';
+import 'ServicioEmpleadosPage.dart';
 
-/// ✅ DETALLE DE EMPRESA CON DISEÑO OSCURO
+/// ✅ DETALLE DE EMPRESA CON DATOS REALES DE SUPABASE
 class EmpresaDetallePage extends StatefulWidget {
-  final String? empresaId;
+  final Empresa empresa; // ✅ Recibe el objeto Empresa directamente
 
   const EmpresaDetallePage({
     super.key,
-    this.empresaId,
+    required this.empresa,
   });
 
   @override
@@ -17,54 +20,9 @@ class EmpresaDetallePage extends StatefulWidget {
 class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
   bool _cargando = true;
   bool _esFavorita = false;
-
-  // ✅ DATOS DE EJEMPLO - Ahora como variable de instancia
-  late final Map<String, dynamic> empresa = {
-    'id': '1',
-    'nombre': 'Barbería Elite',
-    'descripcion': 'Los mejores cortes de la ciudad con profesionales capacitados en técnicas modernas',
-    'direccion': 'Calle 15 #10-50, Centro',
-    'telefono': '3001234567',
-    'imagenUrl': 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800',
-    'rating': 4.8,
-    'totalReseñas': 124,
-    'horario': 'Lun - Sáb: 9:00 AM - 7:00 PM',
-  };
-
-  final List<Map<String, dynamic>> servicios = [
-    {
-      'id': '1',
-      'nombre': 'Corte Clásico',
-      'descripcion': 'Corte tradicional con máquina y tijera',
-      'precio': 25000,
-      'duracion': '30 min',
-      'icono': Icons.content_cut,
-    },
-    {
-      'id': '2',
-      'nombre': 'Barba y Bigote',
-      'descripcion': 'Arreglo completo de barba con diseño',
-      'precio': 15000,
-      'duracion': '20 min',
-      'icono': Icons.face,
-    },
-    {
-      'id': '3',
-      'nombre': 'Corte Premium',
-      'descripcion': 'Corte moderno con lavado y productos',
-      'precio': 40000,
-      'duracion': '45 min',
-      'icono': Icons.star,
-    },
-    {
-      'id': '4',
-      'nombre': 'Coloración',
-      'descripcion': 'Tinte completo o mechas',
-      'precio': 60000,
-      'duracion': '90 min',
-      'icono': Icons.brush,
-    },
-  ];
+  List<Servicio> _servicios = [];
+  
+  final ServicioController _servicioController = ServicioController();
 
   @override
   void initState() {
@@ -73,10 +31,21 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
   }
 
   void _cargarDatos() async {
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      _cargando = false;
-    });
+    try {
+      // ✅ Cargar servicios de la empresa desde Supabase
+      final servicios = await _servicioController
+          .obtenerTodasServiciosPorEmpresa(widget.empresa.Id ?? '');
+      
+      setState(() {
+        _servicios = servicios;
+        _cargando = false;
+      });
+    } catch (e) {
+      print('❌ Error cargando servicios: $e');
+      setState(() {
+        _cargando = false;
+      });
+    }
   }
 
   void _toggleFavorito() {
@@ -87,7 +56,7 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          _esFavorita ? '❤️ Agregado a favoritos' : '💔 Removido de favoritos',
+          _esFavorita ? '❤ Agregado a favoritos' : '💔 Removido de favoritos',
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         backgroundColor: _esFavorita ? Colors.green : Colors.grey.shade700,
@@ -97,17 +66,82 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
     );
   }
 
-  void _seleccionarServicio(Map<String, dynamic> servicio) {
+  void _seleccionarServicio(Servicio servicio) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ServicioEmpleadosPage(
-          empresaId: widget.empresaId,
-          empresa: empresa, // ✅ Pasar datos de la empresa
-          servicio: servicio,
+          empresaId: widget.empresa.Id,
+          empresa: _empresaToMap(widget.empresa),
+          servicio: _servicioToMap(servicio),
         ),
       ),
     );
+  }
+
+  // ✅ Helper para convertir Empresa a Map (para compatibilidad)
+  Map<String, dynamic> _empresaToMap(Empresa empresa) {
+    return {
+      'id': empresa.Id,
+      'nombre': empresa.Nombre ?? 'Sin nombre',
+      'descripcion': empresa.DescripcionUbicacion ?? 'Sin descripción',
+      'direccion': empresa.DescripcionUbicacion ?? 'Sin ubicación',
+      'telefono': empresa.WhatsApp ?? 'Sin teléfono',
+      'imagenUrl': empresa.getImagenGeneralUrl() ?? 
+                   'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800',
+      'rating': empresa.Estrellas ?? 0.0,
+      'totalReseñas': 0, // TODO: Implementar sistema de reseñas
+      'horario': _formatearHorario(),
+    };
+  }
+
+  // ✅ Helper para convertir Servicio a Map (para compatibilidad)
+  Map<String, dynamic> _servicioToMap(Servicio servicio) {
+    return {
+      'id': servicio.Id,
+      'nombre': servicio.Nombre ?? 'Sin nombre',
+      'descripcion': servicio.Descripcion ?? 'Sin descripción',
+      'precio': servicio.Precio ?? 0.0,
+      'duracion': _formatearDuracion(servicio.TiempoPromedio),
+      'icono': _obtenerIconoServicio(servicio.Nombre ?? ''),
+    };
+  }
+
+  String _formatearHorario() {
+    final inicio = widget.empresa.formatTime(widget.empresa.ComienzoLaboral);
+    final fin = widget.empresa.formatTime(widget.empresa.FinalizacionLaboral);
+    return 'Lun - Sáb: $inicio - $fin';
+  }
+
+  String _formatearDuracion(Duration duracion) {
+    final horas = duracion.inHours;
+    final minutos = duracion.inMinutes.remainder(60);
+    
+    if (horas > 0) {
+      return '$horas h ${minutos > 0 ? "$minutos min" : ""}';
+    }
+    return '$minutos min';
+  }
+
+  // ✅ Asignar ícono según el nombre del servicio
+  IconData _obtenerIconoServicio(String nombre) {
+    final nombreLower = nombre.toLowerCase();
+    
+    if (nombreLower.contains('corte') || nombreLower.contains('cabello')) {
+      return Icons.content_cut;
+    } else if (nombreLower.contains('barba') || nombreLower.contains('bigote')) {
+      return Icons.face;
+    } else if (nombreLower.contains('color') || nombreLower.contains('tinte')) {
+      return Icons.brush;
+    } else if (nombreLower.contains('premium') || nombreLower.contains('vip')) {
+      return Icons.star;
+    } else if (nombreLower.contains('uña') || nombreLower.contains('manicure')) {
+      return Icons.back_hand;
+    } else if (nombreLower.contains('masaje')) {
+      return Icons.spa;
+    }
+    
+    return Icons.miscellaneous_services;
   }
 
   @override
@@ -157,12 +191,16 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
           ),
         ],
       ),
-      floatingActionButton: _buildBotonFlotante(),
+      floatingActionButton: _servicios.isNotEmpty ? _buildBotonFlotante() : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   Widget _buildSliverAppBar() {
+    final imagenUrl = widget.empresa.getImagenGeneralUrl() ?? 
+                      widget.empresa.getImagenMiniaturaUrl() ??
+                      'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800';
+
     return SliverAppBar(
       expandedHeight: 300,
       pinned: true,
@@ -189,8 +227,18 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
           fit: StackFit.expand,
           children: [
             Image.network(
-              empresa['imagenUrl'],
+              imagenUrl,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.grey.shade800,
+                  child: const Icon(
+                    Icons.business,
+                    size: 80,
+                    color: Colors.white38,
+                  ),
+                );
+              },
             ),
             Container(
               decoration: BoxDecoration(
@@ -233,7 +281,7 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
             children: [
               Expanded(
                 child: Text(
-                  empresa['nombre'],
+                  widget.empresa.Nombre ?? 'Sin nombre',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -241,55 +289,98 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color.fromARGB(255, 240, 208, 48),
-                      Color.fromARGB(255, 255, 220, 100),
+              if (widget.empresa.Estrellas != null && widget.empresa.Estrellas! > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 240, 208, 48),
+                        Color.fromARGB(255, 255, 220, 100),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.white, size: 18),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${widget.empresa.Estrellas!.toStringAsFixed(1)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.white, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${empresa['rating']}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${empresa['totalReseñas']} reseñas',
-            style: const TextStyle(color: Colors.white54, fontSize: 14),
           ),
           const SizedBox(height: 16),
           
-          Text(
-            empresa['descripcion'],
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 15,
-              height: 1.5,
+          if (widget.empresa.DescripcionUbicacion != null)
+            Text(
+              widget.empresa.DescripcionUbicacion!,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 15,
+                height: 1.5,
+              ),
             ),
-          ),
+          
           const SizedBox(height: 20),
           
-          _buildInfoRow(Icons.location_on, empresa['direccion']),
+          if (widget.empresa.DescripcionUbicacion != null)
+            _buildInfoRow(Icons.location_on, widget.empresa.DescripcionUbicacion!),
+          
+          if (widget.empresa.WhatsApp != null) ...[
+            const SizedBox(height: 8),
+            _buildInfoRow(Icons.phone, widget.empresa.WhatsApp!),
+          ],
+          
+          if (widget.empresa.Correo != null) ...[
+            const SizedBox(height: 8),
+            _buildInfoRow(Icons.email, widget.empresa.Correo!),
+          ],
+          
           const SizedBox(height: 8),
-          _buildInfoRow(Icons.phone, empresa['telefono']),
-          const SizedBox(height: 8),
-          _buildInfoRow(Icons.access_time, empresa['horario']),
+          _buildInfoRow(Icons.access_time, _formatearHorario()),
+          
+          // Redes sociales
+          if (widget.empresa.Facebook != null || 
+              widget.empresa.Instagram != null) ...[
+            const SizedBox(height: 16),
+            const Divider(color: Colors.white24),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                if (widget.empresa.Facebook != null) ...[
+                  Icon(Icons.facebook, color: Colors.blue.shade300, size: 24),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      widget.empresa.Facebook!,
+                      style: const TextStyle(color: Colors.white60, fontSize: 13),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+                if (widget.empresa.Instagram != null) ...[
+                  if (widget.empresa.Facebook != null) const SizedBox(width: 16),
+                  Icon(Icons.camera_alt, color: Colors.pink.shade300, size: 24),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      widget.empresa.Instagram!,
+                      style: const TextStyle(color: Colors.white60, fontSize: 13),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -326,21 +417,69 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
           ),
           const SizedBox(height: 16),
           
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: servicios.length,
-            itemBuilder: (context, index) {
-              final servicio = servicios[index];
-              return _buildTarjetaServicio(servicio);
-            },
+          if (_servicios.isEmpty)
+            _buildListaVacia()
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _servicios.length,
+              itemBuilder: (context, index) {
+                final servicio = _servicios[index];
+                return _buildTarjetaServicio(servicio);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildListaVacia() {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.content_cut,
+              color: Colors.white38,
+              size: 50,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "No hay servicios disponibles",
+            style: TextStyle(
+              color: Colors.white54,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Esta empresa aún no ha agregado servicios",
+            style: TextStyle(
+              color: Colors.white38,
+              fontSize: 13,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTarjetaServicio(Map<String, dynamic> servicio) {
+  Widget _buildTarjetaServicio(Servicio servicio) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -376,7 +515,7 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    servicio['icono'],
+                    _obtenerIconoServicio(servicio.Nombre ?? ''),
                     color: Colors.white,
                     size: 28,
                   ),
@@ -388,30 +527,32 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        servicio['nombre'],
+                        servicio.Nombre ?? 'Sin nombre',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        servicio['descripcion'],
-                        style: const TextStyle(
-                          color: Colors.white60,
-                          fontSize: 13,
+                      if (servicio.Descripcion != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          servicio.Descripcion!,
+                          style: const TextStyle(
+                            color: Colors.white60,
+                            fontSize: 13,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      ],
                       const SizedBox(height: 8),
                       Row(
                         children: [
                           const Icon(Icons.access_time, size: 14, color: Colors.white38),
                           const SizedBox(width: 4),
                           Text(
-                            servicio['duracion'],
+                            _formatearDuracion(servicio.TiempoPromedio),
                             style: const TextStyle(
                               color: Colors.white60,
                               fontSize: 12,
@@ -427,7 +568,7 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '\$${servicio['precio']}',
+                      '\$${servicio.Precio?.toStringAsFixed(0) ?? '0'}',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
