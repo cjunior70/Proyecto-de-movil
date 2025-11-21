@@ -66,7 +66,6 @@ class Empresa {
   // Conversión de objeto a JSON
   Map<String, dynamic> toJson() {
     return {
-      "Id": Id,
       "Nombre": Nombre,
       "Extrellas": Estrellas,
       "Correo": Correo,
@@ -102,7 +101,7 @@ class Empresa {
           minute: int.parse(parts[1])
         );
       } catch (e) {
-        print("⚠️ Error parseando tiempo: $time - $e");
+        print("⚠ Error parseando tiempo: $time - $e");
         return null;
       }
     }
@@ -149,15 +148,15 @@ class Empresa {
 
     return Empresa(
       Id: json["Id"],
-      Nombre: json["Nombre"],
+      Nombre: json["Nombre"] ?? "",
       Estrellas: json["Extrellas"] != null 
           ? (json["Extrellas"] as num).toDouble() 
-          : null,
-      Correo: json["Correo"],
-      DescripcionUbicacion: json["DescripciondelaUbicacion"],
-      WhatsApp: json["Whatsapp"],
-      Facebook: json["Facebook"],
-      Instagram: json["Instagram"],
+          : 0.0,
+      Correo: json["Correo"] ?? "",
+      DescripcionUbicacion: json["DescripciondelaUbicacion"] ?? "",
+      WhatsApp: json["Whatsapp"] ?? "",
+      Facebook: json["Facebook"] ?? "",
+      Instagram: json["Instagram"] ?? "",
       ImagenMiniatura: imagenMiniaturaBytes,
       ImagenGeneral: imagenGeneralBytes,
       ImagenMiniaturaUrl: imagenMiniaturaUrl,
@@ -165,12 +164,13 @@ class Empresa {
       ComienzoLaboral: parseTime(json["ComienzoLaboral"]),
       FinalizacionLaboral: parseTime(json["FinalizacionLaboral"]),
       usuario: json["Id_Usuario"] != null 
-          ? Usuario(Id: json["Id_Usuario"]) 
+          ? Usuario(Id: json["Id_Usuario"])
           : null,
       ubicacion: json["Id_Ubicacion"] != null 
-          ? Ubicacion(Id: json["Id_Ubicacion"]) 
+          ? Ubicacion(Id: json["Id_Ubicacion"])
           : null,
-    );
+);
+
   }
 
   // ✅ Helper para obtener la URL de imagen (prioriza URL sobre bytes)
