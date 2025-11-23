@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/models/Empresa.dart';
+import 'package:proyecto/models/Empleado.dart';
+import 'package:proyecto/controllers/EmpleadosController.dart';
+import 'FormularioEmpleado.dart';
 
-/// ✅ GESTIÓN DE EMPLEADOS - Diseño Oscuro Premium con CRUD
+/// ✅ GESTIÓN DE EMPLEADOS - Integrado con Supabase
 class GestionEmpleados extends StatefulWidget {
   final Empresa empresa;
 
@@ -14,44 +17,12 @@ class GestionEmpleados extends StatefulWidget {
 class _GestionEmpleadosState extends State<GestionEmpleados>
     with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
+  final EmpleadoController _empleadoController = EmpleadoController();
   late AnimationController _animationController;
 
-  // ✅ DATOS DE EJEMPLO - Tu compañero los reemplazará con API
-  List<Map<String, dynamic>> _empleados = [
-    {
-      'id': '1',
-      'nombre': 'Juan Pérez',
-      'cargo': 'Barbero Senior',
-      'telefono': '312 345 6789',
-      'email': 'juan.perez@gmail.com',
-      'foto': null,
-      'activo': true,
-      'especialidades': ['Corte Clásico', 'Barba', 'Tinte'],
-    },
-    {
-      'id': '2',
-      'nombre': 'María García',
-      'cargo': 'Estilista',
-      'telefono': '315 678 9012',
-      'email': 'maria.garcia@gmail.com',
-      'foto': null,
-      'activo': true,
-      'especialidades': ['Manicure', 'Pedicure', 'Tratamiento Facial'],
-    },
-    {
-      'id': '3',
-      'nombre': 'Carlos Ruiz',
-      'cargo': 'Barbero Junior',
-      'telefono': '318 901 2345',
-      'email': 'carlos.ruiz@gmail.com',
-      'foto': null,
-      'activo': false,
-      'especialidades': ['Corte Moderno'],
-    },
-  ];
-
-  List<Map<String, dynamic>> _empleadosFiltrados = [];
-  bool _cargando = false;
+  List<Empleado> _empleados = [];
+  List<Empleado> _empleadosFiltrados = [];
+  bool _cargando = true;
 
   @override
   void initState() {
@@ -60,8 +31,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    _empleadosFiltrados = List.from(_empleados);
-    _animationController.forward();
+    _cargarEmpleados();
   }
 
   @override
@@ -71,48 +41,113 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
     super.dispose();
   }
 
+  // ✅ CARGAR EMPLEADOS DESDE SUPABASE
+  Future<void> _cargarEmpleados() async {
+    setState(() {
+      _cargando = true;
+    });
+
+    try {
+      final empleados = await _empleadoController
+          .obtenerEmpleadosPorEmpresa(widget.empresa.Id ?? '');
+
+      setState(() {
+        _empleados = empleados;
+        _empleadosFiltrados = List.from(empleados);
+        _cargando = false;
+      });
+
+      _animationController.forward();
+    } catch (e) {
+      print('❌ Error cargando empleados: $e');
+      setState(() {
+        _cargando = false;
+      });
+      _mostrarSnackBar('Error al cargar empleados', Colors.red);
+    }
+  }
+
+  // ✅ FILTRAR EMPLEADOS
   void _filtrarEmpleados(String query) {
     setState(() {
       if (query.isEmpty) {
         _empleadosFiltrados = List.from(_empleados);
       } else {
         _empleadosFiltrados = _empleados.where((empleado) {
-          return empleado['nombre']
-                  .toLowerCase()
-                  .contains(query.toLowerCase()) ||
-              empleado['cargo'].toLowerCase().contains(query.toLowerCase());
+          final nombre = '${empleado.PrimerNombre ?? ''} ${empleado.PrimerApellido ?? ''}'.toLowerCase();
+          final cargo = empleado.Cargo?.toLowerCase() ?? '';
+          final queryLower = query.toLowerCase();
+          return nombre.contains(queryLower) || cargo.contains(queryLower);
         }).toList();
       }
     });
   }
 
+  // ✅ AGREGAR EMPLEADO
   void _agregarEmpleado() {
-    // TODO: Navegar a formulario de registro
-    _mostrarSnackBar('Abrir formulario de nuevo empleado', Colors.blue);
-  }
-
-  void _editarEmpleado(Map<String, dynamic> empleado) {
-    // TODO: Navegar a formulario de edición
-    _mostrarSnackBar('Editar: ${empleado['nombre']}', Colors.orange);
-  }
-
-  void _cambiarEstadoEmpleado(String id) {
-    setState(() {
-      final index = _empleados.indexWhere((e) => e['id'] == id);
-      if (index != -1) {
-        _empleados[index]['activo'] = !_empleados[index]['activo'];
-        _empleadosFiltrados = List.from(_empleados);
-      }
-    });
-
-    final empleado = _empleados.firstWhere((e) => e['id'] == id);
-    _mostrarSnackBar(
-      '${empleado['nombre']} ${empleado['activo'] ? 'activado' : 'desactivado'}',
-      empleado['activo'] ? Colors.green : Colors.orange,
+    showDialog(
+      context: context,
+      builder: (context) => FormularioEmpleado(
+        empresa: widget.empresa,
+        onSuccess: _cargarEmpleados,
+      ),
     );
   }
 
-  void _eliminarEmpleado(Map<String, dynamic> empleado) {
+  // ✅ EDITAR EMPLEADO
+  void _editarEmpleado(Empleado empleado) {
+    showDialog(
+      context: context,
+      builder: (context) => FormularioEmpleado(
+        empresa: widget.empresa,
+        empleado: empleado,
+        onSuccess: _cargarEmpleados,
+      ),
+    );
+  }
+
+  // ✅ CAMBIAR ESTADO (ACTIVO/INACTIVO)
+  Future<void> _cambiarEstadoEmpleado(Empleado empleado) async {
+    final nuevoEstado = empleado.Estado == 'Activo' ? 'Inactivo' : 'Activo';
+    
+    final empleadoActualizado = Empleado(
+      Id: empleado.Id,
+      Cedula: empleado.Cedula,
+      PrimerNombre: empleado.PrimerNombre,
+      SegundoNombre: empleado.SegundoNombre,
+      PrimerApellido: empleado.PrimerApellido,
+      SegundoApellido: empleado.SegundoApellido,
+      Telefono: empleado.Telefono,
+      Correo: empleado.Correo,
+      Sexo: empleado.Sexo,
+      Foto: empleado.Foto,
+      FechaDeInicio: empleado.FechaDeInicio,
+      FechaActual: empleado.FechaActual,
+      Cargo: empleado.Cargo,
+      Estado: nuevoEstado,
+      Estacion: empleado.Estacion,
+      empresa: empleado.empresa,
+    );
+
+    _mostrarSnackBar('Actualizando estado...', Colors.orange);
+
+    final exito = await _empleadoController.actualizarEmpleado(empleadoActualizado);
+
+    if (exito) {
+      await _cargarEmpleados();
+      _mostrarSnackBar(
+        '${empleado.PrimerNombre} ${nuevoEstado.toLowerCase()}',
+        nuevoEstado == 'Activo' ? Colors.green : Colors.orange,
+      );
+    } else {
+      _mostrarSnackBar('Error al cambiar estado', Colors.red);
+    }
+  }
+
+  // ✅ ELIMINAR EMPLEADO
+  void _eliminarEmpleado(Empleado empleado) {
+    final nombreCompleto = '${empleado.PrimerNombre ?? ''} ${empleado.PrimerApellido ?? ''}'.trim();
+    
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -133,8 +168,11 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                   color: Colors.red,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.delete_rounded,
-                    color: Colors.white, size: 36),
+                child: const Icon(
+                  Icons.delete_rounded,
+                  color: Colors.white,
+                  size: 36,
+                ),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -147,7 +185,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
               ),
               const SizedBox(height: 8),
               Text(
-                '¿Estás seguro de eliminar a ${empleado['nombre']}?',
+                '¿Estás seguro de eliminar a $nombreCompleto?',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white70,
@@ -167,20 +205,32 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Cancelar',
-                          style: TextStyle(color: Colors.white70)),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _empleados.removeWhere((e) => e['id'] == empleado['id']);
-                          _empleadosFiltrados = List.from(_empleados);
-                        });
+                      onPressed: () async {
                         Navigator.pop(context);
-                        _mostrarSnackBar('Empleado eliminado', Colors.red);
+
+                        _mostrarSnackBar('Eliminando empleado...', Colors.orange);
+
+                        final exito = await _empleadoController
+                            .eliminarEmpleado(empleado.Id ?? '');
+
+                        if (exito) {
+                          await _cargarEmpleados();
+                          _mostrarSnackBar(
+                            '✅ Empleado eliminado',
+                            Colors.green,
+                          );
+                        } else {
+                          _mostrarSnackBar('Error al eliminar empleado', Colors.red);
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -189,9 +239,13 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Eliminar',
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Eliminar',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -203,6 +257,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
     );
   }
 
+  // ✅ WIDGETS AUXILIARES
   void _mostrarSnackBar(String mensaje, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -270,13 +325,14 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                   style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
                 Text(
-                  'Empleados',
+                  'Empleados - ${widget.empresa.Nombre}',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -297,12 +353,16 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
         decoration: InputDecoration(
           hintText: 'Buscar empleado...',
           hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-          prefixIcon: const Icon(Icons.search_rounded,
-              color: Color.fromARGB(255, 240, 208, 48)),
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: Color.fromARGB(255, 240, 208, 48),
+          ),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear_rounded,
-                      color: Colors.white.withOpacity(0.7)),
+                  icon: Icon(
+                    Icons.clear_rounded,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
                   onPressed: () {
                     _searchController.clear();
                     _filtrarEmpleados('');
@@ -322,7 +382,9 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(
-                color: Color.fromARGB(255, 240, 208, 48), width: 2),
+              color: Color.fromARGB(255, 240, 208, 48),
+              width: 2,
+            ),
           ),
         ),
       ),
@@ -331,7 +393,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
 
   // ✅ ESTADÍSTICAS
   Widget _buildStatsCard() {
-    final activos = _empleados.where((e) => e['activo'] == true).length;
+    final activos = _empleados.where((e) => e.Estado == 'Activo').length;
     final inactivos = _empleados.length - activos;
 
     return Container(
@@ -350,8 +412,11 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
               color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.people_rounded,
-                color: Color.fromARGB(255, 240, 208, 48), size: 24),
+            child: const Icon(
+              Icons.people_rounded,
+              color: Color.fromARGB(255, 240, 208, 48),
+              size: 24,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -383,20 +448,28 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
 
   // ✅ LISTA DE EMPLEADOS
   Widget _buildListaEmpleados() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      physics: const BouncingScrollPhysics(),
-      itemCount: _empleadosFiltrados.length,
-      itemBuilder: (context, index) {
-        return FadeTransition(
-          opacity: _animationController,
-          child: _buildEmpleadoCard(_empleadosFiltrados[index]),
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: _cargarEmpleados,
+      color: const Color.fromARGB(255, 240, 208, 48),
+      backgroundColor: const Color.fromARGB(255, 40, 40, 40),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: _empleadosFiltrados.length,
+        itemBuilder: (context, index) {
+          return FadeTransition(
+            opacity: _animationController,
+            child: _buildEmpleadoCard(_empleadosFiltrados[index]),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildEmpleadoCard(Map<String, dynamic> empleado) {
+  Widget _buildEmpleadoCard(Empleado empleado) {
+    final nombreCompleto = '${empleado.PrimerNombre ?? ''} ${empleado.SegundoNombre ?? ''} ${empleado.PrimerApellido ?? ''} ${empleado.SegundoApellido ?? ''}'.trim();
+    final esActivo = empleado.Estado == 'Activo';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -423,24 +496,31 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                   height: 60,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: empleado['activo']
+                      colors: esActivo
                           ? [Colors.green, Colors.green.shade300]
                           : [Colors.grey, Colors.grey.shade400],
                     ),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: empleado['foto'] != null
+                  child: empleado.Foto != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          child: Image.network(empleado['foto'],
-                              fit: BoxFit.cover),
+                          child: Image.memory(
+                            empleado.Foto!,
+                            fit: BoxFit.cover,
+                          ),
                         )
-                      : const Icon(Icons.person_rounded,
-                          color: Colors.white, size: 30),
+                      : Icon(
+                          empleado.Sexo == 'Femenino'
+                              ? Icons.woman_rounded
+                              : Icons.man_rounded,
+                          color: Colors.white,
+                          size: 30,
+                        ),
                 ),
                 const SizedBox(width: 16),
 
-                // Info
+                // Información
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,7 +529,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                         children: [
                           Expanded(
                             child: Text(
-                              empleado['nombre'],
+                              nombreCompleto,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -461,19 +541,19 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: empleado['activo']
+                              color: esActivo
                                   ? Colors.green.withOpacity(0.2)
                                   : Colors.orange.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              empleado['activo'] ? 'Activo' : 'Inactivo',
+                              empleado.Estado ?? 'Sin estado',
                               style: TextStyle(
-                                color: empleado['activo']
-                                    ? Colors.green
-                                    : Colors.orange,
+                                color: esActivo ? Colors.green : Colors.orange,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -483,7 +563,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        empleado['cargo'],
+                        empleado.Cargo ?? 'Sin cargo',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.7),
                           fontSize: 13,
@@ -492,14 +572,19 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.phone_rounded,
-                              color: Colors.white.withOpacity(0.5), size: 14),
+                          Icon(
+                            Icons.phone_rounded,
+                            color: Colors.white.withOpacity(0.5),
+                            size: 14,
+                          ),
                           const SizedBox(width: 4),
-                          Text(
-                            empleado['telefono'],
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.6),
-                              fontSize: 12,
+                          Expanded(
+                            child: Text(
+                              empleado.Telefono ?? 'Sin teléfono',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.6),
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ],
@@ -508,20 +593,23 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                   ),
                 ),
 
-                // Menú
+                // Menú de opciones
                 PopupMenuButton<String>(
                   color: const Color.fromARGB(255, 40, 40, 40),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  icon: Icon(Icons.more_vert_rounded,
-                      color: Colors.white.withOpacity(0.7)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  icon: Icon(
+                    Icons.more_vert_rounded,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
                   onSelected: (value) {
                     switch (value) {
                       case 'editar':
                         _editarEmpleado(empleado);
                         break;
                       case 'estado':
-                        _cambiarEstadoEmpleado(empleado['id']);
+                        _cambiarEstadoEmpleado(empleado);
                         break;
                       case 'eliminar':
                         _eliminarEmpleado(empleado);
@@ -535,8 +623,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                         children: [
                           Icon(Icons.edit_rounded, color: Colors.blue, size: 20),
                           SizedBox(width: 12),
-                          Text('Editar',
-                              style: TextStyle(color: Colors.white)),
+                          Text('Editar', style: TextStyle(color: Colors.white)),
                         ],
                       ),
                     ),
@@ -545,15 +632,15 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                       child: Row(
                         children: [
                           Icon(
-                            empleado['activo']
+                            esActivo
                                 ? Icons.toggle_on_rounded
                                 : Icons.toggle_off_rounded,
-                            color: empleado['activo'] ? Colors.green : Colors.orange,
+                            color: esActivo ? Colors.green : Colors.orange,
                             size: 20,
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            empleado['activo'] ? 'Desactivar' : 'Activar',
+                            esActivo ? 'Desactivar' : 'Activar',
                             style: const TextStyle(color: Colors.white),
                           ),
                         ],
@@ -565,8 +652,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                         children: [
                           Icon(Icons.delete_rounded, color: Colors.red, size: 20),
                           SizedBox(width: 12),
-                          Text('Eliminar',
-                              style: TextStyle(color: Colors.white)),
+                          Text('Eliminar', style: TextStyle(color: Colors.white)),
                         ],
                       ),
                     ),
@@ -575,45 +661,111 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
               ],
             ),
 
-            // Especialidades
-            if (empleado['especialidades'] != null &&
-                (empleado['especialidades'] as List).isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: (empleado['especialidades'] as List)
-                    .map((esp) => Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 240, 208, 48)
-                                .withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: const Color.fromARGB(255, 240, 208, 48)
-                                  .withOpacity(0.3),
-                            ),
-                          ),
-                          child: Text(
-                            esp,
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 240, 208, 48),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ))
-                    .toList(),
+            // Información adicional
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
               ),
-            ],
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.email_rounded,
+                        color: Colors.white.withOpacity(0.5),
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          empleado.Correo ?? 'Sin correo',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.credit_card_rounded,
+                        color: Colors.white.withOpacity(0.5),
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'CC: ${empleado.Cedula ?? 'Sin cédula'}',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 12,
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(
+                        empleado.Sexo == 'Femenino'
+                            ? Icons.female_rounded
+                            : Icons.male_rounded,
+                        color: empleado.Sexo == 'Femenino'
+                            ? Colors.pink.shade300
+                            : Colors.blue.shade300,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        empleado.Sexo ?? 'Sin especificar',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (empleado.FechaDeInicio != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          color: Colors.white.withOpacity(0.5),
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Inicio: ${_formatearFecha(empleado.FechaDeInicio!)}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ✅ ESTADOS VACÍO Y CARGA
+  // ✅ FORMATEAR FECHA
+  String _formatearFecha(DateTime fecha) {
+    final meses = [
+      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+    ];
+    return '${fecha.day} ${meses[fecha.month - 1]} ${fecha.year}';
+  }
+
+  // ✅ ESTADOS VACÍO Y CARGANDO
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -625,8 +777,11 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
               color: Colors.white.withOpacity(0.05),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.people_outline_rounded,
-                size: 80, color: Colors.white.withOpacity(0.3)),
+            child: Icon(
+              Icons.people_outline_rounded,
+              size: 80,
+              color: Colors.white.withOpacity(0.3),
+            ),
           ),
           const SizedBox(height: 24),
           const Text(
