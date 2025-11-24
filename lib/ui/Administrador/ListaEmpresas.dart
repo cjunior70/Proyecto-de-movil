@@ -131,12 +131,22 @@ class _ListaEmpresasState extends State<ListaEmpresas>
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              final String idEmpresa = empresa.Id!; 
+
+              // 1. Eliminas de la lista visible
               setState(() {
-                _empresas.removeWhere((e) => e.Id == empresa.Id);
-                _empresasFiltradas.removeWhere((e) => e.Id == empresa.Id);
+                _empresas.removeWhere((e) => e.Id == idEmpresa);
+                _empresasFiltradas.removeWhere((e) => e.Id == idEmpresa);
               });
+
+              // 2. Llamas al controlador (esperar por si es async)
+              await _empresaController.eliminarEmpresa(idEmpresa);
+
+              // 3. Cierras modal
               Navigator.pop(context);
+
+              // 4. SnackBar
               _mostrarSnackBar('Empresa eliminada', Colors.red);
             },
             style: ElevatedButton.styleFrom(
@@ -146,7 +156,7 @@ class _ListaEmpresasState extends State<ListaEmpresas>
               ),
             ),
             child: const Text('Eliminar'),
-          ),
+          )
         ],
       ),
     );
