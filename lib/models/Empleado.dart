@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:proyecto/Models/DatosPersonales.dart';
 import 'package:proyecto/Models/Horario.dart';
 import 'package:proyecto/Models/Vacaciones.dart';
-import 'package:proyecto/Models/Empresa.dart';
+import 'package:proyecto/models/Empresa.dart';
 import 'package:proyecto/models/Servicio.dart';
 
 class Empleado extends Datospersonales {

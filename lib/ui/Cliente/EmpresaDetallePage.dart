@@ -71,40 +71,11 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
       context,
       MaterialPageRoute(
         builder: (context) => ServicioEmpleadosPage(
-          empresaId: widget.empresa.Id,
-          empresa: _empresaToMap(widget.empresa),
-          servicio: _servicioToMap(servicio),
+          empresa: widget.empresa, // ✅ Objeto Empresa completo
+          servicio: servicio,       // ✅ Objeto Servicio completo
         ),
       ),
     );
-  }
-
-  // ✅ Helper para convertir Empresa a Map (para compatibilidad)
-  Map<String, dynamic> _empresaToMap(Empresa empresa) {
-    return {
-      'id': empresa.Id,
-      'nombre': empresa.Nombre ?? 'Sin nombre',
-      'descripcion': empresa.DescripcionUbicacion ?? 'Sin descripción',
-      'direccion': empresa.DescripcionUbicacion ?? 'Sin ubicación',
-      'telefono': empresa.WhatsApp ?? 'Sin teléfono',
-      'imagenUrl': empresa.getImagenGeneralUrl() ?? 
-                   'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800',
-      'rating': empresa.Estrellas ?? 0.0,
-      'totalReseñas': 0, // TODO: Implementar sistema de reseñas
-      'horario': _formatearHorario(),
-    };
-  }
-
-  // ✅ Helper para convertir Servicio a Map (para compatibilidad)
-  Map<String, dynamic> _servicioToMap(Servicio servicio) {
-    return {
-      'id': servicio.Id,
-      'nombre': servicio.Nombre ?? 'Sin nombre',
-      'descripcion': servicio.Descripcion ?? 'Sin descripción',
-      'precio': servicio.Precio ?? 0.0,
-      'duracion': _formatearDuracion(servicio.TiempoPromedio),
-      'icono': _obtenerIconoServicio(servicio.Nombre ?? ''),
-    };
   }
 
   String _formatearHorario() {

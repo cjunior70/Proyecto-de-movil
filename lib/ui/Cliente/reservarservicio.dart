@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:proyecto/models/Empresa.dart';
+import 'package:proyecto/models/Servicio.dart';
+import 'package:proyecto/models/Empleado.dart';
+import 'package:proyecto/models/Reservacion.dart';
+import 'package:proyecto/models/Cliente.dart';
+import 'package:proyecto/models/Contabilidad.dart';
+import 'package:proyecto/controllers/ReservacionController.dart';
+import 'package:proyecto/controllers/ContabilidadController.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
-/// ✅ PÁGINA PARA CREAR RESERVACIÓN
+/// ✅ CREAR RESERVACIÓN - Integrado con Supabase
 class ReservaPage extends StatefulWidget {
-  final String? empresaId;
-  final Map<String, dynamic> empresa;
-  final Map<String, dynamic> servicio;
-  final Map<String, dynamic> empleado;
+  final Empresa empresa;
+  final Servicio servicio;
+  final Empleado empleado;
 
   const ReservaPage({
     super.key,
-    this.empresaId,
     required this.empresa,
     required this.servicio,
     required this.empleado,
@@ -21,12 +29,17 @@ class ReservaPage extends StatefulWidget {
 }
 
 class _ReservaPageState extends State<ReservaPage> {
+  final ReservacionController _reservacionController = ReservacionController();
+  final ContabilidadController _contabilidadController = ContabilidadController();
+  final _uuid = const Uuid();
+
   DateTime _fechaSeleccionada = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   String? _horaSeleccionada;
   bool _cargandoHorarios = false;
+  String? _clienteId;
 
-  // ✅ HORARIOS DISPONIBLES (Tu compañero los traerá de la API)
+  // ✅ HORARIOS DISPONIBLES (Simulados - puedes cargarlos de Supabase)
   final List<String> _horariosDisponibles = [
     '09:00 AM',
     '09:30 AM',
@@ -47,7 +60,27 @@ class _ReservaPageState extends State<ReservaPage> {
   @override
   void initState() {
     super.initState();
+    _cargarClienteId();
     _cargarHorariosDisponibles();
+  }
+
+  // ✅ Obtener ID del cliente desde SharedPreferences
+  Future<void> _cargarClienteId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final uid = prefs.getString('uid');
+    
+    if (uid == null) {
+      print('❌ Error: No hay cliente logueado');
+      _mostrarError('Debes iniciar sesión para reservar');
+      Navigator.pop(context);
+      return;
+    }
+
+    setState(() {
+      _clienteId = uid;
+    });
+    
+    print('✅ Cliente ID cargado: $_clienteId');
   }
 
   void _cargarHorariosDisponibles() async {
@@ -55,13 +88,8 @@ class _ReservaPageState extends State<ReservaPage> {
       _cargandoHorarios = true;
     });
 
-    // ✅ Tu compañero implementará:
-    // final horarios = await ReservaService.obtenerHorariosDisponibles(
-    //   empresaId: widget.empresaId,
-    //   empleadoId: widget.empleado['id'],
-    //   fecha: _fechaSeleccionada,
-    // );
-
+    // TODO: Implementar carga de horarios desde Supabase
+    // Filtrar horarios ya reservados para esta fecha y empleado
     await Future.delayed(const Duration(milliseconds: 500));
 
     setState(() {
@@ -74,7 +102,7 @@ class _ReservaPageState extends State<ReservaPage> {
       setState(() {
         _fechaSeleccionada = selectedDay;
         _focusedDay = focusedDay;
-        _horaSeleccionada = null; // Resetear hora al cambiar fecha
+        _horaSeleccionada = null;
       });
       _cargarHorariosDisponibles();
     }
@@ -82,22 +110,21 @@ class _ReservaPageState extends State<ReservaPage> {
 
   void _confirmarReserva() {
     if (_horaSeleccionada == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('⚠️ Selecciona una hora para continuar'),
-          backgroundColor: const Color.fromARGB(255, 240, 208, 48),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+      _mostrarSnackBar('⚠️ Selecciona una hora para continuar', Colors.orange);
       return;
     }
 
-    // ✅ Mostrar confirmación
+    if (_clienteId == null) {
+      _mostrarError('Error: Cliente no identificado');
+      return;
+    }
+
     _mostrarDialogoConfirmacion();
   }
 
   void _mostrarDialogoConfirmacion() {
+    final nombreEmpleado = '${widget.empleado.PrimerNombre ?? ''} ${widget.empleado.PrimerApellido ?? ''}'.trim();
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -140,15 +167,22 @@ class _ReservaPageState extends State<ReservaPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildResumenItem('Servicio', widget.servicio['nombre']),
-                _buildResumenItem('Profesional', widget.empleado['nombre']),
+                _buildResumenItem('Empresa', widget.empresa.Nombre ?? 'N/A'),
+                _buildResumenItem('Servicio', widget.servicio.Nombre ?? 'N/A'),
+                _buildResumenItem('Profesional', nombreEmpleado),
                 _buildResumenItem(
                   'Fecha',
                   '${_fechaSeleccionada.day}/${_fechaSeleccionada.month}/${_fechaSeleccionada.year}',
                 ),
                 _buildResumenItem('Hora', _horaSeleccionada!),
-                _buildResumenItem('Duración', widget.servicio['duracion']),
-                _buildResumenItem('Total', '\$${widget.servicio['precio']}'),
+                _buildResumenItem(
+                  'Duración',
+                  _formatearDuracion(widget.servicio.TiempoPromedio),
+                ),
+                _buildResumenItem(
+                  'Total',
+                  '\$${widget.servicio.Precio?.toStringAsFixed(0) ?? '0'}',
+                ),
                 const SizedBox(height: 24),
                 Row(
                   children: [
@@ -211,12 +245,16 @@ class _ReservaPageState extends State<ReservaPage> {
             label,
             style: const TextStyle(color: Colors.white60, fontSize: 14),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+          Flexible(
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -224,8 +262,8 @@ class _ReservaPageState extends State<ReservaPage> {
     );
   }
 
-  void _procesarReserva() async {
-    // ✅ Mostrar loading
+  Future<void> _procesarReserva() async {
+    // Mostrar loading
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -236,31 +274,149 @@ class _ReservaPageState extends State<ReservaPage> {
       ),
     );
 
-    // ✅ Tu compañero implementará:
-    // await ReservaService.crearReserva(
-    //   empresaId: widget.empresaId,
-    //   servicioId: widget.servicio['id'],
-    //   empleadoId: widget.empleado['id'],
-    //   fecha: _fechaSeleccionada,
-    //   hora: _horaSeleccionada,
-    // );
+    try {
+      // ✅ Combinar fecha y hora
+      final fechaHora = _combinarFechaHora(_fechaSeleccionada, _horaSeleccionada!);
+      
+      print('🔍 Datos de reservación:');
+      print('  - Cliente ID: $_clienteId');
+      print('  - Empresa ID: ${widget.empresa.Id}');
+      print('  - Servicio: ${widget.servicio.Nombre}');
+      print('  - Empleado: ${widget.empleado.PrimerNombre} ${widget.empleado.PrimerApellido}');
+      print('  - Fecha/Hora: $fechaHora');
+      print('  - Total: ${widget.servicio.Precio}');
 
-    await Future.delayed(const Duration(seconds: 2));
+      // ✅ 1. Obtener contabilidad de la empresa
+      final contabilidades = await _contabilidadController
+          .obtenerContabilidadesPorEmpresa(widget.empresa.Id ?? '');
+      
+      Contabilidad? contabilidad;
+      if (contabilidades.isNotEmpty) {
+        contabilidad = contabilidades.first as Contabilidad?;
+        print('✅ Contabilidad encontrada: ${contabilidad?.Id ?? "sin ID"}');
+      } else {
+        print('⚠️ No se encontró contabilidad para la empresa');
+      }
 
-    Navigator.pop(context); // Cerrar loading
+      // ✅ 2. Crear la reservación
+      final nuevaReservacion = Reservacion(
+        Id: _uuid.v4(),
+        Creacion: DateTime.now(),
+        Fecha: fechaHora,
+        Total: widget.servicio.Precio ?? 0.0,
+        Estado: 'Pendiente',
+        Comentario: 'Reserva realizada desde la app',
+        Estrellas: null, // Se califica después
+        empresa: Empresa(Id: widget.empresa.Id),
+        cliente: Cliente(Id: _clienteId),
+        contabilidad: contabilidad != null ? Contabilidad(Id: contabilidad.Id) : null,
+      );
 
-    // ✅ Mostrar éxito y volver al home
+      print('📝 JSON a enviar: ${nuevaReservacion.toJson()}');
+
+      // ✅ 3. Guardar en Supabase
+      final exito = await _reservacionController.guardarReservacion(nuevaReservacion);
+
+      Navigator.pop(context); // Cerrar loading
+
+      if (exito) {
+        print('✅ Reservación guardada exitosamente');
+        
+        // Mostrar éxito
+        _mostrarSnackBar('✅ ¡Reserva confirmada exitosamente!', Colors.green);
+        
+        // Volver al inicio
+        await Future.delayed(const Duration(seconds: 1));
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      } else {
+        print('❌ Error al guardar reservación');
+        _mostrarError('No se pudo crear la reservación. Intenta de nuevo.');
+      }
+    } catch (e) {
+      print('❌ Error procesando reserva: $e');
+      Navigator.pop(context); // Cerrar loading
+      _mostrarError('Error: $e');
+    }
+  }
+
+  DateTime _combinarFechaHora(DateTime fecha, String hora) {
+    // Convertir "09:00 AM" a horas y minutos
+    final partes = hora.split(' ');
+    final tiempo = partes[0].split(':');
+    int horas = int.parse(tiempo[0]);
+    final minutos = int.parse(tiempo[1]);
+    
+    // Ajustar para formato 12h
+    if (partes[1] == 'PM' && horas != 12) {
+      horas += 12;
+    } else if (partes[1] == 'AM' && horas == 12) {
+      horas = 0;
+    }
+
+    return DateTime(
+      fecha.year,
+      fecha.month,
+      fecha.day,
+      horas,
+      minutos,
+    );
+  }
+
+  void _mostrarSnackBar(String mensaje, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('✅ ¡Reserva confirmada exitosamente!'),
-        backgroundColor: Colors.green,
+        content: Text(mensaje),
+        backgroundColor: color,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
+  }
 
-    // Volver al inicio (eliminar todas las rutas)
-    Navigator.of(context).popUntil((route) => route.isFirst);
+  void _mostrarError(String mensaje) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 35, 35, 35),
+        title: const Text('Error', style: TextStyle(color: Colors.white)),
+        content: Text(mensaje, style: const TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'OK',
+              style: TextStyle(color: Color.fromARGB(255, 240, 208, 48)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatearDuracion(Duration duracion) {
+    final horas = duracion.inHours;
+    final minutos = duracion.inMinutes.remainder(60);
+    
+    if (horas > 0) {
+      return '$horas h ${minutos > 0 ? "$minutos min" : ""}';
+    }
+    return '$minutos min';
+  }
+
+  IconData _obtenerIconoServicio(String nombre) {
+    final nombreLower = nombre.toLowerCase();
+    
+    if (nombreLower.contains('corte') || nombreLower.contains('cabello')) {
+      return Icons.content_cut;
+    } else if (nombreLower.contains('barba') || nombreLower.contains('bigote')) {
+      return Icons.face;
+    } else if (nombreLower.contains('color') || nombreLower.contains('tinte')) {
+      return Icons.brush;
+    } else if (nombreLower.contains('premium') || nombreLower.contains('vip')) {
+      return Icons.star;
+    }
+    
+    return Icons.miscellaneous_services;
   }
 
   @override
@@ -349,6 +505,8 @@ class _ReservaPageState extends State<ReservaPage> {
   }
 
   Widget _buildResumenReserva() {
+    final nombreEmpleado = '${widget.empleado.PrimerNombre ?? ''} ${widget.empleado.PrimerApellido ?? ''}'.trim();
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -380,7 +538,7 @@ class _ReservaPageState extends State<ReservaPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  widget.servicio['icono'],
+                  _obtenerIconoServicio(widget.servicio.Nombre ?? ''),
                   color: Colors.white,
                   size: 28,
                 ),
@@ -391,7 +549,7 @@ class _ReservaPageState extends State<ReservaPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.servicio['nombre'],
+                      widget.servicio.Nombre ?? 'Servicio',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -400,7 +558,7 @@ class _ReservaPageState extends State<ReservaPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '\$${widget.servicio['precio']} • ${widget.servicio['duracion']}',
+                      '\$${widget.servicio.Precio?.toStringAsFixed(0) ?? '0'} • ${_formatearDuracion(widget.servicio.TiempoPromedio)}',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 13,
@@ -418,7 +576,22 @@ class _ReservaPageState extends State<ReservaPage> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: NetworkImage(widget.empleado['foto']),
+                backgroundColor: const Color.fromARGB(255, 240, 208, 48),
+                child: widget.empleado.Foto != null
+                    ? ClipOval(
+                        child: Image.memory(
+                          widget.empleado.Foto!,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Icon(
+                        widget.empleado.Sexo == 'Femenino'
+                            ? Icons.woman_rounded
+                            : Icons.man_rounded,
+                        color: Colors.white,
+                      ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -426,14 +599,14 @@ class _ReservaPageState extends State<ReservaPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.empleado['nombre'],
+                      nombreEmpleado,
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      widget.empleado['especialidad'],
+                      widget.empleado.Cargo ?? 'Profesional',
                       style: const TextStyle(
                         color: Colors.white60,
                         fontSize: 12,
@@ -609,7 +782,7 @@ class _ReservaPageState extends State<ReservaPage> {
                   ),
                 ),
                 Text(
-                  '\$${widget.servicio['precio']}',
+                  '\$${widget.servicio.Precio?.toStringAsFixed(0) ?? '0'}',
                   style: const TextStyle(
                     color: Color.fromARGB(255, 240, 208, 48),
                     fontSize: 24,
