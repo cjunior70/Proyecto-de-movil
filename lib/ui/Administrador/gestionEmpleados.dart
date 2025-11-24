@@ -3,6 +3,7 @@ import 'package:proyecto/models/Empresa.dart';
 import 'package:proyecto/models/Empleado.dart';
 import 'package:proyecto/controllers/EmpleadosController.dart';
 import 'FormularioEmpleado.dart';
+import 'AsignarServiciosEmpleadoPage.dart';
 
 /// ✅ GESTIÓN DE EMPLEADOS - Integrado con Supabase
 class GestionEmpleados extends StatefulWidget {
@@ -614,6 +615,20 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                       case 'eliminar':
                         _eliminarEmpleado(empleado);
                         break;
+                      case 'servicios':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AsignarServiciosEmpleadoPage(
+                              empleado: empleado,
+                              empresa: widget.empresa,
+                            ),
+                          ),
+                        ).then((value) {
+                          if (value == true) {
+                          }
+                        });
+                        break;
                     }
                   },
                   itemBuilder: (context) => [
@@ -653,6 +668,17 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                           Icon(Icons.delete_rounded, color: Colors.red, size: 20),
                           SizedBox(width: 12),
                           Text('Eliminar', style: TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                    ),
+
+                    const PopupMenuItem(
+                      value: 'servicios',
+                      child: Row(
+                        children: [
+                          Icon(Icons.room_service_rounded, color: Colors.purple, size: 20),
+                          SizedBox(width: 12),
+                          Text('Asignar Servicios', style: TextStyle(color: Colors.white)),
                         ],
                       ),
                     ),
