@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/ui/Administrador/ListaEmpresas.dart';
 import 'package:proyecto/ui/Administrador/UsuarioDetallePage.dart';
-// import 'package:proyecto/ui/Cliente/ClienteDetallePage.dart';
+import 'package:proyecto/ui/Administrador/GananciasEmpresasPage.dart';
+import 'package:proyecto/controllers/EmpresaController.dart';
+import 'package:proyecto/controllers/ContabilidadController.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// ✅ HOMEPAGE ADMINISTRADOR - OPTIMIZADO PARA MÓVIL
+/// ✅ HOMEPAGE ADMINISTRADOR - MEJORADO CON DATOS REALES
 class HomepageAdmin extends StatefulWidget {
   const HomepageAdmin({super.key});
 
@@ -12,15 +15,73 @@ class HomepageAdmin extends StatefulWidget {
 }
 
 class _HomepageAdminState extends State<HomepageAdmin> {
-  // ✅ DATOS DE EJEMPLO - Tu compañero los traerá de la API
-  final Map<String, dynamic> _estadisticas = {
-    'totalEmpresas': 15,
-    'totalEmpleados': 45,
-    'totalServicios': 120,
-    'reservacionesHoy': 28,
+  final EmpresaController _empresaController = EmpresaController();
+  final ContabilidadController _contabilidadController = ContabilidadController();
+
+  bool _cargando = true;
+  Map<String, dynamic> _estadisticas = {
+    'totalEmpresas': 0,
+    'gananciasTotal': 0.0,
   };
 
-  // ✅ ACTIVIDAD RECIENTE (máximo 3 para móvil)
+  @override
+  void initState() {
+    super.initState();
+    _cargarEstadisticas();
+  }
+
+  Future<void> _cargarEstadisticas() async {
+    setState(() {
+      _cargando = true;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final uid = prefs.getString('uid');
+
+      if (uid == null) {
+        print('❌ Error: No hay usuario logueado');
+        return;
+      }
+
+      // ✅ Obtener empresas del usuario
+      final empresas = await _empresaController.obtenerEmpresasPorUsuario(uid);
+
+      // ✅ Calcular ganancias totales del mes actual
+      double gananciasTotal = 0.0;
+      final ahora = DateTime.now();
+
+      for (var empresa in empresas) {
+        final contabilidades = await _contabilidadController
+            .obtenerContabilidadesPorEmpresa(empresa.Id ?? '');
+
+        for (var contabilidad in contabilidades) {
+          // Solo contar ganancias del mes actual
+          if (contabilidad.Fecha != null &&
+              contabilidad.Fecha!.month == ahora.month &&
+              contabilidad.Fecha!.year == ahora.year) {
+            gananciasTotal += contabilidad.PagoPorDia ?? 0.0;
+          }
+        }
+      }
+
+      setState(() {
+        _estadisticas = {
+          'totalEmpresas': empresas.length,
+          'gananciasTotal': gananciasTotal,
+        };
+        _cargando = false;
+      });
+
+      print('✅ Estadísticas cargadas: $_estadisticas');
+    } catch (e) {
+      print('❌ Error cargando estadísticas: $e');
+      setState(() {
+        _cargando = false;
+      });
+    }
+  }
+
   final List<Map<String, dynamic>> _actividadReciente = [
     {
       'titulo': 'Nueva Empresa',
@@ -45,20 +106,25 @@ class _HomepageAdminState extends State<HomepageAdmin> {
     },
   ];
 
-  // ✅ NAVEGACIÓN
-  void _navegarA(String ruta) { 
-    if (ruta == 'empresas') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ListaEmpresas()),
-      );
-      return;
+  void _navegarA(String ruta) {
+    Widget? destino;
+
+    switch (ruta) {
+      case 'empresas':
+        destino = const ListaEmpresas();
+        break;
+      case 'perfil':
+        destino = const Usuariodetallepage();
+        break;
+      case 'ganancias':
+        destino = const GananciasEmpresasPage();
+        break;
     }
 
-    if (ruta == 'perfil') {
+    if (destino != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const Usuariodetallepage()),
+        MaterialPageRoute(builder: (context) => destino!),
       );
       return;
     }
@@ -190,29 +256,41 @@ class _HomepageAdminState extends State<HomepageAdmin> {
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 24),
-                _buildEstadisticas(),
-                const SizedBox(height: 24),
-                _buildAccesosRapidos(),
-                const SizedBox(height: 24),
-                _buildActividadReciente(),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
+          child: _cargando
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: Color.fromARGB(255, 240, 208, 48),
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _cargarEstadisticas,
+                  color: const Color.fromARGB(255, 240, 208, 48),
+                  backgroundColor: const Color.fromARGB(255, 40, 40, 40),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(),
+                        const SizedBox(height: 24),
+                        _buildTarjetaGanancias(),
+                        const SizedBox(height: 16),
+                        _buildEstadisticas(),
+                        const SizedBox(height: 24),
+                        _buildAccesosRapidos(),
+                        const SizedBox(height: 24),
+                        _buildActividadReciente(),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ),
         ),
       ),
     );
   }
 
-  // ✅ HEADER
   Widget _buildHeader() {
     return Row(
       children: [
@@ -284,54 +362,111 @@ class _HomepageAdminState extends State<HomepageAdmin> {
     );
   }
 
-  // ✅ ESTADÍSTICAS
-  Widget _buildEstadisticas() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Resumen',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
-            letterSpacing: -0.5,
+  Widget _buildTarjetaGanancias() {
+    return GestureDetector(
+      onTap: () => _navegarA('ganancias'),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color.fromARGB(255, 240, 208, 48),
+              Color.fromARGB(255, 255, 220, 100),
+            ],
           ),
-        ),
-        const SizedBox(height: 12),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 1.6,
-          children: [
-            _buildTarjetaEstadistica(
-              'Empresas',
-              '${_estadisticas['totalEmpresas']}',
-              Icons.business_rounded,
-              const Color.fromARGB(255, 240, 208, 48),
-            ),
-            _buildTarjetaEstadistica(
-              'Empleados',
-              '${_estadisticas['totalEmpleados']}',
-              Icons.group_rounded,
-              Colors.blue,
-            ),
-            _buildTarjetaEstadistica(
-              'Servicios',
-              '${_estadisticas['totalServicios']}',
-              Icons.room_service_rounded,
-              Colors.purple,
-            ),
-            _buildTarjetaEstadistica(
-              'Hoy',
-              '${_estadisticas['reservacionesHoy']}',
-              Icons.calendar_today_rounded,
-              Colors.green,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Ganancias del Mes',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.trending_up_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '\$${_estadisticas['gananciasTotal'].toStringAsFixed(0)}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -1,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text(
+                  'Ver detalle',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEstadisticas() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildTarjetaEstadistica(
+            'Empresas',
+            '${_estadisticas['totalEmpresas']}',
+            Icons.business_rounded,
+            Colors.blue,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildTarjetaEstadistica(
+            'Promedio',
+            _estadisticas['totalEmpresas'] > 0
+                ? '\$${(_estadisticas['gananciasTotal'] / _estadisticas['totalEmpresas']).toStringAsFixed(0)}'
+                : '\$0',
+            Icons.show_chart_rounded,
+            Colors.purple,
+          ),
         ),
       ],
     );
@@ -344,7 +479,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(14),
@@ -359,7 +494,6 @@ class _HomepageAdminState extends State<HomepageAdmin> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -382,12 +516,12 @@ class _HomepageAdminState extends State<HomepageAdmin> {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             valor,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 28,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               letterSpacing: -1,
             ),
@@ -397,7 +531,6 @@ class _HomepageAdminState extends State<HomepageAdmin> {
     );
   }
 
-  // ✅ ACCESOS RÁPIDOS
   Widget _buildAccesosRapidos() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -510,7 +643,6 @@ class _HomepageAdminState extends State<HomepageAdmin> {
     );
   }
 
-  // ✅ ACTIVIDAD RECIENTE
   Widget _buildActividadReciente() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -553,7 +685,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
             padding: EdgeInsets.zero,
             itemCount: _actividadReciente.length,
             separatorBuilder: (context, index) => Divider(
-              color: Colors.white,
+              color: Colors.white.withOpacity(0.1),
               height: 1,
             ),
             itemBuilder: (context, index) {
@@ -587,7 +719,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                 subtitle: Text(
                   actividad['descripcion'],
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.white.withOpacity(0.6),
                     fontSize: 11,
                   ),
                   maxLines: 1,
@@ -596,7 +728,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                 trailing: Text(
                   actividad['tiempo'],
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.white.withOpacity(0.5),
                     fontSize: 10,
                   ),
                 ),
