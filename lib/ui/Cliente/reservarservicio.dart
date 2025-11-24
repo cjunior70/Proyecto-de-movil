@@ -110,7 +110,7 @@ class _ReservaPageState extends State<ReservaPage> {
 
   void _confirmarReserva() {
     if (_horaSeleccionada == null) {
-      _mostrarSnackBar('⚠️ Selecciona una hora para continuar', Colors.orange);
+      _mostrarSnackBar('⚠ Selecciona una hora para continuar', Colors.orange);
       return;
     }
 
@@ -295,7 +295,7 @@ class _ReservaPageState extends State<ReservaPage> {
         contabilidad = contabilidades.first as Contabilidad?;
         print('✅ Contabilidad encontrada: ${contabilidad?.Id ?? "sin ID"}');
       } else {
-        print('⚠️ No se encontró contabilidad para la empresa');
+        print('⚠ No se encontró contabilidad para la empresa');
       }
 
       // ✅ 2. Crear la reservación
