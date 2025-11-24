@@ -1,9 +1,12 @@
+import 'package:proyecto/models/Empresa.dart';
+
 class Servicio {
   String Id;
   String? Nombre;
   double? Precio;
   Duration TiempoPromedio;
   String? Descripcion;
+  Empresa? empresa;
 
   Servicio({
     required this.Id,
@@ -11,6 +14,7 @@ class Servicio {
     this.Precio,
     required this.TiempoPromedio,
     this.Descripcion,
+    this.empresa,
   });
 
    /// TO JSON
@@ -21,6 +25,7 @@ class Servicio {
       "Precio": Precio,
       "Tiempo": _durationToString(TiempoPromedio), // Se envía como HH:mm:ss
       "Descripcion": Descripcion,
+      "Id_Empresa":empresa!.Id,
     };
   }
 
@@ -49,6 +54,7 @@ class Servicio {
                 ))
           : Duration.zero,
       Descripcion: json["Descripcion"],
+      empresa: Empresa(Id: json["Id_Empresa"]),
     );
   }
 
