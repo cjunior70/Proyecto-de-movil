@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:proyecto/Models/DatosPersonales.dart';
 import 'package:proyecto/Models/Horario.dart';
 import 'package:proyecto/Models/Vacaciones.dart';
@@ -15,7 +13,7 @@ class Empleado extends Datospersonales {
   String? Estacion;
   Vacaciones? vacaciones;
   Empresa? empresa;
-  List<Service>? ListaDeServiciosDelEmpleado = [];
+  List<Servicio>? ListaDeServiciosDelEmpleado = [];
   List<Horario>? horario = [];
 
   Empleado({
