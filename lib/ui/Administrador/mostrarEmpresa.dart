@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/models/Empresa.dart';
+import 'package:proyecto/ui/Administrador/DetallesEmpresaPage.dart';
 import 'package:proyecto/ui/Administrador/gestionEmpleados.dart';
 import 'package:proyecto/ui/Administrador/gestionServicios.dart';
 
@@ -12,8 +13,6 @@ class MostrarEmpresa extends StatefulWidget {
   @override
   State<MostrarEmpresa> createState() => _MostrarEmpresaState();
 }
-
-
 
 class _MostrarEmpresaState extends State<MostrarEmpresa>
     with SingleTickerProviderStateMixin {
@@ -673,13 +672,14 @@ class _MostrarEmpresaState extends State<MostrarEmpresa>
 
   // ✅ ACCIONES
   void _editarEmpresa() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Función de editar empresa'),
-        backgroundColor: const Color.fromARGB(255, 240, 208, 48),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetallesEmpresaPage(
+          empresa: widget.empresa,  // 👈 pasamos la empresa actual
+        ),
       ),
     );
   }
+
 }

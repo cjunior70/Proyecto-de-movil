@@ -16,7 +16,6 @@ class Registro extends StatefulWidget {
   @override
   State<Registro> createState() => _RegistroState();
 
-  
 }
 
 

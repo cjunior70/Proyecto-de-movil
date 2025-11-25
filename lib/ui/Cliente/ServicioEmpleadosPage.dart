@@ -3,9 +3,10 @@ import 'package:proyecto/models/Empresa.dart';
 import 'package:proyecto/models/Servicio.dart';
 import 'package:proyecto/models/Empleado.dart';
 import 'package:proyecto/controllers/EmpleadosController.dart';
+import 'package:proyecto/controllers/InterServicioEmpleadoController.dart';
 import 'reservarservicio.dart';
 
-/// ✅ SELECCIÓN DE EMPLEADOS - Integrado con Supabase
+/// ✅ SELECCIÓN DE EMPLEADOS - FILTRADO POR SERVICIO
 class ServicioEmpleadosPage extends StatefulWidget {
   final Empresa empresa;
   final Servicio servicio;
@@ -22,6 +23,8 @@ class ServicioEmpleadosPage extends StatefulWidget {
 
 class _ServicioEmpleadosPageState extends State<ServicioEmpleadosPage> {
   final EmpleadoController _empleadoController = EmpleadoController();
+  final InterServicioEmpleadoController _interController = 
+      InterServicioEmpleadoController();
   
   bool _cargando = true;
   List<Empleado> _empleados = [];
@@ -39,19 +42,38 @@ class _ServicioEmpleadosPageState extends State<ServicioEmpleadosPage> {
     });
 
     try {
-      // ✅ Cargar empleados de la empresa desde Supabase
-      final empleados = await _empleadoController
+      // ✅ 1. Obtener IDs de empleados que tienen este servicio asignado
+      final empleadosIdsConServicio = await _interController
+          .obtenerEmpleadosDeServicio(widget.servicio.Id);
+
+      print('👥 Empleados con el servicio ${widget.servicio.Nombre}: ${empleadosIdsConServicio.length}');
+
+      if (empleadosIdsConServicio.isEmpty) {
+        setState(() {
+          _empleados = [];
+          _cargando = false;
+        });
+        return;
+      }
+
+      // ✅ 2. Cargar todos los empleados de la empresa
+      final todosLosEmpleados = await _empleadoController
           .obtenerEmpleadosPorEmpresa(widget.empresa.Id ?? '');
 
-      // ✅ Filtrar solo empleados activos
-      final empleadosActivos = empleados
-          .where((e) => e.Estado == 'Activo')
-          .toList();
+      // ✅ 3. Filtrar solo empleados activos que tengan este servicio
+      final empleadosFiltrados = todosLosEmpleados.where((empleado) {
+        final tieneServicio = empleadosIdsConServicio.contains(empleado.Id);
+        final estaActivo = empleado.Estado == 'Activo';
+        return tieneServicio && estaActivo;
+      }).toList();
 
       setState(() {
-        _empleados = empleadosActivos;
+        _empleados = empleadosFiltrados;
         _cargando = false;
       });
+
+      print('✅ ${empleadosFiltrados.length} empleados cargados con el servicio');
+
     } catch (e) {
       print('❌ Error cargando empleados: $e');
       setState(() {
@@ -214,13 +236,36 @@ class _ServicioEmpleadosPageState extends State<ServicioEmpleadosPage> {
         children: [
           _buildInfoServicio(),
           const SizedBox(height: 24),
-          const Text(
-            "Profesionales Disponibles",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          Row(
+            children: [
+              const Text(
+                "Profesionales Disponibles",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color.fromARGB(255, 240, 208, 48),
+                  ),
+                ),
+                child: Text(
+                  '${_empleados.length}',
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 240, 208, 48),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           ListView.builder(
@@ -257,7 +302,7 @@ class _ServicioEmpleadosPageState extends State<ServicioEmpleadosPage> {
           ),
           const SizedBox(height: 24),
           const Text(
-            'No hay empleados disponibles',
+            'No hay profesionales disponibles',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -266,11 +311,21 @@ class _ServicioEmpleadosPageState extends State<ServicioEmpleadosPage> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Por el momento no hay profesionales activos',
+            'No hay empleados activos con este servicio asignado',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white60,
               fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            '💡 Tip: El administrador debe asignar\neste servicio a los empleados',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white38,
+              fontSize: 13,
+              fontStyle: FontStyle.italic,
             ),
           ),
         ],

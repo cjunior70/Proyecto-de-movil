@@ -1,5 +1,6 @@
 import 'package:proyecto/models/Cliente.dart';
 import 'package:proyecto/models/Contabilidad.dart';
+import 'package:proyecto/models/Empleado.dart';
 import 'package:proyecto/models/Empresa.dart';
 
 class Reservacion {
@@ -13,6 +14,8 @@ class Reservacion {
   Empresa? empresa;
   Cliente? cliente;
   Contabilidad? contabilidad;
+  List<Empleado> empleadosAsignados;
+  
 
   Reservacion({
     this.Id,
@@ -25,7 +28,8 @@ class Reservacion {
     this.empresa,
     this.cliente,
     this.contabilidad,
-  });
+    List<Empleado>? empleadosAsignados,
+  }) : empleadosAsignados = empleadosAsignados ?? [];
 
   // Convertir objeto a JSON para enviar a backend
   Map<String, dynamic> toJson() {

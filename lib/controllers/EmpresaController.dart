@@ -100,6 +100,8 @@ class EmpresaController {
   Future<bool> actualizarEmpresa(Empresa EmpresaActualizado) async {
     try{
 
+      
+
       await SupabaseService.client
           .from('Empresas')
           .update(EmpresaActualizado.toJson()) //Los datoa actualizados convertidos a json
