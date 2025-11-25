@@ -697,7 +697,7 @@ class _Homepage_AdminState extends State<Homepage_Admin> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: actividad['color'].withOpacity(0.2),
+                    color: actividad['color'].withAlpha((0.2 * 255).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
