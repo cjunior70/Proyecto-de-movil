@@ -152,7 +152,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
           decoration: BoxDecoration(
             color: const Color.fromARGB(255, 35, 35, 35),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
+            border: Border.all(color: Colors.white.withAlpha((0.1 * 255).round())),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -194,7 +194,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                        side: BorderSide(color: Colors.white.withAlpha((0.1*255).round())),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -306,7 +306,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.3),
+                color: const Color.fromARGB(255, 240, 208, 48).withAlpha((0.3 * 255).round()),
                 blurRadius: 8,
                 offset: const Offset(0, 3),
               ),
@@ -344,10 +344,10 @@ class _HomepageAdminState extends State<HomepageAdmin> {
         ),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withAlpha((0.1 * 255).round()),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withAlpha((0.2 * 255).round()),
             ),
           ),
           child: IconButton(
@@ -377,7 +377,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.4),
+              color: const Color.fromARGB(255, 240, 208, 48).withAlpha((0.4 * 255).round()),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -400,7 +400,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.3),
+                   color: Colors.white.withAlpha((0.3 * 255).round()),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -481,12 +481,12 @@ class _HomepageAdminState extends State<HomepageAdmin> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+       color: Colors.white.withAlpha((0.08 * 255).round()),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.15)),
+        border: Border.all(color: Colors.white.withAlpha((0.15 * 255).round())),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withAlpha((0.2 * 255).round()),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -501,7 +501,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
               Text(
                 titulo,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withAlpha((0.7 * 255).round()),
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -509,7 +509,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                 color: color.withAlpha((0.2 * 255).round()),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icono, color: color, size: 16),
@@ -573,12 +573,12 @@ class _HomepageAdminState extends State<HomepageAdmin> {
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: Colors.white.withAlpha((0.08 * 255).round()),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.15)),
+        border: Border.all(color: Colors.white.withAlpha((0.15 * 255).round())),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withAlpha((0.2 * 255).round()),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -596,7 +596,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
+                  color: color.withAlpha((0.2 * 255).round()),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -623,7 +623,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                       Text(
                         descripcion,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withAlpha((0.6 * 255).round()),
                           fontSize: 12,
                         ),
                       ),
@@ -632,7 +632,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                 ),
                 Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withAlpha((0.4 * 255).round()),
                   size: 16,
                 ),
               ],
@@ -675,9 +675,9 @@ class _HomepageAdminState extends State<HomepageAdmin> {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
+            color: Colors.white.withAlpha((0.08 * 255).round()),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.white.withOpacity(0.15)),
+            border: Border.all(color: Colors.white.withAlpha((0.15 * 255).round())),
           ),
           child: ListView.separated(
             shrinkWrap: true,
@@ -685,7 +685,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
             padding: EdgeInsets.zero,
             itemCount: _actividadReciente.length,
             separatorBuilder: (context, index) => Divider(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withAlpha((0.1 * 255).round()),
               height: 1,
             ),
             itemBuilder: (context, index) {
