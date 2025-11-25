@@ -19,7 +19,7 @@ class BarraBusqueda extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: const Color.fromRGBO(128, 128, 128, 0.1), // gris con 10% de opacidad
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

@@ -7,14 +7,14 @@ import 'package:proyecto/controllers/ContabilidadController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// ✅ HOMEPAGE ADMINISTRADOR - MEJORADO CON DATOS REALES
-class HomepageAdmin extends StatefulWidget {
-  const HomepageAdmin({super.key});
+class Homepageadmin extends StatefulWidget {
+  const Homepageadmin({super.key});
 
   @override
-  State<HomepageAdmin> createState() => _HomepageAdminState();
+  State<Homepageadmin> createState() => _HomepageadminState();
 }
 
-class _HomepageAdminState extends State<HomepageAdmin> {
+class _HomepageadminState extends State<Homepageadmin> {
   final EmpresaController _empresaController = EmpresaController();
   final ContabilidadController _contabilidadController = ContabilidadController();
 
