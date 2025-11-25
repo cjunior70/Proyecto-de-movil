@@ -7,14 +7,14 @@ import 'package:proyecto/controllers/ContabilidadController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// ✅ HOMEPAGE ADMINISTRADOR - MEJORADO CON DATOS REALES
-class HomepageAdmin extends StatefulWidget {
-  const HomepageAdmin({super.key});
+class Homepage_Admin extends StatefulWidget {
+  const Homepage_Admin({super.key});
 
   @override
-  State<HomepageAdmin> createState() => _HomepageAdminState();
+  State<Homepage_Admin> createState() => _Homepage_AdminState();
 }
 
-class _HomepageAdminState extends State<HomepageAdmin> {
+class _Homepage_AdminState extends State<Homepage_Admin> {
   final EmpresaController _empresaController = EmpresaController();
   final ContabilidadController _contabilidadController = ContabilidadController();
 
@@ -73,9 +73,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
         _cargando = false;
       });
 
-      print('✅ Estadísticas cargadas: $_estadisticas');
     } catch (e) {
-      print('❌ Error cargando estadísticas: $e');
       setState(() {
         _cargando = false;
       });
@@ -152,7 +150,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
           decoration: BoxDecoration(
             color: const Color.fromARGB(255, 35, 35, 35),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withAlpha((0.1 * 255).round())),
+            border: Border.all(color: Colors.white.withAlpha((0.1 * 255).round()))
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/controllers/Conexion.dart';
 import 'package:proyecto/ui/Registro/Registro.dart';
-import 'package:proyecto/ui/home/homepageAdmin.dart';
+import 'package:proyecto/ui/home/Homepage_Admin.dart';
 import 'package:proyecto/ui/home/UsuarioHome.dart';
 import '../componentes/Login/tarjetas/tarjeta_login.dart';
 import '../componentes/Login/encabezados/encabezado_bienvenida.dart';
@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     } else if (rolSeleccionado == "administrador") {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const HomepageAdmin()),
+        MaterialPageRoute(builder: (context) => const Homepage_Admin()),
       );
     }
   } else {
