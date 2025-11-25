@@ -728,7 +728,7 @@ class _HomepageAdminState extends State<HomepageAdmin> {
                 trailing: Text(
                   actividad['tiempo'],
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                     color: Colors.white.withAlpha((0.5 * 255).round()),
                     fontSize: 10,
                   ),
                 ),
