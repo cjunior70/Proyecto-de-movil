@@ -3,14 +3,11 @@ import 'package:proyecto/models/Empleado.dart';
 
 class EmpleadoController {
   Empleado? empleado; // único empleado en memoria
-
   List<Empleado> lista_de_Empleados = [];
 
   // 🔹 1. Guardar empleado
   Future<bool> guardarEmpleado(Empleado nuevoEmpleado) async {
-    try{
-
-      //Guardar los daots del Empleado temporalmente
+    try {
       empleado = nuevoEmpleado;
 
       await SupabaseService.client
@@ -18,107 +15,89 @@ class EmpleadoController {
           .insert(nuevoEmpleado.toJson());
 
       print("Empleado insertado correctamente en Supabase");
-
       return true;
-
-    }
-    catch(e)
-    {
-      //Es necesario concatenar
-      print("Hay un problema en el guardado del Empleado + $e" );
-
+    } catch (e) {
+      print("Hay un problema en el guardado del Empleado + $e");
       return false;
     }
   }
 
-//   // 🔹 2. Eliminar empleado
-//   Future<List<Empleado>> obtenerTodasEmpleados() async {
-//   try {
-//     final respuesta = await SupabaseService.client
-//         .from('Empleados')
-//         .select();
+  // 🔹 2. Obtener empleados por empresa
+  Future<List<Empleado>> obtenerEmpleadosPorEmpresa(String empresaId) async {
+    try {
+      final respuesta = await SupabaseService.client
+          .from('Empleados')
+          .select()
+          .eq("Id_Empresa", empresaId);
 
-//     print("Empleados encontradas correctamente en Supabase: $respuesta");
+      print("Empleados encontrados correctamente en Supabase: $respuesta");
 
-//     // Convertir la lista de mapas a lista de objetos Empleado
-//     final List<Empleado> listaEmpleados = (respuesta as List)
-//         .map((e) => Empleado.fromJson(e as Map<String, dynamic>))
-//         .toList();
+      final List<Empleado> listaEmpleados = (respuesta as List)
+          .map((e) => Empleado.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-//     lista_de_Empleados = listaEmpleados;
-//     return listaEmpleados;
-//   } catch (e) {
-//     print("Hay un problema al obtener las Empleados: $e");
-//     return [];
-//   }
-// }
-
-  // 🔹 3. Obtener empleado actual
-  Future<List<Empleado>> obtenerEmpleadosPorEmpresa(String EmpresaId) async {
-  try {
-    final respuesta = await SupabaseService.client
-        .from('Empleados')
-        .select()
-        .eq("Id_Empresa", EmpresaId);
-
-    print("Empleados encontradas correctamente en Supabase: $respuesta");
-
-    // Convertir la lista de mapas a lista de objetos Empleado
-    final List<Empleado> listaEmpleados = (respuesta as List)
-        .map((e) => Empleado.fromJson(e as Map<String, dynamic>))
-        .toList();
-
-    lista_de_Empleados = listaEmpleados;
-    print(listaEmpleados);
-    return listaEmpleados;
-  } catch (e) {
-    print("Hay un problema al obtener las Empleados: $e");
-    return [];
+      lista_de_Empleados = listaEmpleados;
+      print(listaEmpleados);
+      return listaEmpleados;
+    } catch (e) {
+      print("Hay un problema al obtener los Empleados: $e");
+      return [];
+    }
   }
-}
 
-  // 🔹 4. Actualizar empleado existente
- Future<bool> actualizarEmpleado(Empleado EmpleadoActualizado) async {
-    try{
+  // ✅ NUEVO: Obtener UN empleado por ID
+  Future<Empleado?> obtenerEmpleado(String empleadoId) async {
+    try {
+      final respuesta = await SupabaseService.client
+          .from('Empleados')
+          .select()
+          .eq("Id", empleadoId)
+          .maybeSingle(); // Obtiene un solo registro o null
 
+      if (respuesta == null) {
+        print("⚠️ No se encontró empleado con ID: $empleadoId");
+        return null;
+      }
+
+      print("✅ Empleado encontrado: $respuesta");
+
+      final empleado = Empleado.fromJson(respuesta as Map<String, dynamic>);
+      return empleado;
+    } catch (e) {
+      print("❌ Error al obtener empleado $empleadoId: $e");
+      return null;
+    }
+  }
+
+  // 🔹 3. Actualizar empleado existente
+  Future<bool> actualizarEmpleado(Empleado empleadoActualizado) async {
+    try {
       await SupabaseService.client
           .from('Empleados')
-          .update(EmpleadoActualizado.toJson()) //Los datoa actualizados convertidos a json
-          .eq("Id", EmpleadoActualizado.Id!);
+          .update(empleadoActualizado.toJson())
+          .eq("Id", empleadoActualizado.Id!);
 
-      print("Empleado actualizados correctamente en Supabase");
-
+      print("Empleado actualizado correctamente en Supabase");
       return true;
-
-    }catch(e)
-    {
-      //Es necesario concatenar
-      print("Hay un problema en el eliminar el Empleado + $e" );
-
+    } catch (e) {
+      print("Hay un problema al actualizar el Empleado + $e");
       return false;
     }
   }
 
-  // 2. Eliminar Empleado por ID
- Future<bool> eliminarEmpleado(String Id)  async{
-    try{
-
+  // 🔹 4. Eliminar empleado por ID
+  Future<bool> eliminarEmpleado(String id) async {
+    try {
       await SupabaseService.client
           .from('Empleados')
           .delete()
-          .eq("Id",Id);
+          .eq("Id", id);
 
       print("Empleado borrado correctamente en Supabase");
-
       return true;
-
-    }catch(e)
-    {
-      //Es necesario concatenar
-      print("Hay un problema en el eliminar el Empleado + $e" );
-
+    } catch (e) {
+      print("Hay un problema al eliminar el Empleado + $e");
       return false;
     }
   }
-
 }

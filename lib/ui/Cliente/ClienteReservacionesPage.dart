@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/models/Reservacion.dart';
+import 'package:proyecto/models/Empleado.dart';
+import 'package:proyecto/models/Servicio.dart';
+import 'package:proyecto/controllers/ReservacionController.dart';
+import 'package:proyecto/controllers/EmpleadosController.dart';
+import 'package:proyecto/controllers/ServiciosController.dart';
+import 'package:proyecto/controllers/InterReservacionEmpleadoServicioController.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// ✅ PÁGINA DE RESERVACIONES DEL CLIENTE
 class ClienteReservacionesPage extends StatefulWidget {
   const ClienteReservacionesPage({super.key});
 
@@ -8,692 +15,232 @@ class ClienteReservacionesPage extends StatefulWidget {
   State<ClienteReservacionesPage> createState() => _ClienteReservacionesPageState();
 }
 
-class _ClienteReservacionesPageState extends State<ClienteReservacionesPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ClienteReservacionesPageState extends State<ClienteReservacionesPage> {
+  final ReservacionController _reservacionController = ReservacionController();
+  final InterReservacionEmpleadoServicioController _interController = 
+      InterReservacionEmpleadoServicioController();
+  final EmpleadoController _empleadoController = EmpleadoController();
+  final ServicioController _servicioController = ServicioController();
+
   bool _cargando = true;
-
-  // ✅ DATOS DE EJEMPLO - Tu compañero los traerá de la API
-  final List<Map<String, dynamic>> _reservacionesPendientes = [
-    {
-      'id': '1',
-      'empresa': 'Barbería Elite',
-      'servicio': 'Corte Premium',
-      'empleado': 'Carlos Rodríguez',
-      'empleadoFoto': 'https://ui-avatars.com/api/?name=Carlos+Rodriguez&size=200&background=F0D030&color=fff',
-      'fecha': DateTime.now().add(const Duration(days: 3)),
-      'hora': '10:00 AM',
-      'duracion': '45 min',
-      'precio': 40000,
-      'estado': 'confirmada',
-      'iconoServicio': Icons.star,
-    },
-    {
-      'id': '2',
-      'empresa': 'Spa Relax',
-      'servicio': 'Facial Completo',
-      'empleado': 'María González',
-      'empleadoFoto': 'https://ui-avatars.com/api/?name=Maria+Gonzalez&size=200&background=F0D030&color=fff',
-      'fecha': DateTime.now().add(const Duration(days: 7)),
-      'hora': '02:30 PM',
-      'duracion': '60 min',
-      'precio': 50000,
-      'estado': 'confirmada',
-      'iconoServicio': Icons.spa,
-    },
-  ];
-
-  final List<Map<String, dynamic>> _reservacionesCompletadas = [
-    {
-      'id': '3',
-      'empresa': 'Barbería Elite',
-      'servicio': 'Corte Clásico',
-      'empleado': 'Luis Martínez',
-      'empleadoFoto': 'https://ui-avatars.com/api/?name=Luis+Martinez&size=200&background=F0D030&color=fff',
-      'fecha': DateTime.now().subtract(const Duration(days: 15)),
-      'hora': '11:00 AM',
-      'duracion': '30 min',
-      'precio': 25000,
-      'estado': 'completada',
-      'iconoServicio': Icons.content_cut,
-      'calificacion': 4.5,
-    },
-  ];
-
-  final List<Map<String, dynamic>> _reservacionesCanceladas = [
-    {
-      'id': '4',
-      'empresa': 'Spa Relax',
-      'servicio': 'Manicure',
-      'empleado': 'Ana Pérez',
-      'empleadoFoto': 'https://ui-avatars.com/api/?name=Ana+Perez&size=200&background=F0D030&color=fff',
-      'fecha': DateTime.now().subtract(const Duration(days: 5)),
-      'hora': '03:00 PM',
-      'duracion': '40 min',
-      'precio': 30000,
-      'estado': 'cancelada',
-      'iconoServicio': Icons.self_improvement,
-      'motivoCancelacion': 'Cancelada por el cliente',
-    },
-  ];
+  List<Map<String, dynamic>> _reservacionesCompletas = [];
+  String? _clienteId;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     _cargarReservaciones();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  Future<void> _cargarReservaciones() async {
+    setState(() => _cargando = true);
 
-  void _cargarReservaciones() async {
-    setState(() {
-      _cargando = true;
-    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _clienteId = prefs.getString('uid');
 
-    // ✅ Tu compañero implementará:
-    // final reservaciones = await ReservaService.obtenerReservacionesCliente();
+      if (_clienteId == null) {
+        print('❌ No hay cliente logueado');
+        setState(() => _cargando = false);
+        return;
+      }
 
-    await Future.delayed(const Duration(seconds: 1));
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('📱 INICIANDO CARGA DE RESERVACIONES');
+      print('   Cliente ID: $_clienteId');
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    setState(() {
-      _cargando = false;
-    });
-  }
+      // ✅ 1. Cargar reservaciones base
+      final reservaciones = await _reservacionController
+          .obtenerReservacionesPorCliente(_clienteId!);
 
-  void _mostrarOpcionesReserva(Map<String, dynamic> reserva) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 35, 35, 35),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      reserva['servicio'],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${_formatearFecha(reserva['fecha'])} • ${reserva['hora']}',
-                      style: const TextStyle(color: Colors.white60),
-                    ),
-                    const SizedBox(height: 24),
-                    
-                    // ✅ VER DETALLES
-                    _buildOpcionBottomSheet(
-                      icono: Icons.info_outline,
-                      titulo: 'Ver detalles',
-                      onTap: () {
-                        Navigator.pop(context);
-                        _verDetalles(reserva);
-                      },
-                    ),
-                    
-                    // ✅ MODIFICAR (Solo si es futura y no cancelada)
-                    if (reserva['fecha'].isAfter(DateTime.now()) && 
-                        reserva['estado'] != 'cancelada')
-                      _buildOpcionBottomSheet(
-                        icono: Icons.edit_calendar,
-                        titulo: 'Modificar cita',
-                        onTap: () {
-                          Navigator.pop(context);
-                          _modificarReserva(reserva);
-                        },
-                      ),
-                    
-                    // ✅ CANCELAR (Solo si es futura y no cancelada)
-                    if (reserva['fecha'].isAfter(DateTime.now()) && 
-                        reserva['estado'] != 'cancelada')
-                      _buildOpcionBottomSheet(
-                        icono: Icons.cancel_outlined,
-                        titulo: 'Cancelar cita',
-                        color: Colors.red,
-                        onTap: () {
-                          Navigator.pop(context);
-                          _confirmarCancelacion(reserva);
-                        },
-                      ),
-                    
-                    // ✅ CALIFICAR (Solo si está completada y sin calificación)
-                    if (reserva['estado'] == 'completada' && 
-                        reserva['calificacion'] == null)
-                      _buildOpcionBottomSheet(
-                        icono: Icons.star_outline,
-                        titulo: 'Calificar servicio',
-                        color: const Color.fromARGB(255, 240, 208, 48),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _calificarServicio(reserva);
-                        },
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+      print('✅ ${reservaciones.length} reservaciones encontradas');
 
-  Widget _buildOpcionBottomSheet({
-    required IconData icono,
-    required String titulo,
-    Color? color,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Icon(
-        icono,
-        color: color ?? Colors.white70,
-      ),
-      title: Text(
-        titulo,
-        style: TextStyle(
-          color: color ?? Colors.white,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      tileColor: Colors.white.withOpacity(0.05),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-    );
-  }
+      // ✅ 2. Para cada reservación, obtener empleados y servicios
+      List<Map<String, dynamic>> reservacionesCompletas = [];
 
-  void _verDetalles(Map<String, dynamic> reserva) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 35, 35, 35),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color.fromARGB(255, 240, 208, 48),
-                          Color.fromARGB(255, 255, 220, 100),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      reserva['iconoServicio'],
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          reserva['servicio'],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          reserva['empresa'],
-                          style: const TextStyle(
-                            color: Colors.white60,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Divider(color: Colors.white24),
-              const SizedBox(height: 16),
+      for (var i = 0; i < reservaciones.length; i++) {
+        final reservacion = reservaciones[i];
+        print('\n🔍 Procesando reservación ${i + 1}/${reservaciones.length}');
+        print('   ID: ${reservacion.Id}');
+        print('   Fecha: ${reservacion.Fecha}');
+        print('   Total: \$${reservacion.Total}');
+
+        // Obtener relaciones de la tabla de intersección
+        final relaciones = await _interController
+            .obtenerRelacionesPorReservacion(reservacion.Id ?? '');
+
+        print('   🔗 Relaciones encontradas: ${relaciones.length} empleados');
+        print('   Detalles: $relaciones');
+
+        List<Empleado> empleados = [];
+        List<Servicio> servicios = [];
+
+        if (relaciones.isEmpty) {
+          print('   ⚠️ NO HAY RELACIONES - La reservación no tiene empleados/servicios asignados');
+        } else {
+          // ✅ Cargar datos completos de empleados y servicios
+          for (var empleadoId in relaciones.keys) {
+            print('   🔄 Cargando empleado: $empleadoId');
+            
+            try {
+              final empleado = await _empleadoController.obtenerEmpleado(empleadoId);
+              if (empleado != null) {
+                empleados.add(empleado);
+                print('   ✅ Empleado cargado: ${empleado.PrimerNombre} ${empleado.PrimerApellido}');
+              } else {
+                print('   ❌ Empleado $empleadoId no encontrado en BD');
+              }
+
+              // Cargar servicios de este empleado
+              final serviciosIds = relaciones[empleadoId]!;
+              print('   🔄 Cargando ${serviciosIds.length} servicios del empleado');
               
-              _buildDetalleItem('Profesional', reserva['empleado']),
-              _buildDetalleItem('Fecha', _formatearFecha(reserva['fecha'])),
-              _buildDetalleItem('Hora', reserva['hora']),
-              _buildDetalleItem('Duración', reserva['duracion']),
-              _buildDetalleItem('Precio', '\$${reserva['precio']}'),
-              _buildDetalleItem('Estado', _obtenerTextoEstado(reserva['estado'])),
-              
-              if (reserva['motivoCancelacion'] != null)
-                _buildDetalleItem('Motivo', reserva['motivoCancelacion']),
-              
-              const SizedBox(height: 20),
-              
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 240, 208, 48),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Cerrar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+              for (var servicioId in serviciosIds) {
+                try {
+                  final servicio = await _servicioController.obtenerServicio(servicioId);
+                  if (servicio != null) {
+                    // Evitar duplicados
+                    if (!servicios.any((s) => s.Id == servicio.Id)) {
+                      servicios.add(servicio);
+                      print('   ✅ Servicio cargado: ${servicio.Nombre} (\$${servicio.Precio})');
+                    } else {
+                      print('   ⏭️ Servicio ${servicio.Nombre} ya agregado (evitando duplicado)');
+                    }
+                  } else {
+                    print('   ❌ Servicio $servicioId no encontrado en BD');
+                  }
+                } catch (e) {
+                  print('   ❌ Error cargando servicio $servicioId: $e');
+                }
+              }
+            } catch (e) {
+              print('   ❌ Error cargando empleado $empleadoId: $e');
+            }
+          }
+        }
 
-  Widget _buildDetalleItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white60,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        print('   📊 Resumen:');
+        print('      - Empleados: ${empleados.length}');
+        print('      - Servicios: ${servicios.length}');
 
-  void _modificarReserva(Map<String, dynamic> reserva) {
-    // TODO: Navegar a página de modificación
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('🔄 Función de modificar en desarrollo'),
-        backgroundColor: Colors.blue,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
-  }
+        reservacionesCompletas.add({
+          'reservacion': reservacion,
+          'empleados': empleados,
+          'servicios': servicios,
+        });
+      }
 
-  void _confirmarCancelacion(Map<String, dynamic> reserva) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 35, 35, 35),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.white,
-                  size: 48,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                '¿Cancelar Cita?',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Esta acción no se puede deshacer. Se cancelará tu cita para ${reserva['servicio']} el ${_formatearFecha(reserva['fecha'])}.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.white.withOpacity(0.3)),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'No, volver',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _procesarCancelacion(reserva);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Sí, cancelar',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+      setState(() {
+        _reservacionesCompletas = reservacionesCompletas;
+        _cargando = false;
+      });
 
-  void _procesarCancelacion(Map<String, dynamic> reserva) async {
-    // Mostrar loading
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(
-          color: Color.fromARGB(255, 240, 208, 48),
-        ),
-      ),
-    );
-
-    // ✅ Tu compañero implementará:
-    // await ReservaService.cancelarReserva(reserva['id']);
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    Navigator.pop(context); // Cerrar loading
-
-    // Actualizar estado local
-    setState(() {
-      reserva['estado'] = 'cancelada';
-      _reservacionesPendientes.removeWhere((r) => r['id'] == reserva['id']);
-      _reservacionesCanceladas.insert(0, reserva);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('✅ Cita cancelada correctamente'),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
-  }
-
-  void _calificarServicio(Map<String, dynamic> reserva) {
-    // TODO: Navegar a página de calificación
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('⭐ Función de calificación en desarrollo'),
-        backgroundColor: const Color.fromARGB(255, 240, 208, 48),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
-  }
-
-  String _formatearFecha(DateTime fecha) {
-    final meses = [
-      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ];
-    return '${fecha.day} ${meses[fecha.month - 1]}, ${fecha.year}';
-  }
-
-  String _obtenerTextoEstado(String estado) {
-    switch (estado) {
-      case 'confirmada':
-        return 'Confirmada';
-      case 'completada':
-        return 'Completada';
-      case 'cancelada':
-        return 'Cancelada';
-      default:
-        return estado;
-    }
-  }
-
-  Color _obtenerColorEstado(String estado) {
-    switch (estado) {
-      case 'confirmada':
-        return Colors.green;
-      case 'completada':
-        return Colors.blue;
-      case 'cancelada':
-        return Colors.red;
-      default:
-        return Colors.grey;
+      print('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('✅ CARGA COMPLETA: ${reservacionesCompletas.length} reservaciones procesadas');
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    } catch (e) {
+      print('❌ ERROR CRÍTICO en _cargarReservaciones: $e');
+      print('   Stack trace: ${StackTrace.current}');
+      setState(() => _cargando = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.fromARGB(255, 43, 43, 43),
-              Color.fromARGB(255, 80, 80, 80),
-            ],
-          ),
+      backgroundColor: const Color.fromARGB(255, 43, 43, 43),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 35, 35, 35),
+        title: const Text(
+          'Mis Reservaciones',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildCustomAppBar(),
-              _buildTabBar(),
-              Expanded(
-                child: _cargando ? _buildCargando() : _buildTabBarView(),
-              ),
-            ],
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _cargarReservaciones,
+            tooltip: 'Actualizar',
           ),
-        ),
+        ],
       ),
+      body: _cargando
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Color.fromARGB(255, 240, 208, 48),
+              ),
+            )
+          : _reservacionesCompletas.isEmpty
+              ? _buildEmptyState()
+              : RefreshIndicator(
+                  color: const Color.fromARGB(255, 240, 208, 48),
+                  onRefresh: _cargarReservaciones,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _reservacionesCompletas.length,
+                    itemBuilder: (context, index) {
+                      return _buildTarjetaReservacion(_reservacionesCompletas[index]);
+                    },
+                  ),
+                ),
     );
   }
 
-  Widget _buildCustomAppBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.white.withOpacity(0.05),
+              shape: BoxShape.circle,
             ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.pop(context),
-            ),
+            child: const Icon(Icons.calendar_today, size: 80, color: Colors.white38),
           ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Mis Citas',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'Gestiona tus reservaciones',
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
+          const SizedBox(height: 24),
+          const Text(
+            'No tienes reservaciones',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Tus reservaciones aparecerán aquí',
+            style: TextStyle(color: Colors.white60, fontSize: 14),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTabBar() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: TabBar(
-        controller: _tabController,
-        indicator: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color.fromARGB(255, 240, 208, 48),
-              Color.fromARGB(255, 255, 220, 100),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white60,
-        labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-        unselectedLabelStyle: const TextStyle(fontSize: 13),
-        tabs: const [
-          Tab(text: 'Pendientes'),
-          Tab(text: 'Completadas'),
-          Tab(text: 'Canceladas'),
-        ],
-      ),
-    );
-  }
+  Widget _buildTarjetaReservacion(Map<String, dynamic> data) {
+    final Reservacion reservacion = data['reservacion'];
+    final List<Empleado> empleados = data['empleados'];
+    final List<Servicio> servicios = data['servicios'];
 
-  Widget _buildTabBarView() {
-    return TabBarView(
-      controller: _tabController,
-      children: [
-        _buildListaReservaciones(_reservacionesPendientes, 'pendientes'),
-        _buildListaReservaciones(_reservacionesCompletadas, 'completadas'),
-        _buildListaReservaciones(_reservacionesCanceladas, 'canceladas'),
-      ],
-    );
-  }
+    final esProxima = reservacion.Fecha != null && 
+                      reservacion.Fecha!.isAfter(DateTime.now());
+    final colorEstado = _getColorEstado(reservacion.Estado ?? 'Pendiente');
 
-  Widget _buildListaReservaciones(List<Map<String, dynamic>> reservaciones, String tipo) {
-    if (reservaciones.isEmpty) {
-      return _buildListaVacia(tipo);
-    }
+    // ✅ DEBUGGING: Mostrar en consola lo que se va a renderizar
+    print('📱 Renderizando tarjeta:');
+    print('   - Reservación: ${reservacion.Id}');
+    print('   - Empleados para mostrar: ${empleados.length}');
+    print('   - Servicios para mostrar: ${servicios.length}');
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: reservaciones.length,
-      itemBuilder: (context, index) {
-        final reserva = reservaciones[index];
-        return _buildTarjetaReserva(reserva);
-      },
-    );
-  }
-
-  Widget _buildTarjetaReserva(Map<String, dynamic> reserva) {
-    final esFutura = reserva['fecha'].isAfter(DateTime.now());
-    
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(
+          color: esProxima 
+              ? const Color.fromARGB(255, 240, 208, 48).withOpacity(0.5)
+              : Colors.white.withOpacity(0.1),
+          width: esProxima ? 2 : 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.3),
@@ -706,147 +253,220 @@ class _ClienteReservacionesPageState extends State<ClienteReservacionesPage> wit
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => _mostrarOpcionesReserva(reserva),
+          onTap: () => _mostrarDetalles(reservacion, empleados, servicios),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Encabezado con estado
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color.fromARGB(255, 240, 208, 48),
-                            Color.fromARGB(255, 255, 220, 100),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        reserva['iconoServicio'],
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            reserva['servicio'],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            reserva['empresa'],
-                            style: const TextStyle(
-                              color: Colors.white60,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: _obtenerColorEstado(reserva['estado']).withOpacity(0.2),
+                        color: colorEstado.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: _obtenerColorEstado(reserva['estado']).withOpacity(0.5),
-                        ),
+                        border: Border.all(color: colorEstado),
                       ),
                       child: Text(
-                        _obtenerTextoEstado(reserva['estado']),
+                        reservacion.Estado ?? 'Pendiente',
                         style: TextStyle(
-                          color: _obtenerColorEstado(reserva['estado']),
-                          fontSize: 11,
+                          color: colorEstado,
                           fontWeight: FontWeight.bold,
+                          fontSize: 12,
                         ),
                       ),
                     ),
+                    if (esProxima)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color.fromARGB(255, 240, 208, 48),
+                              Color.fromARGB(255, 255, 220, 100),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'PRÓXIMA',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                const Divider(color: Colors.white24, height: 1),
-                const SizedBox(height: 16),
                 
+                // Fecha y hora
+                if (reservacion.Fecha != null) ...[
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today, color: Color.fromARGB(255, 240, 208, 48), size: 20),
+                      const SizedBox(width: 12),
+                      Text(
+                        _formatearFecha(reservacion.Fecha!),
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 16),
+                      const Icon(Icons.access_time, color: Colors.white60, size: 18),
+                      const SizedBox(width: 6),
+                      Text(
+                        _formatearHora(reservacion.Fecha!),
+                        style: const TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                const Divider(color: Colors.white24),
+                const SizedBox(height: 12),
+
+                // ✅ SERVICIOS - Mostrar siempre, incluso si está vacío
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage: NetworkImage(reserva['empleadoFoto']),
-                    ),
+                    const Icon(Icons.content_cut, color: Colors.white60, size: 18),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            reserva['empleado'],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
+                          const Text(
+                            'Servicio:',
+                            style: TextStyle(color: Colors.white54, fontSize: 12),
                           ),
-                          const SizedBox(height: 2),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today,
-                                size: 12,
-                                color: esFutura 
-                                  ? const Color.fromARGB(255, 240, 208, 48)
-                                  : Colors.white38,
+                          const SizedBox(height: 4),
+                          if (servicios.isEmpty)
+                            const Text(
+                              'Sin servicio asignado',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                fontStyle: FontStyle.italic,
                               ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _formatearFecha(reserva['fecha']),
-                                style: TextStyle(
-                                  color: esFutura ? Colors.white70 : Colors.white38,
-                                  fontSize: 12,
+                            )
+                          else
+                            ...servicios.map((s) => Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                '${s.Nombre} - \$${s.Precio?.toStringAsFixed(0) ?? '0'}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Icon(
-                                Icons.access_time,
-                                size: 12,
-                                color: esFutura 
-                                  ? const Color.fromARGB(255, 240, 208, 48)
-                                  : Colors.white38,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                reserva['hora'],
-                                style: TextStyle(
-                                  color: esFutura ? Colors.white70 : Colors.white38,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
+                            )),
                         ],
-                      ),
-                    ),
-                    Text(
-                      '\$${reserva['precio']}',
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 240, 208, 48),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+
+                // ✅ EMPLEADOS - Mostrar siempre, incluso si está vacío
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.person, color: Colors.white60, size: 18),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Profesional:',
+                            style: TextStyle(color: Colors.white54, fontSize: 12),
+                          ),
+                          const SizedBox(height: 4),
+                          if (empleados.isEmpty)
+                            const Text(
+                              'Sin profesional asignado',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            )
+                          else
+                            ...empleados.map((e) => Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                '${e.PrimerNombre ?? ''} ${e.PrimerApellido ?? ''} - ${e.Cargo ?? 'Profesional'}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            )),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Total
+                if (reservacion.Total != null)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Total:',
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        ),
+                        Text(
+                          '\$${reservacion.Total!.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 240, 208, 48),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Calificación
+                if (reservacion.Estrellas != null) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      ...List.generate(5, (i) {
+                        return Icon(
+                          i < reservacion.Estrellas!.round() ? Icons.star : Icons.star_border,
+                          color: const Color.fromARGB(255, 240, 208, 48),
+                          size: 18,
+                        );
+                      }),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${reservacion.Estrellas!.toStringAsFixed(1)}',
+                        style: const TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -855,54 +475,231 @@ class _ClienteReservacionesPageState extends State<ClienteReservacionesPage> wit
     );
   }
 
-  Widget _buildListaVacia(String tipo) {
-    String mensaje;
-    IconData icono;
-    
-    switch (tipo) {
-      case 'pendientes':
-        mensaje = 'No tienes citas pendientes';
-        icono = Icons.event_busy;
-        break;
-      case 'completadas':
-        mensaje = 'Aún no has completado ninguna cita';
-        icono = Icons.check_circle_outline;
-        break;
-      case 'canceladas':
-        mensaje = 'No tienes citas canceladas';
-        icono = Icons.cancel_outlined;
-        break;
-      default:
-        mensaje = 'No hay reservaciones';
-        icono = Icons.event_note;
+  Color _getColorEstado(String estado) {
+    switch (estado.toLowerCase()) {
+      case 'confirmada': return Colors.green;
+      case 'pendiente': return const Color.fromARGB(255, 240, 208, 48);
+      case 'cancelada': return Colors.red;
+      case 'completada': return Colors.blue;
+      default: return Colors.grey;
     }
-    
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icono,
-            size: 80,
-            color: Colors.white24,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            mensaje,
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
-  Widget _buildCargando() {
-    return const Center(
-      child: CircularProgressIndicator(
-        color: Color.fromARGB(255, 240, 208, 48),
+  String _formatearFecha(DateTime fecha) {
+    final dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    final meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return '${dias[fecha.weekday - 1]}, ${fecha.day} ${meses[fecha.month - 1]}';
+  }
+
+  String _formatearHora(DateTime fecha) {
+    final hora = fecha.hour > 12 ? fecha.hour - 12 : (fecha.hour == 0 ? 12 : fecha.hour);
+    final minutos = fecha.minute.toString().padLeft(2, '0');
+    final periodo = fecha.hour >= 12 ? 'PM' : 'AM';
+    return '$hora:$minutos $periodo';
+  }
+
+  void _mostrarDetalles(Reservacion reservacion, List<Empleado> empleados, List<Servicio> servicios) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color.fromARGB(255, 35, 35, 35),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 240, 208, 48),
+                          Color.fromARGB(255, 255, 220, 100),
+                        ],
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.info_outline, color: Colors.white, size: 28),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Text(
+                      'Detalles de la Reservación',
+                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              
+              // Servicios
+              const Text('Servicios:', style: TextStyle(color: Colors.white60, fontSize: 14, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              if (servicios.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.warning, color: Colors.red, size: 24),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'No hay servicios asignados a esta reservación',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ...servicios.map((s) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Color.fromARGB(255, 240, 208, 48), size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              s.Nombre ?? 'Servicio',
+                              style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                            ),
+                            if (s.Descripcion != null)
+                              Text(
+                                s.Descripcion!,
+                                style: const TextStyle(color: Colors.white54, fontSize: 12),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '\$${s.Precio?.toStringAsFixed(0) ?? '0'}',
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 240, 208, 48),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+              const SizedBox(height: 16),
+              
+              // Empleados
+              const Text('Profesionales:', style: TextStyle(color: Colors.white60, fontSize: 14, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              if (empleados.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.warning, color: Colors.red, size: 24),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'No hay profesionales asignados a esta reservación',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ...empleados.map((e) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: const Color.fromARGB(255, 240, 208, 48),
+                        child: e.Foto != null
+                            ? ClipOval(child: Image.memory(e.Foto!, width: 48, height: 48, fit: BoxFit.cover))
+                            : Icon(
+                                e.Sexo == 'Femenino' ? Icons.woman_rounded : Icons.man_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${e.PrimerNombre ?? ''} ${e.PrimerApellido ?? ''}'.trim(),
+                              style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              e.Cargo ?? 'Profesional',
+                              style: const TextStyle(color: Colors.white54, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+
+              if (reservacion.Comentario != null) ...[
+                const SizedBox(height: 16),
+                const Divider(color: Colors.white24),
+                const SizedBox(height: 16),
+                const Text('Notas:', style: TextStyle(color: Colors.white60, fontSize: 14, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Text(
+                  reservacion.Comentario!,
+                  style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.5),
+                ),
+              ],
+              
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 240, 208, 48),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Cerrar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -8,10 +8,11 @@ import 'package:proyecto/models/Cliente.dart';
 import 'package:proyecto/models/Contabilidad.dart';
 import 'package:proyecto/controllers/ReservacionController.dart';
 import 'package:proyecto/controllers/ContabilidadController.dart';
+import 'package:proyecto/controllers/InterReservacionEmpleadoServicioController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-/// ✅ CREAR RESERVACIÓN - Integrado con Supabase
+/// ✅ CREAR RESERVACIÓN CON RELACIONES
 class ReservaPage extends StatefulWidget {
   final Empresa empresa;
   final Servicio servicio;
@@ -31,6 +32,8 @@ class ReservaPage extends StatefulWidget {
 class _ReservaPageState extends State<ReservaPage> {
   final ReservacionController _reservacionController = ReservacionController();
   final ContabilidadController _contabilidadController = ContabilidadController();
+  final InterReservacionEmpleadoServicioController _interController = 
+      InterReservacionEmpleadoServicioController();
   final _uuid = const Uuid();
 
   DateTime _fechaSeleccionada = DateTime.now();
@@ -39,22 +42,10 @@ class _ReservaPageState extends State<ReservaPage> {
   bool _cargandoHorarios = false;
   String? _clienteId;
 
-  // ✅ HORARIOS DISPONIBLES (Simulados - puedes cargarlos de Supabase)
   final List<String> _horariosDisponibles = [
-    '09:00 AM',
-    '09:30 AM',
-    '10:00 AM',
-    '10:30 AM',
-    '11:00 AM',
-    '11:30 AM',
-    '02:00 PM',
-    '02:30 PM',
-    '03:00 PM',
-    '03:30 PM',
-    '04:00 PM',
-    '04:30 PM',
-    '05:00 PM',
-    '05:30 PM',
+    '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+    '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM',
+    '05:00 PM', '05:30 PM',
   ];
 
   @override
@@ -64,7 +55,6 @@ class _ReservaPageState extends State<ReservaPage> {
     _cargarHorariosDisponibles();
   }
 
-  // ✅ Obtener ID del cliente desde SharedPreferences
   Future<void> _cargarClienteId() async {
     final prefs = await SharedPreferences.getInstance();
     final uid = prefs.getString('uid');
@@ -76,25 +66,15 @@ class _ReservaPageState extends State<ReservaPage> {
       return;
     }
 
-    setState(() {
-      _clienteId = uid;
-    });
-    
+    setState(() => _clienteId = uid);
     print('✅ Cliente ID cargado: $_clienteId');
   }
 
   void _cargarHorariosDisponibles() async {
-    setState(() {
-      _cargandoHorarios = true;
-    });
-
-    // TODO: Implementar carga de horarios desde Supabase
-    // Filtrar horarios ya reservados para esta fecha y empleado
+    setState(() => _cargandoHorarios = true);
+    // TODO: Filtrar horarios ocupados desde Supabase
     await Future.delayed(const Duration(milliseconds: 500));
-
-    setState(() {
-      _cargandoHorarios = false;
-    });
+    setState(() => _cargandoHorarios = false);
   }
 
   void _onDiaSeleccionado(DateTime selectedDay, DateTime focusedDay) {
@@ -113,12 +93,10 @@ class _ReservaPageState extends State<ReservaPage> {
       _mostrarSnackBar('⚠ Selecciona una hora para continuar', Colors.orange);
       return;
     }
-
     if (_clienteId == null) {
       _mostrarError('Error: Cliente no identificado');
       return;
     }
-
     _mostrarDialogoConfirmacion();
   }
 
@@ -142,8 +120,8 @@ class _ReservaPageState extends State<ReservaPage> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
                       colors: [
                         Color.fromARGB(255, 240, 208, 48),
                         Color.fromARGB(255, 255, 220, 100),
@@ -151,23 +129,14 @@ class _ReservaPageState extends State<ReservaPage> {
                     ),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.check_circle_outline,
-                    color: Colors.white,
-                    size: 48,
-                  ),
+                  child: const Icon(Icons.check_circle_outline, color: Colors.white, size: 48),
                 ),
                 const SizedBox(height: 20),
                 const Text(
                   '¿Confirmar Reserva?',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                _buildResumenItem('Empresa', widget.empresa.Nombre ?? 'N/A'),
                 _buildResumenItem('Servicio', widget.servicio.Nombre ?? 'N/A'),
                 _buildResumenItem('Profesional', nombreEmpleado),
                 _buildResumenItem(
@@ -175,10 +144,6 @@ class _ReservaPageState extends State<ReservaPage> {
                   '${_fechaSeleccionada.day}/${_fechaSeleccionada.month}/${_fechaSeleccionada.year}',
                 ),
                 _buildResumenItem('Hora', _horaSeleccionada!),
-                _buildResumenItem(
-                  'Duración',
-                  _formatearDuracion(widget.servicio.TiempoPromedio),
-                ),
                 _buildResumenItem(
                   'Total',
                   '\$${widget.servicio.Precio?.toStringAsFixed(0) ?? '0'}',
@@ -192,14 +157,9 @@ class _ReservaPageState extends State<ReservaPage> {
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(color: Colors.white.withOpacity(0.3)),
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(color: Colors.white70),
-                        ),
+                        child: const Text('Cancelar', style: TextStyle(color: Colors.white70)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -212,16 +172,11 @@ class _ReservaPageState extends State<ReservaPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(255, 240, 208, 48),
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: const Text(
                           'Confirmar',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -241,18 +196,11 @@ class _ReservaPageState extends State<ReservaPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white60, fontSize: 14),
-          ),
+          Text(label, style: const TextStyle(color: Colors.white60, fontSize: 14)),
           Flexible(
             child: Text(
               value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
               textAlign: TextAlign.right,
               overflow: TextOverflow.ellipsis,
             ),
@@ -262,104 +210,116 @@ class _ReservaPageState extends State<ReservaPage> {
     );
   }
 
+  /// ✅ FLUJO COMPLETO DE GUARDADO
   Future<void> _procesarReserva() async {
-    // Mostrar loading
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(
-        child: CircularProgressIndicator(
-          color: Color.fromARGB(255, 240, 208, 48),
-        ),
+        child: CircularProgressIndicator(color: Color.fromARGB(255, 240, 208, 48)),
       ),
     );
 
     try {
-      // ✅ Combinar fecha y hora
       final fechaHora = _combinarFechaHora(_fechaSeleccionada, _horaSeleccionada!);
       
-      print('🔍 Datos de reservación:');
-      print('  - Cliente ID: $_clienteId');
-      print('  - Empresa ID: ${widget.empresa.Id}');
-      print('  - Servicio: ${widget.servicio.Nombre}');
-      print('  - Empleado: ${widget.empleado.PrimerNombre} ${widget.empleado.PrimerApellido}');
-      print('  - Fecha/Hora: $fechaHora');
-      print('  - Total: ${widget.servicio.Precio}');
+      print('🔍 Iniciando proceso de reservación...');
+      print('  📅 Fecha/Hora: $fechaHora');
+      print('  👤 Cliente: $_clienteId');
+      print('  🏢 Empresa: ${widget.empresa.Id}');
+      print('  ✂️ Servicio: ${widget.servicio.Nombre} (${widget.servicio.Id})');
+      print('  👨‍💼 Empleado: ${widget.empleado.PrimerNombre} (${widget.empleado.Id})');
 
-      // ✅ 1. Obtener contabilidad de la empresa
+      // ✅ PASO 1: Obtener contabilidad (opcional)
       final contabilidades = await _contabilidadController
           .obtenerContabilidadesPorEmpresa(widget.empresa.Id ?? '');
       
       Contabilidad? contabilidad;
       if (contabilidades.isNotEmpty) {
         contabilidad = contabilidades.first as Contabilidad?;
-        print('✅ Contabilidad encontrada: ${contabilidad?.Id ?? "sin ID"}');
-      } else {
-        print('⚠ No se encontró contabilidad para la empresa');
+        print('✅ Contabilidad encontrada: ${contabilidad?.Id}');
       }
 
-      // ✅ 2. Crear la reservación
+      // ✅ PASO 2: Crear empleado con su servicio
+      final empleadoConServicio = Empleado(
+        Id: widget.empleado.Id,
+        PrimerNombre: widget.empleado.PrimerNombre,
+        PrimerApellido: widget.empleado.PrimerApellido,
+        // Agregar el servicio seleccionado a la lista
+        ListaDeServiciosDelEmpleado: [widget.servicio],
+      );
+
+      // ✅ PASO 3: Crear reservación con empleado y servicio
       final nuevaReservacion = Reservacion(
         Id: _uuid.v4(),
         Creacion: DateTime.now(),
         Fecha: fechaHora,
         Total: widget.servicio.Precio ?? 0.0,
         Estado: 'Pendiente',
-        Comentario: 'Reserva realizada desde la app',
-        Estrellas: null, // Se califica después
+        Comentario: 'Reserva desde app móvil',
+        Estrellas: null,
         empresa: Empresa(Id: widget.empresa.Id),
         cliente: Cliente(Id: _clienteId),
         contabilidad: contabilidad != null ? Contabilidad(Id: contabilidad.Id) : null,
+        empleadosAsignados: [empleadoConServicio], // ✅ Lista con el empleado y su servicio
       );
 
-      print('📝 JSON a enviar: ${nuevaReservacion.toJson()}');
+      print('📝 JSON de reservación base:');
+      print(nuevaReservacion.toJson());
 
-      // ✅ 3. Guardar en Supabase
-      final exito = await _reservacionController.guardarReservacion(nuevaReservacion);
+      // ✅ PASO 4: Guardar reservación en Supabase
+      final exitoReservacion = await _reservacionController.guardarReservacion(nuevaReservacion);
 
-      Navigator.pop(context); // Cerrar loading
-
-      if (exito) {
-        print('✅ Reservación guardada exitosamente');
-        
-        // Mostrar éxito
-        _mostrarSnackBar('✅ ¡Reserva confirmada exitosamente!', Colors.green);
-        
-        // Volver al inicio
-        await Future.delayed(const Duration(seconds: 1));
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      } else {
-        print('❌ Error al guardar reservación');
-        _mostrarError('No se pudo crear la reservación. Intenta de nuevo.');
+      if (!exitoReservacion) {
+        throw Exception('No se pudo guardar la reservación');
       }
-    } catch (e) {
-      print('❌ Error procesando reserva: $e');
+
+      print('✅ Reservación guardada con ID: ${nuevaReservacion.Id}');
+
+      // ✅ PASO 5: Guardar relaciones en tabla de intersección
+      print('🔗 Guardando relaciones Empleado-Servicio-Reservación...');
+      final exitoRelaciones = await _interController.guardarRelacionesReservacion(nuevaReservacion);
+
+      if (!exitoRelaciones) {
+        throw Exception('No se pudieron guardar las relaciones');
+      }
+
+      print('✅ Relaciones guardadas exitosamente');
+
       Navigator.pop(context); // Cerrar loading
-      _mostrarError('Error: $e');
+
+      if (mounted) {
+        _mostrarSnackBar('✅ ¡Reserva confirmada exitosamente!', Colors.green);
+        await Future.delayed(const Duration(milliseconds: 1500));
+        
+        if (mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      }
+
+    } catch (e) {
+      print('❌ Error en _procesarReserva: $e');
+      Navigator.pop(context);
+      
+      if (mounted) {
+        _mostrarError('Error al crear la reservación: ${e.toString()}');
+      }
     }
   }
 
   DateTime _combinarFechaHora(DateTime fecha, String hora) {
-    // Convertir "09:00 AM" a horas y minutos
     final partes = hora.split(' ');
     final tiempo = partes[0].split(':');
     int horas = int.parse(tiempo[0]);
     final minutos = int.parse(tiempo[1]);
     
-    // Ajustar para formato 12h
     if (partes[1] == 'PM' && horas != 12) {
       horas += 12;
     } else if (partes[1] == 'AM' && horas == 12) {
       horas = 0;
     }
 
-    return DateTime(
-      fecha.year,
-      fecha.month,
-      fecha.day,
-      horas,
-      minutos,
-    );
+    return DateTime(fecha.year, fecha.month, fecha.day, horas, minutos);
   }
 
   void _mostrarSnackBar(String mensaje, Color color) {
@@ -383,10 +343,7 @@ class _ReservaPageState extends State<ReservaPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'OK',
-              style: TextStyle(color: Color.fromARGB(255, 240, 208, 48)),
-            ),
+            child: const Text('OK', style: TextStyle(color: Color.fromARGB(255, 240, 208, 48))),
           ),
         ],
       ),
@@ -396,26 +353,16 @@ class _ReservaPageState extends State<ReservaPage> {
   String _formatearDuracion(Duration duracion) {
     final horas = duracion.inHours;
     final minutos = duracion.inMinutes.remainder(60);
-    
-    if (horas > 0) {
-      return '$horas h ${minutos > 0 ? "$minutos min" : ""}';
-    }
+    if (horas > 0) return '$horas h ${minutos > 0 ? "$minutos min" : ""}';
     return '$minutos min';
   }
 
   IconData _obtenerIconoServicio(String nombre) {
     final nombreLower = nombre.toLowerCase();
-    
-    if (nombreLower.contains('corte') || nombreLower.contains('cabello')) {
-      return Icons.content_cut;
-    } else if (nombreLower.contains('barba') || nombreLower.contains('bigote')) {
-      return Icons.face;
-    } else if (nombreLower.contains('color') || nombreLower.contains('tinte')) {
-      return Icons.brush;
-    } else if (nombreLower.contains('premium') || nombreLower.contains('vip')) {
-      return Icons.star;
-    }
-    
+    if (nombreLower.contains('corte')) return Icons.content_cut;
+    if (nombreLower.contains('barba')) return Icons.face;
+    if (nombreLower.contains('color')) return Icons.brush;
+    if (nombreLower.contains('premium')) return Icons.star;
     return Icons.miscellaneous_services;
   }
 
@@ -427,10 +374,7 @@ class _ReservaPageState extends State<ReservaPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color.fromARGB(255, 43, 43, 43),
-              Color.fromARGB(255, 80, 80, 80),
-            ],
+            colors: [Color.fromARGB(255, 43, 43, 43), Color.fromARGB(255, 80, 80, 80)],
           ),
         ),
         child: SafeArea(
@@ -481,21 +425,8 @@ class _ReservaPageState extends State<ReservaPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Nueva Reserva',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'Selecciona fecha y hora',
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 13,
-                  ),
-                ),
+                Text('Nueva Reserva', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('Selecciona fecha y hora', style: TextStyle(color: Colors.white54, fontSize: 13)),
               ],
             ),
           ),
@@ -517,9 +448,7 @@ class _ReservaPageState extends State<ReservaPage> {
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.3),
-        ),
+        border: Border.all(color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,40 +459,22 @@ class _ReservaPageState extends State<ReservaPage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [
-                      Color.fromARGB(255, 240, 208, 48),
-                      Color.fromARGB(255, 255, 220, 100),
-                    ],
+                    colors: [Color.fromARGB(255, 240, 208, 48), Color.fromARGB(255, 255, 220, 100)],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  _obtenerIconoServicio(widget.servicio.Nombre ?? ''),
-                  color: Colors.white,
-                  size: 28,
-                ),
+                child: Icon(_obtenerIconoServicio(widget.servicio.Nombre ?? ''), color: Colors.white, size: 28),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.servicio.Nombre ?? 'Servicio',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    Text(widget.servicio.Nombre ?? 'Servicio', 
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                     const SizedBox(height: 4),
-                    Text(
-                      '\$${widget.servicio.Precio?.toStringAsFixed(0) ?? '0'} • ${_formatearDuracion(widget.servicio.TiempoPromedio)}',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                      ),
-                    ),
+                    Text('\$${widget.servicio.Precio?.toStringAsFixed(0) ?? '0'} • ${_formatearDuracion(widget.servicio.TiempoPromedio)}',
+                        style: const TextStyle(color: Colors.white70, fontSize: 13)),
                   ],
                 ),
               ),
@@ -578,40 +489,16 @@ class _ReservaPageState extends State<ReservaPage> {
                 radius: 20,
                 backgroundColor: const Color.fromARGB(255, 240, 208, 48),
                 child: widget.empleado.Foto != null
-                    ? ClipOval(
-                        child: Image.memory(
-                          widget.empleado.Foto!,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Icon(
-                        widget.empleado.Sexo == 'Femenino'
-                            ? Icons.woman_rounded
-                            : Icons.man_rounded,
-                        color: Colors.white,
-                      ),
+                    ? ClipOval(child: Image.memory(widget.empleado.Foto!, width: 40, height: 40, fit: BoxFit.cover))
+                    : Icon(widget.empleado.Sexo == 'Femenino' ? Icons.woman_rounded : Icons.man_rounded, color: Colors.white),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      nombreEmpleado,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      widget.empleado.Cargo ?? 'Profesional',
-                      style: const TextStyle(
-                        color: Colors.white60,
-                        fontSize: 12,
-                      ),
-                    ),
+                    Text(nombreEmpleado, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                    Text(widget.empleado.Cargo ?? 'Profesional', style: const TextStyle(color: Colors.white60, fontSize: 12)),
                   ],
                 ),
               ),
@@ -640,19 +527,9 @@ class _ReservaPageState extends State<ReservaPage> {
         headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
-          titleTextStyle: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-          leftChevronIcon: const Icon(
-            Icons.chevron_left,
-            color: Color.fromARGB(255, 240, 208, 48),
-          ),
-          rightChevronIcon: const Icon(
-            Icons.chevron_right,
-            color: Color.fromARGB(255, 240, 208, 48),
-          ),
+          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          leftChevronIcon: const Icon(Icons.chevron_left, color: Color.fromARGB(255, 240, 208, 48)),
+          rightChevronIcon: const Icon(Icons.chevron_right, color: Color.fromARGB(255, 240, 208, 48)),
         ),
         daysOfWeekStyle: const DaysOfWeekStyle(
           weekdayStyle: TextStyle(color: Colors.white70),
@@ -663,22 +540,11 @@ class _ReservaPageState extends State<ReservaPage> {
           weekendTextStyle: const TextStyle(color: Colors.white70),
           outsideTextStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
           selectedDecoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 240, 208, 48),
-                Color.fromARGB(255, 255, 220, 100),
-              ],
-            ),
+            gradient: LinearGradient(colors: [Color.fromARGB(255, 240, 208, 48), Color.fromARGB(255, 255, 220, 100)]),
             shape: BoxShape.circle,
           ),
-          todayDecoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            shape: BoxShape.circle,
-          ),
-          todayTextStyle: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          todayDecoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
+          todayTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -688,21 +554,10 @@ class _ReservaPageState extends State<ReservaPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Selecciona la Hora',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        const Text('Selecciona la Hora', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
         const SizedBox(height: 16),
         if (_cargandoHorarios)
-          const Center(
-            child: CircularProgressIndicator(
-              color: Color.fromARGB(255, 240, 208, 48),
-            ),
-          )
+          const Center(child: CircularProgressIndicator(color: Color.fromARGB(255, 240, 208, 48)))
         else
           Wrap(
             spacing: 12,
@@ -710,42 +565,24 @@ class _ReservaPageState extends State<ReservaPage> {
             children: _horariosDisponibles.map((hora) {
               final seleccionada = _horaSeleccionada == hora;
               return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _horaSeleccionada = hora;
-                  });
-                },
+                onTap: () => setState(() => _horaSeleccionada = hora),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
                     gradient: seleccionada
-                        ? const LinearGradient(
-                            colors: [
-                              Color.fromARGB(255, 240, 208, 48),
-                              Color.fromARGB(255, 255, 220, 100),
-                            ],
-                          )
+                        ? const LinearGradient(colors: [Color.fromARGB(255, 240, 208, 48), Color.fromARGB(255, 255, 220, 100)])
                         : null,
                     color: seleccionada ? null : Colors.white.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: seleccionada
-                          ? Colors.transparent
-                          : Colors.white.withOpacity(0.2),
+                      color: seleccionada ? Colors.transparent : Colors.white.withOpacity(0.2),
                       width: seleccionada ? 2 : 1,
                     ),
                   ),
-                  child: Text(
-                    hora,
-                    style: TextStyle(
-                      color: seleccionada ? Colors.white : Colors.white70,
-                      fontWeight:
-                          seleccionada ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
+                  child: Text(hora, style: TextStyle(
+                    color: seleccionada ? Colors.white : Colors.white70,
+                    fontWeight: seleccionada ? FontWeight.bold : FontWeight.normal,
+                  )),
                 ),
               );
             }).toList(),
@@ -759,13 +596,7 @@ class _ReservaPageState extends State<ReservaPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 35, 35, 35),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, -5),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, -5))],
       ),
       child: SafeArea(
         child: Column(
@@ -774,21 +605,9 @@ class _ReservaPageState extends State<ReservaPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Total a pagar:',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  '\$${widget.servicio.Precio?.toStringAsFixed(0) ?? '0'}',
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 240, 208, 48),
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                const Text('Total a pagar:', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                Text('\$${widget.servicio.Precio?.toStringAsFixed(0) ?? '0'}',
+                    style: const TextStyle(color: Color.fromARGB(255, 240, 208, 48), fontSize: 24, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(height: 16),
@@ -801,21 +620,12 @@ class _ReservaPageState extends State<ReservaPage> {
                   backgroundColor: const Color.fromARGB(255, 240, 208, 48),
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Confirmar Reserva',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
+                    Text('Confirmar Reserva', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                     SizedBox(width: 8),
                     Icon(Icons.check_circle, size: 20),
                   ],
