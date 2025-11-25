@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/controllers/Conexion.dart';
 import 'package:proyecto/ui/Registro/Registro.dart';
-import 'package:proyecto/ui/home/Homepage_Admin.dart';
-import 'package:proyecto/ui/home/UsuarioHome.dart';
+import 'package:proyecto/ui/home/homepage_admin.dart';
+import 'package:proyecto/ui/home/usuario_home.dart';
 import '../componentes/Login/tarjetas/tarjeta_login.dart';
 import '../componentes/Login/encabezados/encabezado_bienvenida.dart';
 import '../componentes/Login/formularios/formulario_login.dart';
