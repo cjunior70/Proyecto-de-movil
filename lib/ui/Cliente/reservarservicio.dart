@@ -625,7 +625,8 @@ class _ReservaPageState extends State<ReservaPage> {
   Widget _buildCalendario() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
@@ -672,7 +673,8 @@ class _ReservaPageState extends State<ReservaPage> {
             shape: BoxShape.circle,
           ),
           todayDecoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: const Color.fromARGB(51, 255, 255, 255),
+
             shape: BoxShape.circle,
           ),
           todayTextStyle: const TextStyle(

@@ -288,7 +288,8 @@ class _ListaEmpresasState extends State<ListaEmpresas>
               ? IconButton(
                   icon: Icon(
                     Icons.clear_rounded,
-                    color: Colors.white.withOpacity(0.7),
+                    color: const Color.fromARGB(178, 255, 255, 255),
+
                   ),
                   onPressed: () {
                     _searchController.clear();
@@ -323,7 +324,8 @@ class _ListaEmpresasState extends State<ListaEmpresas>
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
       ),
@@ -409,7 +411,8 @@ class _ListaEmpresasState extends State<ListaEmpresas>
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
         boxShadow: [
@@ -510,7 +513,8 @@ class _ListaEmpresasState extends State<ListaEmpresas>
                           // Text(
                           //   '${empresa.totalReviews}',
                           //   style: TextStyle(
-                          //     color: Colors.white.withOpacity(0.7),
+                          //     color: const Color.fromARGB(178, 255, 255, 255),
+
                           //     fontSize: 13,
                           //   ),
                           // ),
@@ -528,7 +532,8 @@ class _ListaEmpresasState extends State<ListaEmpresas>
                   ),
                   icon: Icon(
                     Icons.more_vert_rounded,
-                    color: Colors.white.withOpacity(0.7),
+                    color: const Color.fromARGB(178, 255, 255, 255),
+
                   ),
                   onSelected: (value) {
                     switch (value) {

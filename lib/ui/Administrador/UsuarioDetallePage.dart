@@ -321,7 +321,8 @@ class _UsuariodetallepageState extends State<Usuariodetallepage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),

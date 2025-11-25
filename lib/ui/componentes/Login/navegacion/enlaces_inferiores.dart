@@ -64,7 +64,8 @@ class EnlacesInferiores extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
+              color: const Color.fromARGB(20, 255, 255, 255),
+
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
@@ -79,7 +80,8 @@ class EnlacesInferiores extends StatelessWidget {
                 Container(
                   width: 1,
                   height: 30,
-                  color: Colors.white.withOpacity(0.2),
+                  color: const Color.fromARGB(51, 255, 255, 255),
+
                 ),
                 _EnlaceModerno(
                   icono: Icons.info_outline_rounded,

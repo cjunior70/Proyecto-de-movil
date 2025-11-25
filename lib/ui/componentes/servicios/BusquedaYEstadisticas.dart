@@ -35,7 +35,8 @@ class BusquedaYEstadisticas extends StatelessWidget {
                   ? IconButton(
                       icon: Icon(
                         Icons.clear_rounded,
-                        color: Colors.white.withOpacity(0.7),
+                        color: const Color.fromARGB(178, 255, 255, 255),
+
                       ),
                       onPressed: onClearSearch,
                     )
@@ -62,7 +63,8 @@ class BusquedaYEstadisticas extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
+            color: const Color.fromARGB(20, 255, 255, 255),
+
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.white.withOpacity(0.15)),
           ),

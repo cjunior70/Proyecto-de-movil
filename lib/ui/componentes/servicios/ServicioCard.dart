@@ -20,7 +20,8 @@ class ServicioCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
         boxShadow: [
@@ -93,7 +94,8 @@ class ServicioCard extends StatelessWidget {
                   ),
                   icon: Icon(
                     Icons.more_vert_rounded,
-                    color: Colors.white.withOpacity(0.7),
+                    color: const Color.fromARGB(178, 255, 255, 255),
+
                   ),
                   onSelected: (value) {
                     switch (value) {
@@ -135,7 +137,8 @@ class ServicioCard extends StatelessWidget {
               Text(
                 servicio.Descripcion!,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: const Color.fromARGB(178, 255, 255, 255),
+
                   fontSize: 13,
                 ),
                 maxLines: 2,
@@ -169,7 +172,8 @@ class ServicioCard extends StatelessWidget {
                 Text(
                   formatearDuracion(servicio.TiempoPromedio),
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: const Color.fromARGB(178, 255, 255, 255),
+
                     fontSize: 13,
                   ),
                 ),

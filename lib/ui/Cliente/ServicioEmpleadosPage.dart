@@ -415,7 +415,8 @@ class _ServicioEmpleadosPageState extends State<ServicioEmpleadosPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: seleccionado

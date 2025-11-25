@@ -142,7 +142,8 @@ class _MostrarEmpresaState extends State<MostrarEmpresa>
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
         boxShadow: [
@@ -206,7 +207,8 @@ class _MostrarEmpresaState extends State<MostrarEmpresa>
                       child: Text(
                         widget.empresa.DescripcionUbicacion!,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: const Color.fromARGB(178, 255, 255, 255),
+
                           fontSize: 13,
                         ),
                         maxLines: 1,
@@ -236,7 +238,8 @@ class _MostrarEmpresaState extends State<MostrarEmpresa>
                 //     Text(
                 //       '${widget.empresa.totalReviews} reviews',
                 //       style: TextStyle(
-                //         color: Colors.white.withOpacity(0.7),
+                //         color: const Color.fromARGB(178, 255, 255, 255),
+
                 //         fontSize: 13,
                 //       ),
                 //     ),
@@ -256,7 +259,8 @@ class _MostrarEmpresaState extends State<MostrarEmpresa>
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
       ),
@@ -272,7 +276,8 @@ class _MostrarEmpresaState extends State<MostrarEmpresa>
           Container(
             width: 1,
             height: 40,
-            color: Colors.white.withOpacity(0.2),
+            color: const Color.fromARGB(51, 255, 255, 255),
+
           ),
           _buildEstadisticaItem(
             Icons.room_service_rounded,
@@ -283,7 +288,8 @@ class _MostrarEmpresaState extends State<MostrarEmpresa>
           Container(
             width: 1,
             height: 40,
-            color: Colors.white.withOpacity(0.2),
+            color: const Color.fromARGB(51, 255, 255, 255),
+
           ),
           _buildEstadisticaItem(
             Icons.calendar_today_rounded,
@@ -337,7 +343,8 @@ class _MostrarEmpresaState extends State<MostrarEmpresa>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
       ),
@@ -565,7 +572,8 @@ class _MostrarEmpresaState extends State<MostrarEmpresa>
   Widget _buildSeccion(String titulo, IconData icono, List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
       ),

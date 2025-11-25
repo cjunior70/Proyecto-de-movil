@@ -78,7 +78,8 @@ class AppBarHome extends StatelessWidget {
         color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: const Color.fromARGB(51, 255, 255, 255),
+
           width: 1.5,
         ),
         boxShadow: [

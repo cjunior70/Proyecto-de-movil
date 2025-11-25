@@ -362,7 +362,8 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
               ? IconButton(
                   icon: Icon(
                     Icons.clear_rounded,
-                    color: Colors.white.withOpacity(0.7),
+                    color: const Color.fromARGB(178, 255, 255, 255),
+
                   ),
                   onPressed: () {
                     _searchController.clear();
@@ -401,7 +402,8 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
       ),
@@ -474,7 +476,8 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
         boxShadow: [
@@ -566,7 +569,8 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                       Text(
                         empleado.Cargo ?? 'Sin cargo',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: const Color.fromARGB(178, 255, 255, 255),
+
                           fontSize: 13,
                         ),
                       ),
@@ -602,7 +606,8 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                   ),
                   icon: Icon(
                     Icons.more_vert_rounded,
-                    color: Colors.white.withOpacity(0.7),
+                    color: const Color.fromARGB(178, 255, 255, 255),
+
                   ),
                   onSelected: (value) {
                     switch (value) {
@@ -709,7 +714,8 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                         child: Text(
                           empleado.Correo ?? 'Sin correo',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                            color: const Color.fromARGB(178, 255, 255, 255),
+
                             fontSize: 12,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -729,7 +735,8 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                       Text(
                         'CC: ${empleado.Cedula ?? 'Sin cédula'}',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: const Color.fromARGB(178, 255, 255, 255),
+
                           fontSize: 12,
                         ),
                       ),
@@ -747,7 +754,8 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                       Text(
                         empleado.Sexo ?? 'Sin especificar',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: const Color.fromARGB(178, 255, 255, 255),
+
                           fontSize: 12,
                         ),
                       ),
@@ -766,7 +774,8 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
                         Text(
                           'Inicio: ${_formatearFecha(empleado.FechaDeInicio!)}',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                            color: const Color.fromARGB(178, 255, 255, 255),
+
                             fontSize: 12,
                           ),
                         ),

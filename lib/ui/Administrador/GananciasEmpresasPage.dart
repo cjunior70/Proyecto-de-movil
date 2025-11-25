@@ -214,7 +214,8 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
       ),
@@ -400,7 +401,8 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
       ),
@@ -413,7 +415,8 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
               Text(
                 titulo,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: const Color.fromARGB(178, 255, 255, 255),
+
                   fontSize: 13,
                 ),
               ),
@@ -518,7 +521,8 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: posicion <= 3

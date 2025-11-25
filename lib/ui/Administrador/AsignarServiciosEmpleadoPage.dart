@@ -188,9 +188,9 @@ class _AsignarServiciosEmpleadoPageState
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withAlpha((0.3 * 255).round()),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              border: Border.all(color: Colors.white.withAlpha((0.15 * 255).round())),
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -232,9 +232,9 @@ class _AsignarServiciosEmpleadoPageState
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: Colors.white.withAlpha((0.08 * 255).round()),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.15)),
+        border: Border.all(color: Colors.white.withAlpha((0.15 * 255).round())),
       ),
       child: Row(
         children: [
@@ -287,8 +287,8 @@ class _AsignarServiciosEmpleadoPageState
                   ),
                   decoration: BoxDecoration(
                     color: widget.empleado.Estado == 'Activo'
-                        ? Colors.green.withOpacity(0.2)
-                        : Colors.orange.withOpacity(0.2),
+                        ? Colors.green.withAlpha((0.2 * 255).round())
+                        : Colors.orange.withAlpha((0.2 * 255).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -317,13 +317,13 @@ class _AsignarServiciosEmpleadoPageState
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color.fromARGB(255, 240, 208, 48).withOpacity(0.2),
-            const Color.fromARGB(255, 255, 220, 100).withOpacity(0.1),
+            Color.fromARGB((0.2 * 255).round(), 240, 208, 48),
+            Color.fromARGB((0.1 * 255).round(), 255, 220, 100),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.3),
+          color: Color.fromARGB((0.3 * 255).round(), 240, 208, 48),
         ),
       ),
       child: Row(
@@ -337,7 +337,7 @@ class _AsignarServiciosEmpleadoPageState
           Container(
             width: 1,
             height: 40,
-            color: Colors.white.withOpacity(0.2),
+            color: const Color.fromARGB(51, 255, 255, 255),
           ),
           _buildContador(
             'Asignados',
@@ -369,7 +369,7 @@ class _AsignarServiciosEmpleadoPageState
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: const Color.fromARGB(178, 255, 255, 255),
             fontSize: 12,
           ),
         ),
@@ -394,7 +394,8 @@ class _AsignarServiciosEmpleadoPageState
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color.fromARGB(20, 255, 255, 255),
+
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: asignado
@@ -483,7 +484,8 @@ class _AsignarServiciosEmpleadoPageState
                           Text(
                             _formatearDuracion(servicio.TiempoPromedio),
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
+                              color: const Color.fromARGB(178, 255, 255, 255),
+
                               fontSize: 12,
                             ),
                           ),
