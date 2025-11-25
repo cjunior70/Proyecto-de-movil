@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/models/Empresa.dart';
-import 'package:proyecto/models/Contabilidad.dart';
 import 'package:proyecto/controllers/EmpresaController.dart';
 import 'package:proyecto/controllers/ContabilidadController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// ✅ DASHBOARD DE GANANCIAS - Todas las empresas del admin
+/// ✅ DASHBOARD DE GANANCIAS - Basado en servicios reservados
 class GananciasEmpresasPage extends StatefulWidget {
   const GananciasEmpresasPage({super.key});
 
@@ -21,6 +20,7 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
   List<Empresa> _empresas = [];
   Map<String, double> _gananciasPorEmpresa = {};
   double _gananciasTotal = 0.0;
+  int _totalReservaciones = 0;
   String _periodoSeleccionado = 'Mes'; // Mes, Semana, Año
 
   @override
@@ -40,61 +40,65 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
 
       if (uid == null) {
         print('❌ Error: No hay usuario logueado');
+        setState(() {
+          _cargando = false;
+        });
         return;
       }
 
       // ✅ 1. Obtener todas las empresas del usuario
       final empresas = await _empresaController.obtenerEmpresasPorUsuario(uid);
-      
-      double totalGanancias = 0.0;
-      Map<String, double> gananciasPorEmpresa = {};
 
-      // ✅ 2. Para cada empresa, obtener su contabilidad
-      for (var empresa in empresas) {
-        final contabilidades = await _contabilidadController
-            .obtenerContabilidadesPorEmpresa(empresa.Id ?? '');
-
-        // ✅ 3. Sumar ganancias según el período seleccionado
-        double gananciaEmpresa = 0.0;
-        for (var contabilidad in contabilidades) {
-          if (_estaEnPeriodo(contabilidad.Fecha)) {
-            gananciaEmpresa += contabilidad.PagoPorDia ?? 0.0;
-          }
-        }
-
-        gananciasPorEmpresa[empresa.Id ?? ''] = gananciaEmpresa;
-        totalGanancias += gananciaEmpresa;
+      if (empresas.isEmpty) {
+        setState(() {
+          _empresas = [];
+          _cargando = false;
+        });
+        return;
       }
+
+      // ✅ 2. Calcular fechas según período seleccionado
+      final ahora = DateTime.now();
+      DateTime? fechaInicio;
+      DateTime? fechaFin = ahora;
+
+      switch (_periodoSeleccionado) {
+        case 'Semana':
+          fechaInicio = ahora.subtract(const Duration(days: 7));
+          break;
+        case 'Mes':
+          fechaInicio = DateTime(ahora.year, ahora.month, 1);
+          break;
+        case 'Año':
+          fechaInicio = DateTime(ahora.year, 1, 1);
+          break;
+      }
+
+      // ✅ 3. Obtener ganancias REALES basadas en servicios
+      final empresasIds = empresas.map((e) => e.Id!).toList();
+      
+      final resultado = await _contabilidadController.obtenerGananciasTotalesUsuario(
+        empresasIds: empresasIds,
+        fechaInicio: fechaInicio,
+        fechaFin: fechaFin,
+      );
 
       setState(() {
         _empresas = empresas;
-        _gananciasPorEmpresa = gananciasPorEmpresa;
-        _gananciasTotal = totalGanancias;
+        _gananciasPorEmpresa = resultado['gananciasPorEmpresa'] as Map<String, double>;
+        _gananciasTotal = resultado['totalGeneral'] as double;
+        _totalReservaciones = resultado['totalReservaciones'] as int;
         _cargando = false;
       });
 
-      print('✅ Ganancias totales: \$$totalGanancias');
+      print('✅ Ganancias cargadas exitosamente');
+      print('   Total general: \$${_gananciasTotal.toStringAsFixed(2)}');
+      print('   Reservaciones: $_totalReservaciones');
     } catch (e) {
       print('❌ Error cargando ganancias: $e');
       setState(() {
         _cargando = false;
       });
-    }
-  }
-
-  bool _estaEnPeriodo(DateTime? fecha) {
-    if (fecha == null) return false;
-
-    final ahora = DateTime.now();
-    switch (_periodoSeleccionado) {
-      case 'Semana':
-        return ahora.difference(fecha).inDays <= 7;
-      case 'Mes':
-        return fecha.month == ahora.month && fecha.year == ahora.year;
-      case 'Año':
-        return fecha.year == ahora.year;
-      default:
-        return true;
     }
   }
 
@@ -196,7 +200,7 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
                   ),
                 ),
                 Text(
-                  'Dashboard financiero',
+                  'Basado en servicios reservados',
                   style: TextStyle(
                     color: Colors.white60,
                     fontSize: 13,
@@ -332,7 +336,7 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                '${_empresas.length} empresa${_empresas.length != 1 ? 's' : ''}',
+                '$_totalReservaciones reservacion${_totalReservaciones != 1 ? 'es' : ''}',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.9),
                   fontSize: 13,
@@ -349,9 +353,6 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
     final promedioGanancias = _empresas.isNotEmpty 
         ? _gananciasTotal / _empresas.length 
         : 0.0;
-    
-    final empresaMasProductiva = _gananciasPorEmpresa.entries
-        .reduce((a, b) => a.value > b.value ? a : b);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -556,7 +557,7 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
                 ),
                 child: Center(
                   child: posicion <= 3
-                      ? Icon(
+                      ? const Icon(
                           Icons.emoji_events_rounded,
                           color: Colors.white,
                           size: 22,
@@ -664,7 +665,7 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Aún no hay registros para el período seleccionado',
+            'Aún no hay servicios reservados para el período seleccionado',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withOpacity(0.6),
