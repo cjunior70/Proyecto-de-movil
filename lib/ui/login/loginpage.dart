@@ -23,33 +23,33 @@ class _LoginPageState extends State<LoginPage> {
   String rolSeleccionado = 'usuario';
 
   void _iniciarSesion() async {
+  bool conexion = await Conexion(controladorUsuario.text, controladorClave.text, rolSeleccionado);
 
-    bool conexion = await Conexion(controladorUsuario.text, controladorClave.text,rolSeleccionado);
+  if (!mounted) return;
 
-    if(conexion)
-    {
-      if (rolSeleccionado == "usuario") {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const UsuarioHome()),
-        );
-      } else if (rolSeleccionado == "administrador") {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const HomepageAdmin()),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Usuario o contraseña incorrectos'),
-          backgroundColor: Colors.red.shade400,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
+  if (conexion) {
+    if (rolSeleccionado == "usuario") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const UsuarioHome()),
+      );
+    } else if (rolSeleccionado == "administrador") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const HomepageAdmin()),
       );
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Usuario o contraseña incorrectos'),
+        backgroundColor: Colors.red.shade400,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
+}
 
   void _mostrarOpcionesRegistro(BuildContext context) {
     showDialog(
