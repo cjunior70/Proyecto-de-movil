@@ -145,7 +145,7 @@ class _FormularioEmpleadoState extends State<FormularioEmpleado> {
         _mostrarSnackBar('Error al guardar el empleado', Colors.red);
       }
     } catch (e) {
-      print('❌ Error guardando empleado: $e');
+      //print('❌ Error guardando empleado: $e');
       _mostrarSnackBar('Error al guardar el empleado', Colors.red);
     } finally {
       if (mounted) {

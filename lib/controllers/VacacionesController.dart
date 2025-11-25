@@ -6,19 +6,18 @@ class VacacionesController {
   // ✅ Guardar vacaciones
   void guardarVacaciones(Vacaciones nuevasVacaciones) {
     if (_vacaciones != null) {
-      print("⚠️ Ya existen vacaciones registradas. Usa actualizarVacaciones().");
+      //print("⚠️ Ya existen vacaciones registradas. Usa actualizarVacaciones().");
       return;
     }
 
     _vacaciones = nuevasVacaciones;
-    print(
-        "✅ Vacaciones registradas desde ${_vacaciones!.Inicio} hasta ${_vacaciones!.Final}");
+    //print("✅ Vacaciones registradas desde ${_vacaciones!.Inicio} hasta ${_vacaciones!.Final}");
   }
 
   // ✅ Obtener vacaciones actuales
   Vacaciones? obtenerVacaciones() {
     if (_vacaciones == null) {
-      print("⚠️ No hay vacaciones registradas actualmente.");
+      //print("⚠️ No hay vacaciones registradas actualmente.");
       return null;
     }
     return _vacaciones;
@@ -27,42 +26,35 @@ class VacacionesController {
   // ✅ Actualizar vacaciones
   void actualizarVacaciones(Vacaciones vacacionesActualizadas) {
     if (_vacaciones == null) {
-      print("⚠️ No hay vacaciones registradas para actualizar.");
+      //print("⚠️ No hay vacaciones registradas para actualizar.");
       return;
     }
 
     if (_vacaciones!.Id != vacacionesActualizadas.Id) {
-      print("⚠️ El ID no coincide con las vacaciones actuales.");
+      //print("⚠️ El ID no coincide con las vacaciones actuales.");
       return;
     }
 
     _vacaciones = vacacionesActualizadas;
-    print("🔄 Vacaciones actualizadas: ${_vacaciones!.Inicio} → ${_vacaciones!.Final}");
+    //print("🔄 Vacaciones actualizadas: ${_vacaciones!.Inicio} → ${_vacaciones!.Final}");
   }
 
   // ✅ Eliminar vacaciones
   void eliminarVacaciones() {
     if (_vacaciones == null) {
-      print("⚠️ No hay vacaciones registradas para eliminar.");
+      //print("⚠️ No hay vacaciones registradas para eliminar.");
       return;
     }
 
-    print("🗑️ Vacaciones eliminadas: ${_vacaciones!.Inicio} → ${_vacaciones!.Final}");
+    //print("🗑️ Vacaciones eliminadas: ${_vacaciones!.Inicio} → ${_vacaciones!.Final}");
     _vacaciones = null;
   }
 
   // ✅ Mostrar resumen
   void mostrarResumen() {
     if (_vacaciones == null) {
-      print("⚠️ No hay vacaciones registradas.");
+      //print("⚠️ No hay vacaciones registradas.");
       return;
     }
-
-    print("""
-🌴 VACACIONES REGISTRADAS
-🆔 ID: ${_vacaciones!.Id}
-📅 Inicio: ${_vacaciones!.Inicio}
-📅 Final: ${_vacaciones!.Final}
-""");
   }
 }

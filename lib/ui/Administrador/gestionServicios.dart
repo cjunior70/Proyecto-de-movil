@@ -76,7 +76,7 @@ class _GestionServiciosState extends State<GestionServicios>
 
       _animationController.forward(from: 0.0);
     } catch (e) {
-      print('❌ Error cargando servicios: $e');
+      //print('❌ Error cargando servicios: $e');
       setState(() {
         _cargando = false;
       });
@@ -150,7 +150,7 @@ class _GestionServiciosState extends State<GestionServicios>
         uuid: _uuid,
         onSave: (nuevoServicio) async {
           nuevoServicio.empresa = widget.empresa ;
-          print("DATOS DE EMPRESA : ${widget.empresa} " );
+          //print("DATOS DE EMPRESA : ${widget.empresa} " );
           Navigator.pop(context); // Cerrar diálogo
 
           bool exito = false;
@@ -205,11 +205,11 @@ class _GestionServiciosState extends State<GestionServicios>
   
   // ✅ NOTIFICACIONES (TODO: Implementar sistema real)
   void _enviarNotificacionEdicion(Servicio servicio) {
-    print('📧 Notificación enviada: Servicio "${servicio.Nombre}" actualizado');
+    //print('📧 Notificación enviada: Servicio "${servicio.Nombre}" actualizado');
   }
 
   void _enviarNotificacionEliminacion(Servicio servicio) {
-    print('📧 Notificación enviada: Servicio "${servicio.Nombre}" eliminado');
+    //print('📧 Notificación enviada: Servicio "${servicio.Nombre}" eliminado');
   }
 
   // ✅ FORMATEAR DURACIÓN (Mantenida aquí para reusar)

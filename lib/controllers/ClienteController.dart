@@ -19,11 +19,11 @@ class ClienteController {
       final uid = await _crearClienteAuth(nuevoCliente);
 
       if (uid == null) {
-        print("❌ No se pudo crear el usuario. Proceso detenido.");
+        ////print("❌ No se pudo crear el usuario. Proceso detenido.");
         return false;
       }
       else{
-         print("todo en orden uid : ${uid} ");
+         ////print("todo en orden uid : ${uid} ");
       }
 
       nuevoCliente.Id = uid;
@@ -32,7 +32,7 @@ class ClienteController {
           .from('Clientes')
           .insert(nuevoCliente.toJson());
 
-      print("Cliente insertado correctamente en Supabase");
+      ////print("Cliente insertado correctamente en Supabase");
 
       return true;
 
@@ -40,7 +40,7 @@ class ClienteController {
     catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el guardado del cliente + $e" );
+      ////print("Hay un problema en el guardado del cliente + $e" );
 
       return false;
     }
@@ -59,7 +59,7 @@ class ClienteController {
 
       return res.user?.id; // devuelve el UID de Supabase
     } catch (e) {
-      print("❌ Error creando usuario en autenticación: $e");
+      ////print("❌ Error creando usuario en autenticación: $e");
       return null;
     }
   }
@@ -74,7 +74,7 @@ class ClienteController {
           //Single es para traer solo un registro
           .single();
 
-      print("Cliente encontrado correctamente en Supabase : $respuesta");
+      ////print("Cliente encontrado correctamente en Supabase : $respuesta");
 
       _cliente=Cliente.fromJson(respuesta);
 
@@ -83,7 +83,7 @@ class ClienteController {
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el cliente + $e" );
+      //print("Hay un problema en el eliminar el cliente + $e" );
 
       return null;
     }
@@ -94,22 +94,22 @@ class ClienteController {
   Future<bool> actualizarCliente(Cliente clienteActualizado) async {
     try{
 
-    print(clienteActualizado);
-    print("Utimas modificaciones");
+    //print(clienteActualizado);
+    //print("Utimas modificaciones");
 
       await SupabaseService.client
           .from('Clientes')
           .update(clienteActualizado.toJson()) //Los datoa actualizados convertidos a json
           .eq("Id", clienteActualizado.Id!).select();
 
-      print("Cliente actualizados correctamente en Supabase");
+      //print("Cliente actualizados correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el cliente + $e" );
+      //print("Hay un problema en el eliminar el cliente + $e" );
 
       return false;
     }
@@ -124,14 +124,14 @@ class ClienteController {
           .delete()
           .eq("Id", nuevoCliente.Id!);
 
-      print("Cliente borrado correctamente en Supabase");
+      //print("Cliente borrado correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el cliente + $e" );
+      //print("Hay un problema en el eliminar el cliente + $e" );
 
       return false;
     }

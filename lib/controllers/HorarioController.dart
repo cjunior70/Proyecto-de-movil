@@ -18,7 +18,7 @@ class HorarioController {
           .from('Horario')
           .insert(nuevoHorario.toJson());
 
-      print("Horario insertado correctamente en Supabase");
+      //print("Horario insertado correctamente en Supabase");
 
       return true;
 
@@ -26,7 +26,7 @@ class HorarioController {
     catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el guardado del Horario + $e" );
+      //print("Hay un problema en el guardado del Horario + $e" );
 
       return false;
     }
@@ -39,7 +39,7 @@ class HorarioController {
         .from('Horario')
         .select();
 
-    print("Horarios encontradas correctamente en Supabase: $respuesta");
+    //print("Horarios encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Horario
     final List<Horario> listaHorarios = (respuesta as List)
@@ -49,7 +49,7 @@ class HorarioController {
     listaDeHorarios = listaHorarios;
     return listaHorarios;
   } catch (e) {
-    print("Hay un problema al obtener las Horarios: $e");
+    //print("Hay un problema al obtener las Horarios: $e");
     return [];
   }
 }
@@ -62,7 +62,7 @@ class HorarioController {
         .select()
         .eq("Id_Empleado", usuarioId);
 
-    print("Horarios encontradas correctamente en Supabase: $respuesta");
+    //print("Horarios encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Horario
     final List<Horario> listaHorarios = (respuesta as List)
@@ -70,10 +70,10 @@ class HorarioController {
         .toList();
 
     listaDeHorarios = listaHorarios;
-    print(listaHorarios);
+    //print(listaHorarios);
     return listaHorarios;
   } catch (e) {
-    print("Hay un problema al obtener las Horarios: $e");
+    //print("Hay un problema al obtener las Horarios: $e");
     return [];
   }
 }
@@ -88,14 +88,14 @@ class HorarioController {
           .update(HorarioActualizado.toJson()) //Los datoa actualizados convertidos a json
           .eq("Id", HorarioActualizado.Id!);
 
-      print("Horario actualizados correctamente en Supabase");
+      //print("Horario actualizados correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Horario + $e" );
+      //print("Hay un problema en el eliminar el Horario + $e" );
 
       return false;
     }
@@ -111,14 +111,14 @@ class HorarioController {
           .delete()
           .eq("Id",Id);
 
-      print("Horario borrado correctamente en Supabase");
+      //print("Horario borrado correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Horario + $e" );
+      //print("Hay un problema en el eliminar el Horario + $e" );
 
       return false;
     }

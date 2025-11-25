@@ -48,7 +48,7 @@ class _ListaEmpresasState extends State<ListaEmpresas>
     final String? uid = prefs.getString('uid');
 
     if (uid == null) {
-      print("❌ Error: UID es null");
+      //print("❌ Error: UID es null");
       return;
     }
 
@@ -63,7 +63,7 @@ class _ListaEmpresasState extends State<ListaEmpresas>
 
     _animationController.forward();
 
-    print("Empresas cargadas: $_empresas");
+    //print("Empresas cargadas: $_empresas");
   }
 
 

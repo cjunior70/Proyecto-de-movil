@@ -18,7 +18,7 @@ class ReservacionController {
           .from('Reservaciones')
           .insert(nuevoReservacion.toJson());
 
-      print("Reservacion insertado correctamente en Supabase");
+      //print("Reservacion insertado correctamente en Supabase");
 
       return true;
 
@@ -26,7 +26,7 @@ class ReservacionController {
     catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el guardado del Reservacion + $e" );
+      //print("Hay un problema en el guardado del Reservacion + $e" );
 
       return false;
     }
@@ -40,7 +40,7 @@ class ReservacionController {
         .select()
         .eq("Id_Empresa", Empresa_id);
 
-    print("Reservacions encontradas correctamente en Supabase: $respuesta");
+    //print("Reservacions encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Reservacion
     final List<Reservacion> listaReservacions = (respuesta as List)
@@ -48,10 +48,10 @@ class ReservacionController {
         .toList();
 
     Listadereservacionesdeempresas = listaReservacions;
-    print(listaReservacions);
+    //print(listaReservacions);
     return listaReservacions;
   } catch (e) {
-    print("Hay un problema al obtener las Reservacions: $e");
+    //print("Hay un problema al obtener las Reservacions: $e");
     return [];
   }
 }
@@ -64,7 +64,7 @@ class ReservacionController {
         .select()
         .eq("Id_Cliente", Cliente_id);
 
-    print("Reservacions encontradas correctamente en Supabase: $respuesta");
+    //print("Reservacions encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Reservacion
     final List<Reservacion> listaReservacions = (respuesta as List)
@@ -72,10 +72,10 @@ class ReservacionController {
         .toList();
 
     Listadereservacionesdecliente = listaReservacions;
-    print(listaReservacions);
+    //print(listaReservacions);
     return listaReservacions;
   } catch (e) {
-    print("Hay un problema al obtener las Reservacions: $e");
+    //print("Hay un problema al obtener las Reservacions: $e");
     return [];
   }
 }
@@ -90,14 +90,14 @@ class ReservacionController {
           .update(ReservacionActualizado.toJson()) //Los datoa actualizados convertidos a json
           .eq("Id", ReservacionActualizado.Id!);
 
-      print("Reservacion actualizados correctamente en Supabase");
+      //print("Reservacion actualizados correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Reservacion + $e" );
+      //print("Hay un problema en el eliminar el Reservacion + $e" );
 
       return false;
     }
@@ -113,14 +113,14 @@ class ReservacionController {
           .delete()
           .eq("Id",Id);
 
-      print("Reservacion borrado correctamente en Supabase");
+      //print("Reservacion borrado correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Reservacion + $e" );
+      //print("Hay un problema en el eliminar el Reservacion + $e" );
 
       return false;
     }

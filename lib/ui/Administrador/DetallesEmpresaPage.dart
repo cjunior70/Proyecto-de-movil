@@ -145,10 +145,10 @@ class _DetallesEmpresaPageState extends State<DetallesEmpresaPage> {
     final prefs = await SharedPreferences.getInstance();
     final String? uid = prefs.getString('uid');
 
-    print("Esre es id del usuario como tal, osea dueño de la empresa : ${uid}");
+    ////print("Esre es id del usuario como tal, osea dueño de la empresa : ${uid}");
 
     if (uid == null) {
-      print("❌ Error: UID es null");
+      ////print("❌ Error: UID es null");
       return;
     }
 

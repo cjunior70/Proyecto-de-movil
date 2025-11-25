@@ -11,12 +11,12 @@ class InterServicioReservacionController {
   Future<bool> registrarDesdeReservacion(Reservacion reservacion) async {
     try {
       if (reservacion.Id == null) {
-        print("❌ La reservación NO tiene Id aún.");
+        //print("❌ La reservación NO tiene Id aún.");
         return false;
       }
 
       if (reservacion.empleadosAsignados == null || reservacion.empleadosAsignados!.isEmpty) {
-        print("⚠ La reservación no tiene empleados.");
+        //print("⚠ La reservación no tiene empleados.");
         return false;
       }
 
@@ -33,16 +33,16 @@ class InterServicioReservacionController {
           final response = await supabase.from(tabla).insert(data);
 
           if (response.isEmpty) {
-            print("❌ Error insertando servicio-intermedio");
+            //print("❌ Error insertando servicio-intermedio");
             return false;
           }
         }
       }
 
-      print("✅ Servicios y empleados registrados correctamente.");
+      //print("✅ Servicios y empleados registrados correctamente.");
       return true;
     } catch (e) {
-      print("❌ Error registrarDesdeReservacion: $e");
+      //print("❌ Error registrarDesdeReservacion: $e");
       return false;
     }
   }
@@ -57,7 +57,7 @@ class InterServicioReservacionController {
 
       return response;
     } catch (e) {
-      print("❌ Error obtenerPorReservacion: $e");
+      //print("❌ Error obtenerPorReservacion: $e");
       return [];
     }
   }
@@ -78,10 +78,10 @@ class InterServicioReservacionController {
 
       if (response.isEmpty) return false;
 
-      print("✅ Registro intermedio actualizado.");
+      //print("✅ Registro intermedio actualizado.");
       return true;
     } catch (e) {
-      print("❌ Error actualizar: $e");
+      //print("❌ Error actualizar: $e");
       return false;
     }
   }
@@ -92,10 +92,10 @@ class InterServicioReservacionController {
 
       if (response.isEmpty) return false;
 
-      print("🗑 Registro eliminado correctamente.");
+      //print("🗑 Registro eliminado correctamente.");
       return true;
     } catch (e) {
-      print("❌ Error eliminar: $e");
+      //print("❌ Error eliminar: $e");
       return false;
     }
   }
@@ -105,10 +105,10 @@ class InterServicioReservacionController {
     try {
       await supabase.from(tabla).delete().eq("Id_Reservacion", idReservacion);
 
-      print("🗑 Todos los servicios de la reservación fueron eliminados.");
+      //print("🗑 Todos los servicios de la reservación fueron eliminados.");
       return true;
     } catch (e) {
-      print("❌ Error eliminarPorReservacion: $e");
+      //print("❌ Error eliminarPorReservacion: $e");
       return false;
     }
   }

@@ -17,7 +17,7 @@ class EmpleadoController {
           .from('Empleados')
           .insert(nuevoEmpleado.toJson());
 
-      print("Empleado insertado correctamente en Supabase");
+      //print("Empleado insertado correctamente en Supabase");
 
       return true;
 
@@ -25,7 +25,7 @@ class EmpleadoController {
     catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el guardado del Empleado + $e" );
+      //print("Hay un problema en el guardado del Empleado + $e" );
 
       return false;
     }
@@ -38,7 +38,7 @@ class EmpleadoController {
 //         .from('Empleados')
 //         .select();
 
-//     print("Empleados encontradas correctamente en Supabase: $respuesta");
+//     //print("Empleados encontradas correctamente en Supabase: $respuesta");
 
 //     // Convertir la lista de mapas a lista de objetos Empleado
 //     final List<Empleado> listaEmpleados = (respuesta as List)
@@ -48,7 +48,7 @@ class EmpleadoController {
 //     lista_de_Empleados = listaEmpleados;
 //     return listaEmpleados;
 //   } catch (e) {
-//     print("Hay un problema al obtener las Empleados: $e");
+//     //print("Hay un problema al obtener las Empleados: $e");
 //     return [];
 //   }
 // }
@@ -61,7 +61,7 @@ class EmpleadoController {
         .select()
         .eq("Id_Empresa", EmpresaId);
 
-    print("Empleados encontradas correctamente en Supabase: $respuesta");
+    //print("Empleados encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Empleado
     final List<Empleado> listaEmpleados = (respuesta as List)
@@ -69,10 +69,10 @@ class EmpleadoController {
         .toList();
 
     lista_de_Empleados = listaEmpleados;
-    print(listaEmpleados);
+    //print(listaEmpleados);
     return listaEmpleados;
   } catch (e) {
-    print("Hay un problema al obtener las Empleados: $e");
+    //print("Hay un problema al obtener las Empleados: $e");
     return [];
   }
 }
@@ -86,14 +86,14 @@ class EmpleadoController {
           .update(EmpleadoActualizado.toJson()) //Los datoa actualizados convertidos a json
           .eq("Id", EmpleadoActualizado.Id!);
 
-      print("Empleado actualizados correctamente en Supabase");
+      //print("Empleado actualizados correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Empleado + $e" );
+      //print("Hay un problema en el eliminar el Empleado + $e" );
 
       return false;
     }
@@ -108,14 +108,14 @@ class EmpleadoController {
           .delete()
           .eq("Id",Id);
 
-      print("Empleado borrado correctamente en Supabase");
+      //print("Empleado borrado correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Empleado + $e" );
+      //print("Hay un problema en el eliminar el Empleado + $e" );
 
       return false;
     }

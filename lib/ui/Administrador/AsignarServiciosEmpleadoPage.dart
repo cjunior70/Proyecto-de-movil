@@ -59,10 +59,10 @@ class _AsignarServiciosEmpleadoPageState
         _cargando = false;
       });
 
-      print('✅ Servicios cargados: ${servicios.length}');
-      print('✅ Servicios asignados: ${serviciosAsignadosIds.length}');
+      //print('✅ Servicios cargados: ${servicios.length}');
+      //print('✅ Servicios asignados: ${serviciosAsignadosIds.length}');
     } catch (e) {
-      print('❌ Error cargando datos: $e');
+      //print('❌ Error cargando datos: $e');
       setState(() {
         _cargando = false;
       });
@@ -108,7 +108,7 @@ class _AsignarServiciosEmpleadoPageState
         _mostrarSnackBar('Error al guardar asignaciones', Colors.red);
       }
     } catch (e) {
-      print('❌ Error guardando asignaciones: $e');
+      //print('❌ Error guardando asignaciones: $e');
       setState(() {
         _guardando = false;
       });

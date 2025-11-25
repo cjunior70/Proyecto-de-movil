@@ -16,14 +16,14 @@ class UsuarioController {
 
       final uid = await _crearUsuarioAuth(nuevoUsuario);
 
-      print("este es el id ${uid}");
+      //print("este es el id ${uid}");
 
        if (uid == null) {
-        print("❌ No se pudo crear el usuario. Proceso detenido.");
+        //print("❌ No se pudo crear el usuario. Proceso detenido.");
         return false;
       }
       else{
-         print("todo en orden uid : ${uid} ");
+         //print("todo en orden uid : ${uid} ");
       }
 
       nuevoUsuario.Id = uid;
@@ -35,7 +35,7 @@ class UsuarioController {
           .from('Usuarios')
           .insert(nuevoUsuario.toJson());
 
-      print("Usuario insertado correctamente en Supabase");
+      //print("Usuario insertado correctamente en Supabase");
 
       return true;
 
@@ -43,7 +43,7 @@ class UsuarioController {
     catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el guardado del Usuario + $e" );
+      //print("Hay un problema en el guardado del Usuario + $e" );
 
       return false;
     }
@@ -62,7 +62,7 @@ class UsuarioController {
 
       return res.user?.id; // devuelve el UID de Supabase
     } catch (e) {
-      print("❌ Error creando usuario en autenticación: $e");
+      //print("❌ Error creando usuario en autenticación: $e");
       return null;
     }
   }
@@ -77,7 +77,7 @@ class UsuarioController {
           //Single es para traer solo un registro
           .single();
 
-      print("Usuario encontrado correctamente en Supabase : $respuesta");
+      //print("Usuario encontrado correctamente en Supabase : $respuesta");
 
       _usuario=Usuario.fromJson(respuesta);
 
@@ -86,7 +86,7 @@ class UsuarioController {
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Usuario + $e" );
+      //print("Hay un problema en el eliminar el Usuario + $e" );
 
       return null;
     }
@@ -95,20 +95,20 @@ class UsuarioController {
   // ✅ Actualizar usuario
   Future<bool> actualizarUsuario(Usuario UsuarioActualizado) async {
     try{
-      print("id :  ${UsuarioActualizado.Id}");
+      //print("id :  ${UsuarioActualizado.Id}");
       await SupabaseService.client
           .from('Usuarios')
           .update(UsuarioActualizado.toJson()) //Los datoa actualizados convertidos a json
           .eq("Id", UsuarioActualizado.Id!);
 
-      print("Usuario actualizados correctamente en Supabase");
+      //print("Usuario actualizados correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Usuario + $e" );
+      //print("Hay un problema en el eliminar el Usuario + $e" );
 
       return false;
     }
@@ -123,14 +123,14 @@ class UsuarioController {
           .delete()
           .eq("Id", Id);
 
-      print("Usuario borrado correctamente en Supabase");
+      //print("Usuario borrado correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Usuario + $e" );
+      //print("Hay un problema en el eliminar el Usuario + $e" );
 
       return false;
     }

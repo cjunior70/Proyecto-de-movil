@@ -60,7 +60,7 @@ class _GestionEmpleadosState extends State<GestionEmpleados>
 
       _animationController.forward();
     } catch (e) {
-      print('❌ Error cargando empleados: $e');
+      //print('❌ Error cargando empleados: $e');
       setState(() {
         _cargando = false;
       });

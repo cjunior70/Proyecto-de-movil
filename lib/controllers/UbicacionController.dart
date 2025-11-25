@@ -18,7 +18,7 @@ class UbicacionController {
           .from('Ubicacion')
           .insert(nuevoUbicacion.toJson());
 
-      print("Ubicacion insertado correctamente en Supabase");
+      //print("Ubicacion insertado correctamente en Supabase");
 
       return true;
 
@@ -26,7 +26,7 @@ class UbicacionController {
     catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el guardado del Ubicacion + $e" );
+      //print("Hay un problema en el guardado del Ubicacion + $e" );
 
       return false;
     }
@@ -39,7 +39,7 @@ class UbicacionController {
         .from('Ubicacion')
         .select();
 
-    print("Ubicacions encontradas correctamente en Supabase: $respuesta");
+    //print("Ubicacions encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Ubicacion
     final List<Ubicacion> listaUbicacions = (respuesta as List)
@@ -49,7 +49,7 @@ class UbicacionController {
     lista_de_Ubicaciones = listaUbicacions;
     return listaUbicacions;
   } catch (e) {
-    print("Hay un problema al obtener las Ubicacions: $e");
+    //print("Hay un problema al obtener las Ubicacions: $e");
     return [];
   }
 }
@@ -61,7 +61,7 @@ class UbicacionController {
         .select()
         .eq("Id", usuarioId);
 
-    print("Ubicacions encontradas correctamente en Supabase: $respuesta");
+    //print("Ubicacions encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Ubicacion
     final List<Ubicacion> listaUbicacions = (respuesta as List)
@@ -69,10 +69,10 @@ class UbicacionController {
         .toList();
 
     lista_de_Ubicaciones = listaUbicacions;
-    print(listaUbicacions);
+    //print(listaUbicacions);
     return listaUbicacions;
   } catch (e) {
-    print("Hay un problema al obtener las Ubicacions: $e");
+    //print("Hay un problema al obtener las Ubicacions: $e");
     return [];
   }
 }
@@ -86,14 +86,14 @@ class UbicacionController {
           .update(UbicacionActualizado.toJson()) //Los datoa actualizados convertidos a json
           .eq("Id", UbicacionActualizado.Id!);
 
-      print("Ubicacion actualizados correctamente en Supabase");
+      //print("Ubicacion actualizados correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Ubicacion + $e" );
+      //print("Hay un problema en el eliminar el Ubicacion + $e" );
 
       return false;
     }
@@ -108,14 +108,14 @@ class UbicacionController {
           .delete()
           .eq("Id",Id);
 
-      print("Ubicacion borrado correctamente en Supabase");
+      //print("Ubicacion borrado correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Ubicacion + $e" );
+      //print("Hay un problema en el eliminar el Ubicacion + $e" );
 
       return false;
     }

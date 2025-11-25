@@ -46,7 +46,7 @@ class _ServicioEmpleadosPageState extends State<ServicioEmpleadosPage> {
       final empleadosIdsConServicio = await _interController
           .obtenerEmpleadosDeServicio(widget.servicio.Id);
 
-      print('👥 Empleados con el servicio ${widget.servicio.Nombre}: ${empleadosIdsConServicio.length}');
+      //print('👥 Empleados con el servicio ${widget.servicio.Nombre}: ${empleadosIdsConServicio.length}');
 
       if (empleadosIdsConServicio.isEmpty) {
         setState(() {
@@ -72,10 +72,10 @@ class _ServicioEmpleadosPageState extends State<ServicioEmpleadosPage> {
         _cargando = false;
       });
 
-      print('✅ ${empleadosFiltrados.length} empleados cargados con el servicio');
+      //print('✅ ${empleadosFiltrados.length} empleados cargados con el servicio');
 
     } catch (e) {
-      print('❌ Error cargando empleados: $e');
+      //print('❌ Error cargando empleados: $e');
       setState(() {
         _cargando = false;
       });

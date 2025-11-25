@@ -70,7 +70,7 @@ class _ReservaPageState extends State<ReservaPage> {
     final uid = prefs.getString('uid');
     
     if (uid == null) {
-      print('❌ Error: No hay cliente logueado');
+      //print('❌ Error: No hay cliente logueado');
       _mostrarError('Debes iniciar sesión para reservar');
       Navigator.pop(context);
       return;
@@ -80,7 +80,7 @@ class _ReservaPageState extends State<ReservaPage> {
       _clienteId = uid;
     });
     
-    print('✅ Cliente ID cargado: $_clienteId');
+    //print('✅ Cliente ID cargado: $_clienteId');
   }
 
   void _cargarHorariosDisponibles() async {
@@ -278,13 +278,13 @@ class _ReservaPageState extends State<ReservaPage> {
       // ✅ Combinar fecha y hora
       final fechaHora = _combinarFechaHora(_fechaSeleccionada, _horaSeleccionada!);
       
-      print('🔍 Datos de reservación:');
-      print('  - Cliente ID: $_clienteId');
-      print('  - Empresa ID: ${widget.empresa.Id}');
-      print('  - Servicio: ${widget.servicio.Nombre}');
-      print('  - Empleado: ${widget.empleado.PrimerNombre} ${widget.empleado.PrimerApellido}');
-      print('  - Fecha/Hora: $fechaHora');
-      print('  - Total: ${widget.servicio.Precio}');
+      //print('🔍 Datos de reservación:');
+      //print('  - Cliente ID: $_clienteId');
+      //print('  - Empresa ID: ${widget.empresa.Id}');
+      //print('  - Servicio: ${widget.servicio.Nombre}');
+      //print('  - Empleado: ${widget.empleado.PrimerNombre} ${widget.empleado.PrimerApellido}');
+      //print('  - Fecha/Hora: $fechaHora');
+      //print('  - Total: ${widget.servicio.Precio}');
 
       // ✅ 1. Obtener contabilidad de la empresa
       final contabilidades = await _contabilidadController
@@ -293,9 +293,9 @@ class _ReservaPageState extends State<ReservaPage> {
       Contabilidad? contabilidad;
       if (contabilidades.isNotEmpty) {
         contabilidad = contabilidades.first as Contabilidad?;
-        print('✅ Contabilidad encontrada: ${contabilidad?.Id ?? "sin ID"}');
+        //print('✅ Contabilidad encontrada: ${contabilidad?.Id ?? "sin ID"}');
       } else {
-        print('⚠️ No se encontró contabilidad para la empresa');
+        //print('⚠️ No se encontró contabilidad para la empresa');
       }
 
       // ✅ 2. Crear la reservación
@@ -312,7 +312,7 @@ class _ReservaPageState extends State<ReservaPage> {
         contabilidad: contabilidad != null ? Contabilidad(Id: contabilidad.Id) : null,
       );
 
-      print('📝 JSON a enviar: ${nuevaReservacion.toJson()}');
+      //print('📝 JSON a enviar: ${nuevaReservacion.toJson()}');
 
       // ✅ 3. Guardar en Supabase
       final exito = await _reservacionController.guardarReservacion(nuevaReservacion);
@@ -320,7 +320,7 @@ class _ReservaPageState extends State<ReservaPage> {
       Navigator.pop(context); // Cerrar loading
 
       if (exito) {
-        print('✅ Reservación guardada exitosamente');
+        //print('✅ Reservación guardada exitosamente');
         
         // Mostrar éxito
         _mostrarSnackBar('✅ ¡Reserva confirmada exitosamente!', Colors.green);
@@ -329,11 +329,11 @@ class _ReservaPageState extends State<ReservaPage> {
         await Future.delayed(const Duration(seconds: 1));
         Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
-        print('❌ Error al guardar reservación');
+        //print('❌ Error al guardar reservación');
         _mostrarError('No se pudo crear la reservación. Intenta de nuevo.');
       }
     } catch (e) {
-      print('❌ Error procesando reserva: $e');
+      //print('❌ Error procesando reserva: $e');
       Navigator.pop(context); // Cerrar loading
       _mostrarError('Error: $e');
     }

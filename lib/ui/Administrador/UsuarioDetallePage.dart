@@ -41,7 +41,7 @@ class _UsuariodetallepageState extends State<Usuariodetallepage> {
    final String? uid = prefs.getString('uid');
 
     if (uid == null) {
-      print("❌ Error: UID es null");
+      //print("❌ Error: UID es null");
       return;
     }
 
@@ -49,7 +49,7 @@ class _UsuariodetallepageState extends State<Usuariodetallepage> {
 
     usuario = await UsuarioController().obtenerUsuario(uid);
 
-    print("DATOS ENCONTRADOS : ${usuario}");
+    //print("DATOS ENCONTRADOS : ${usuario}");
 
     if (usuario != null) {
       setState(() {
@@ -100,8 +100,8 @@ class _UsuariodetallepageState extends State<Usuariodetallepage> {
       Foto: usuario!.Foto,
     );
 
-    print(actualizado);
-    print("Utimas modificaciones lo que viene es lo que llega");
+    //print(actualizado);
+    //print("Utimas modificaciones lo que viene es lo que llega");
     
     UsuarioController().actualizarUsuario(actualizado);
 

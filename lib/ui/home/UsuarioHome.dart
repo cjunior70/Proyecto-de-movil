@@ -68,7 +68,6 @@ class _UsuarioHomeState extends State<UsuarioHome>
         });
       }
     } catch (e) {
-      print('❌ Error al cargar empresas: $e');
       if (mounted) {
         setState(() {
           _cargandoEmpresas = false;

@@ -39,7 +39,7 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
       final uid = prefs.getString('uid');
 
       if (uid == null) {
-        print('❌ Error: No hay usuario logueado');
+        //print('❌ Error: No hay usuario logueado');
         return;
       }
 
@@ -73,9 +73,9 @@ class _GananciasEmpresasPageState extends State<GananciasEmpresasPage> {
         _cargando = false;
       });
 
-      print('✅ Ganancias totales: \$$totalGanancias');
+      //print('✅ Ganancias totales: \$$totalGanancias');
     } catch (e) {
-      print('❌ Error cargando ganancias: $e');
+      //print('❌ Error cargando ganancias: $e');
       setState(() {
         _cargando = false;
       });

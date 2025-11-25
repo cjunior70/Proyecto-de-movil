@@ -101,7 +101,7 @@ class Empresa {
           minute: int.parse(parts[1])
         );
       } catch (e) {
-        print("⚠ Error parseando tiempo: $time - $e");
+        //print("⚠ Error parseando tiempo: $time - $e");
         return null;
       }
     }
@@ -124,7 +124,7 @@ class Empresa {
         try {
           imagenMiniaturaBytes = base64Decode(imagenMini);
         } catch (e) {
-          print("⚠️ Error decodificando imagen miniatura: $e");
+          //print("⚠️ Error decodificando imagen miniatura: $e");
         }
       }
     }
@@ -141,7 +141,7 @@ class Empresa {
         try {
           imagenGeneralBytes = base64Decode(imagenGen);
         } catch (e) {
-          print("⚠️ Error decodificando imagen general: $e");
+          //print("⚠️ Error decodificando imagen general: $e");
         }
       }
     }

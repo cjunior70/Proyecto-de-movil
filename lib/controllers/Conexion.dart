@@ -17,7 +17,7 @@ Future<bool> Conexion(String correo, String password, String rolSeleccionado) as
     );
 
     if (res.user == null) {
-      print("❌ No se pudo iniciar sesión");
+      ////print("❌ No se pudo iniciar sesión");
       return false;
     }
 
@@ -27,9 +27,9 @@ Future<bool> Conexion(String correo, String password, String rolSeleccionado) as
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('uid', uid);
     
-    print("💾 UID guardado localmente: $uid");
+    //print("💾 UID guardado localmente: $uid");
 
-    print("🔑 UID autenticado: $uid");
+    //print("🔑 UID autenticado: $uid");
 
     // 2. Validar rol
     if (rolSeleccionado == "administrador") {
@@ -42,11 +42,11 @@ Future<bool> Conexion(String correo, String password, String rolSeleccionado) as
       return cliente != null;
     }
 
-    print("❌ Rol no reconocido");
+    //print("❌ Rol no reconocido");
     return false;
 
   } catch (e) {
-    print("❌ Error en inicio de sesión: $e");
+    //print("❌ Error en inicio de sesión: $e");
     return false;
   }
 }

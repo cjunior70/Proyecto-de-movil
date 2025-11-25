@@ -14,7 +14,7 @@ class ContabilidadController {
         .select()
         .eq("Id_Empresa", Empresa_id);
 
-    print("Contabilidads encontradas correctamente en Supabase: $respuesta");
+    //print("Contabilidads encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Contabilidad
     final List<Contabilidad> listaContabilidads = (respuesta as List)
@@ -22,10 +22,10 @@ class ContabilidadController {
         .toList();
 
     ListadeContabilidadesdeempresas = listaContabilidads;
-    print(listaContabilidads);
+    //print(listaContabilidads);
     return listaContabilidads;
   } catch (e) {
-    print("Hay un problema al obtener las Contabilidads: $e");
+    //print("Hay un problema al obtener las Contabilidads: $e");
     return [];
   }
 }

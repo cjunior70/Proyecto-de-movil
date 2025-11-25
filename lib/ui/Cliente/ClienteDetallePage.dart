@@ -41,7 +41,7 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
    final String? uid = prefs.getString('uid');
 
     if (uid == null) {
-      print("❌ Error: UID es null");
+      //print("❌ Error: UID es null");
       return;
     }
 
@@ -49,7 +49,7 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
 
     cliente = await ClienteController().obtenerCliente(uid);
 
-    print("DATOS ENCONTRADOS : ${cliente}");
+    //print("DATOS ENCONTRADOS : ${cliente}");
 
     if (cliente != null) {
       setState(() {
@@ -100,8 +100,8 @@ class _ClienteDetallePageState extends State<ClienteDetallePage> {
       Foto: cliente!.Foto,
     );
 
-    print(actualizado);
-    print("Utimas modificaciones lo que viene es lo que llega");
+    //print(actualizado);
+    //print("Utimas modificaciones lo que viene es lo que llega");
     
     ClienteController().actualizarCliente(actualizado);
 

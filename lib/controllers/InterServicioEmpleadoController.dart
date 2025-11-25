@@ -21,11 +21,11 @@ class InterServicioEmpleadoController {
           .delete()
           .eq('Id_Empleado', empleadoId);
 
-      print('🗑️ Asignaciones previas eliminadas para empleado: $empleadoId');
+      //print('🗑️ Asignaciones previas eliminadas para empleado: $empleadoId');
 
       // ✅ 2. Si no hay servicios seleccionados, terminar aquí
       if (serviciosIds.isEmpty) {
-        print('✅ No hay servicios para asignar');
+        //print('✅ No hay servicios para asignar');
         return true;
       }
 
@@ -41,11 +41,11 @@ class InterServicioEmpleadoController {
           .from('Inter_Servicio_Empleado')
           .insert(asignaciones);
 
-      print('✅ ${asignaciones.length} servicios asignados correctamente');
+      //print('✅ ${asignaciones.length} servicios asignados correctamente');
       return true;
 
     } catch (e) {
-      print('❌ Error asignando servicios al empleado: $e');
+      //print('❌ Error asignando servicios al empleado: $e');
       return false;
     }
   }
@@ -58,7 +58,7 @@ class InterServicioEmpleadoController {
           .select('Id_Servicio')
           .eq('Id_Empleado', empleadoId);
 
-      print('📋 Servicios del empleado obtenidos: $respuesta');
+      //print('📋 Servicios del empleado obtenidos: $respuesta');
 
       // Convertir a Set<String>
       final serviciosIds = (respuesta as List)
@@ -68,7 +68,7 @@ class InterServicioEmpleadoController {
       return serviciosIds;
 
     } catch (e) {
-      print('❌ Error obteniendo servicios del empleado: $e');
+      //print('❌ Error obteniendo servicios del empleado: $e');
       return {};
     }
   }
@@ -81,7 +81,7 @@ class InterServicioEmpleadoController {
           .select('Id_Empleado')
           .eq('Id_Servicio', servicioId);
 
-      print('👥 Empleados con el servicio obtenidos: $respuesta');
+      //print('👥 Empleados con el servicio obtenidos: $respuesta');
 
       // Convertir a Set<String>
       final empleadosIds = (respuesta as List)
@@ -91,7 +91,7 @@ class InterServicioEmpleadoController {
       return empleadosIds;
 
     } catch (e) {
-      print('❌ Error obteniendo empleados del servicio: $e');
+      //print('❌ Error obteniendo empleados del servicio: $e');
       return {};
     }
   }
@@ -112,7 +112,7 @@ class InterServicioEmpleadoController {
       return respuesta != null;
 
     } catch (e) {
-      print('❌ Error verificando asignación: $e');
+      //print('❌ Error verificando asignación: $e');
       return false;
     }
   }
@@ -129,11 +129,11 @@ class InterServicioEmpleadoController {
           .eq('Id_Empleado', empleadoId)
           .eq('Id_Servicio', servicioId);
 
-      print('✅ Asignación eliminada correctamente');
+      //print('✅ Asignación eliminada correctamente');
       return true;
 
     } catch (e) {
-      print('❌ Error eliminando asignación: $e');
+      //print('❌ Error eliminando asignación: $e');
       return false;
     }
   }
@@ -147,7 +147,7 @@ class InterServicioEmpleadoController {
       // Puedes implementarlo según tus necesidades
       return {};
     } catch (e) {
-      print('❌ Error obteniendo servicios con empleados: $e');
+      //print('❌ Error obteniendo servicios con empleados: $e');
       return {};
     }
   }

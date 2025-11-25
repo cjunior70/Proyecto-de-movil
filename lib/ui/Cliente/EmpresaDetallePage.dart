@@ -41,7 +41,7 @@ class _EmpresaDetallePageState extends State<EmpresaDetallePage> {
         _cargando = false;
       });
     } catch (e) {
-      print('❌ Error cargando servicios: $e');
+      //print('❌ Error cargando servicios: $e');
       setState(() {
         _cargando = false;
       });

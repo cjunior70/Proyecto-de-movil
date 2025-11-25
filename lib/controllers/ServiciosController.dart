@@ -18,7 +18,7 @@ class ServicioController {
           .from('Servicios')
           .insert(nuevoServicio.toJson());
 
-      print("Servicio insertado correctamente en Supabase");
+      //print("Servicio insertado correctamente en Supabase");
 
       return true;
 
@@ -26,7 +26,7 @@ class ServicioController {
     catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el guardado del Servicio + $e" );
+      //print("Hay un problema en el guardado del Servicio + $e" );
 
       return false;
     }
@@ -38,7 +38,7 @@ class ServicioController {
         .from('Servicios')
         .select().eq("Id_Empresa", id_empresa);
 
-    print("Servicios encontradas correctamente en Supabase: $respuesta");
+    //print("Servicios encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Servicio
     final List<Servicio> listaServicios = (respuesta as List)
@@ -48,7 +48,7 @@ class ServicioController {
     listadeServicios = listaServicios;
     return listaServicios;
   } catch (e) {
-    print("Hay un problema al obtener las Servicios: $e");
+    //print("Hay un problema al obtener las Servicios: $e");
     return [];
   }
 }
@@ -61,7 +61,7 @@ class ServicioController {
           .select()
           .eq("Id", usuarioId);
 
-      print("Servicios encontradas correctamente en Supabase: $respuesta");
+      //print("Servicios encontradas correctamente en Supabase: $respuesta");
 
       // Convertir la lista de mapas a lista de objetos Servicio
       final List<Servicio> listaServicios = (respuesta as List)
@@ -69,10 +69,10 @@ class ServicioController {
           .toList();
 
       listadeServicios = listaServicios;
-      print(listaServicios);
+      //print(listaServicios);
       return listaServicios;
     } catch (e) {
-      print("Hay un problema al obtener las Servicios: $e");
+      //print("Hay un problema al obtener las Servicios: $e");
       return [];
     }
   }
@@ -87,14 +87,14 @@ class ServicioController {
           .update(ServicioActualizado.toJson()) //Los datoa actualizados convertidos a json
           .eq("Id", ServicioActualizado.Id!);
 
-      print("Servicio actualizados correctamente en Supabase");
+      //print("Servicio actualizados correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Servicio + $e" );
+      //print("Hay un problema en el eliminar el Servicio + $e" );
 
       return false;
     }
@@ -109,14 +109,14 @@ class ServicioController {
           .delete()
           .eq("Id",Id);
 
-      print("Servicio borrado correctamente en Supabase");
+      //print("Servicio borrado correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Servicio + $e" );
+      //print("Hay un problema en el eliminar el Servicio + $e" );
 
       return false;
     }

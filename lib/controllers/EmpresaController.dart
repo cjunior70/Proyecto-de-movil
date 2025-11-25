@@ -24,7 +24,7 @@ class EmpresaController {
           .from('Empresas')
           .insert(nuevoEmpresa.toJson());
 
-      print("Empresa insertado correctamente en Supabase");
+      //print("Empresa insertado correctamente en Supabase");
 
       return true;
 
@@ -32,7 +32,7 @@ class EmpresaController {
     catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el guardado del Empresa + $e" );
+      //print("Hay un problema en el guardado del Empresa + $e" );
 
       return false;
     }
@@ -45,7 +45,7 @@ class EmpresaController {
         .from('Empresas')
         .select();
 
-    print("Empresas encontradas correctamente en Supabase: $respuesta");
+    //print("Empresas encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Empresa
     final List<Empresa> listaEmpresas = (respuesta as List)
@@ -55,7 +55,7 @@ class EmpresaController {
     lista_de_empresas = listaEmpresas;
     return listaEmpresas;
   } catch (e) {
-    print("Hay un problema al obtener las empresas: $e");
+    //print("Hay un problema al obtener las empresas: $e");
     return [];
   }
 }
@@ -79,7 +79,7 @@ class EmpresaController {
         .select()
         .eq("Id_Usuario", usuarioId);
 
-    print("Empresas encontradas correctamente en Supabase: $respuesta");
+    //print("Empresas encontradas correctamente en Supabase: $respuesta");
 
     // Convertir la lista de mapas a lista de objetos Empresa
     final List<Empresa> listaEmpresas = (respuesta as List)
@@ -87,10 +87,10 @@ class EmpresaController {
         .toList();
 
     lista_de_empresas = listaEmpresas;
-    print(listaEmpresas);
+    //print(listaEmpresas);
     return listaEmpresas;
   } catch (e) {
-    print("Hay un problema al obtener las empresas: $e");
+    //print("Hay un problema al obtener las empresas: $e");
     return [];
   }
 }
@@ -107,14 +107,14 @@ class EmpresaController {
           .update(EmpresaActualizado.toJson()) //Los datoa actualizados convertidos a json
           .eq("Id", EmpresaActualizado.Id!);
 
-      print("Empresa actualizados correctamente en Supabase");
+      //print("Empresa actualizados correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Empresa + $e" );
+      //print("Hay un problema en el eliminar el Empresa + $e" );
 
       return false;
     }
@@ -130,14 +130,14 @@ class EmpresaController {
           .delete()
           .eq("Id",Id);
 
-      print("Empresa borrado correctamente en Supabase");
+      //print("Empresa borrado correctamente en Supabase");
 
       return true;
 
     }catch(e)
     {
       //Es necesario concatenar
-      print("Hay un problema en el eliminar el Empresa + $e" );
+      //print("Hay un problema en el eliminar el Empresa + $e" );
 
       return false;
     }
