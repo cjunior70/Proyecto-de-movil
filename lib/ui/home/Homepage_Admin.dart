@@ -7,14 +7,14 @@ import 'package:proyecto/controllers/ContabilidadController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// ✅ HOMEPAGE ADMINISTRADOR - MEJORADO CON DATOS REALES
-class Homepage_Admin extends StatefulWidget {
-  const Homepage_Admin({super.key});
+class HomepageAdmin extends StatefulWidget {
+  const HomepageAdmin({super.key});
 
   @override
-  State<Homepage_Admin> createState() => _Homepage_AdminState();
+  State<HomepageAdmin> createState() => _HomepageAdminState();
 }
 
-class _Homepage_AdminState extends State<Homepage_Admin> {
+class _HomepageAdminState extends State<HomepageAdmin> {
   final EmpresaController _empresaController = EmpresaController();
   final ContabilidadController _contabilidadController = ContabilidadController();
 
@@ -40,7 +40,6 @@ class _Homepage_AdminState extends State<Homepage_Admin> {
       final uid = prefs.getString('uid');
 
       if (uid == null) {
-        print('❌ Error: No hay usuario logueado');
         return;
       }
 
