@@ -11,6 +11,7 @@ import 'package:proyecto/controllers/ContabilidadController.dart';
 import 'package:proyecto/controllers/InterReservacionEmpleadoServicioController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:proyecto/controllers/DisponibilidadController.dart';
 
 /// ✅ CREAR RESERVACIÓN CON RELACIONES
 class ReservaPage extends StatefulWidget {
@@ -31,6 +32,7 @@ class ReservaPage extends StatefulWidget {
 
 class _ReservaPageState extends State<ReservaPage> {
   final ReservacionController _reservacionController = ReservacionController();
+  final DisponibilidadController _disponibilidadController = DisponibilidadController();
   final ContabilidadController _contabilidadController = ContabilidadController();
   final InterReservacionEmpleadoServicioController _interController = 
       InterReservacionEmpleadoServicioController();
@@ -42,7 +44,8 @@ class _ReservaPageState extends State<ReservaPage> {
   bool _cargandoHorarios = false;
   String? _clienteId;
 
-  final List<String> _horariosDisponibles = [
+   List<String> _horariosDisponibles = [];
+  final List<String> _horariosBase = [
     '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
     '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM',
     '05:00 PM', '05:30 PM',
@@ -72,9 +75,45 @@ class _ReservaPageState extends State<ReservaPage> {
 
   void _cargarHorariosDisponibles() async {
     setState(() => _cargandoHorarios = true);
-    // TODO: Filtrar horarios ocupados desde Supabase
-    await Future.delayed(const Duration(milliseconds: 500));
-    setState(() => _cargandoHorarios = false);
+
+    try {
+      print('🔄 Cargando horarios disponibles para ${widget.empleado.PrimerNombre}');
+      print('   Fecha: ${_fechaSeleccionada.day}/${_fechaSeleccionada.month}');
+
+      // ✅ Filtrar horarios según disponibilidad real
+      final horariosDisponibles = await _disponibilidadController
+          .filtrarHorariosDisponibles(
+        empleadoId: widget.empleado.Id ?? '',
+        fecha: _fechaSeleccionada,
+        duracionServicio: widget.servicio.TiempoPromedio,
+        horariosBase: _horariosBase,
+      );
+
+      setState(() {
+        _horariosDisponibles = horariosDisponibles;
+        _cargandoHorarios = false;
+        
+        // Si el horario seleccionado ya no está disponible, limpiarlo
+        if (_horaSeleccionada != null && 
+            !horariosDisponibles.contains(_horaSeleccionada)) {
+          _horaSeleccionada = null;
+        }
+      });
+
+      if (horariosDisponibles.isEmpty) {
+        _mostrarSnackBar(
+          '⚠️ No hay horarios disponibles para esta fecha',
+          Colors.orange,
+        );
+      }
+
+    } catch (e) {
+      print('❌ Error cargando horarios: $e');
+      setState(() {
+        _horariosDisponibles = _horariosBase; // Fallback
+        _cargandoHorarios = false;
+      });
+    }
   }
 
   void _onDiaSeleccionado(DateTime selectedDay, DateTime focusedDay) {
@@ -288,14 +327,21 @@ class _ReservaPageState extends State<ReservaPage> {
 
       Navigator.pop(context); // Cerrar loading
 
-      if (mounted) {
-        _mostrarSnackBar('✅ ¡Reserva confirmada exitosamente!', Colors.green);
-        await Future.delayed(const Duration(milliseconds: 1500));
-        
-        if (mounted) {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        }
-      }
+     if (mounted) {
+  _mostrarSnackBar('✅ ¡Reserva confirmada exitosamente!', Colors.green);
+  await Future.delayed(const Duration(milliseconds: 1500));
+  
+  if (mounted) {
+    // Cierra esta página (ReservaPage)
+    Navigator.pop(context);
+    // Cierra ServicioEmpleadosPage
+    Navigator.pop(context);
+    // Cierra EmpresaDetallePage
+    Navigator.pop(context);
+    
+    // Ahora estás de vuelta en UsuarioHome
+  }
+}
 
     } catch (e) {
       print('❌ Error en _procesarReserva: $e');
@@ -550,39 +596,107 @@ class _ReservaPageState extends State<ReservaPage> {
     );
   }
 
-  Widget _buildSeleccionHora() {
+   Widget _buildSeleccionHora() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Selecciona la Hora', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Selecciona la Hora',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            // ✅ Mostrar contador
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 240, 208, 48).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${_horariosDisponibles.length} disponibles',
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 240, 208, 48),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
+        
         if (_cargandoHorarios)
-          const Center(child: CircularProgressIndicator(color: Color.fromARGB(255, 240, 208, 48)))
+          const Center(
+            child: CircularProgressIndicator(
+              color: Color.fromARGB(255, 240, 208, 48),
+            ),
+          )
+        else if (_horariosDisponibles.isEmpty)
+          _buildMensajeSinHorarios()
         else
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: _horariosDisponibles.map((hora) {
+            children: _horariosBase.map((hora) {
+              final disponible = _horariosDisponibles.contains(hora);
               final seleccionada = _horaSeleccionada == hora;
+              
               return GestureDetector(
-                onTap: () => setState(() => _horaSeleccionada = hora),
+                onTap: disponible 
+                    ? () => setState(() => _horaSeleccionada = hora)
+                    : null,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
                     gradient: seleccionada
                         ? const LinearGradient(colors: [Color.fromARGB(255, 240, 208, 48), Color.fromARGB(255, 255, 220, 100)])
                         : null,
-                    color: seleccionada ? null : Colors.white.withOpacity(0.08),
+                    color: !disponible
+                        ? Colors.red.withOpacity(0.2)
+                        : (seleccionada ? null : Colors.white.withOpacity(0.08)),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: seleccionada ? Colors.transparent : Colors.white.withOpacity(0.2),
+                      color: !disponible
+                          ? Colors.red.withOpacity(0.5)
+                          : (seleccionada 
+                              ? Colors.transparent 
+                              : Colors.white.withOpacity(0.2)),
                       width: seleccionada ? 2 : 1,
                     ),
                   ),
-                  child: Text(hora, style: TextStyle(
-                    color: seleccionada ? Colors.white : Colors.white70,
-                    fontWeight: seleccionada ? FontWeight.bold : FontWeight.normal,
-                  )),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        hora,
+                        style: TextStyle(
+                          color: !disponible
+                              ? Colors.red.withOpacity(0.7)
+                              : (seleccionada ? Colors.white : Colors.white70),
+                          fontWeight: seleccionada 
+                              ? FontWeight.bold 
+                              : FontWeight.normal,
+                          decoration: !disponible 
+                              ? TextDecoration.lineThrough 
+                              : null,
+                        ),
+                      ),
+                      if (!disponible) ...[
+                        const SizedBox(width: 6),
+                        Icon(
+                          Icons.block,
+                          size: 14,
+                          color: Colors.red.withOpacity(0.7),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               );
             }).toList(),
@@ -590,6 +704,7 @@ class _ReservaPageState extends State<ReservaPage> {
       ],
     );
   }
+
 
   Widget _buildBottomBar() {
     return Container(
@@ -637,4 +752,54 @@ class _ReservaPageState extends State<ReservaPage> {
       ),
     );
   }
+
+  Widget _buildMensajeSinHorarios() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.event_busy, color: Colors.orange, size: 32),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Sin horarios disponibles',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${widget.empleado.PrimerNombre} está ocupado(a) todo el día',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Intenta con otra fecha o elige otro profesional',
+                  style: TextStyle(
+                    color: Colors.white60,
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
